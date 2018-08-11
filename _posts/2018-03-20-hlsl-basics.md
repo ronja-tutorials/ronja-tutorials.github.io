@@ -20,36 +20,90 @@ The simplest variable types are scalar numbers, they have a single numeric value
 - Floating point numbers technically have double the precision of half numbers, that means they are more accurate, especially for high numbers. They are usually used to store positions.
 
 ```glsl
-int integer; //number without fractional component
-fixed fixed_point; //fixed point number between -2 and 2
-half low_precision; //low precision number
-float high_precision; //high precision number
+int integer = 3; //number without fractional component
+fixed fixed_point = 0.5; //fixed point number between -2 and 2
+half low_precision = 3.14; //low precision number
+float high_precision = 14.321; //high precision number
 ```
 
 ### Vector Types
-Then there are vector values based on the scalar ones. With vector values we can represent things like colors, positions and directions that have multiple values in a variable. To declare them in HLSL we just write the number of dimensions we need at the end of the type, so we get types like float2, int3, half4 etc.. (Note that the maximum here is 4 dimensions, for more you have to use arrays, we won’t get into them here, but if you know arrays from other languages be told that they are a bit messy in hlsl)
-image
+Then there are vector values based on the scalar ones. With vector values we can represent things like colors, positions and directions that have multiple values in a variable. To declare them in HLSL we just write the number of dimensions we need at the end of the type, so we get types like float2, int3, half4 etc.. (Note that the maximum here is 4 dimensions, for more you have to use arrays, we won’t get into how to use them here) You can access the different components of vectors via x y z and w or r g b a. The first set is meant to represent the dimensions of vectors and the second set is meant to represent the red, green, blue and alpha channels of a color, but we can use them interchangably. We can also use more than one of the components to rearrange the components, that's called swizzling.
+
+```glsl
+fixed4 color = fixed4(1, 0.67, 0.73, 1);
+float3 position = float3(1, 1, 0);
+float2 textureCoordinates = float2(0.5, 0.5);
+
+position.xy = position.yx; //switch the first two components of position vector
+```
 
 ### Matrix Types
-Also there are the matrix types which are basically a field of numbers. They are used to convert the vectors from one “space” to another. I will explain them when they become important. You can create matrices by writing [dimension 1]x[dimension 2] behind a scalar type, for example half3x3, int2x4 or float4x4.
-image
+Also there are the matrix types which are basically a vector of vectors. They are often used to rotate, move and scale vectors in specific ways my multiplying a vector with a matrix. You can create matrices by writing [dimension 1]x[dimension 2] behind a scalar type. In 3d graphics, we need a 3x3 matrix to rotate and scale a vector or a 4x4 matrix to also move it.
+
+```glsl
+float4x4 transformMatrix3d; //a matrix that can scale rotate and translate a 3d vector
+//a matrix that can scale and rotate a 2d vector, but not translate it
+float2x2 rotationMatrix2d = {
+    0, 1,
+    -1, 0
+};
+
+//when doing matrix multiplication we have to use 4d vectors, 
+//the 4th component is just used to make moving the vector via matrix multiplication possible
+float4 position;
+
+//we rotate, scale and translate a position my multiplying a vector with it 
+//(the order of factors is important here)
+position = transformMatrix3d * position;
+```
 
 ### Samplers
 There are also samplers which are used to read from textures. When reading from samplers the texture has coordinates from [0,0] to [1,1], 0,0 being the lower left corner and 1,1 being the upper right corner of the texture.
-image
+
+```glsl
+sampler2d texture; //we will mostly use 2d textures, but it's possible to feed 3d samplers to a shader.
+
+//we will mostly read from samplers via the tex2d function 
+//which takes the position to sample from as a second argument.
+float4 color = tex2D(texture, coordinates);
+```
 
 ### Structs
 Finally there are structs, custom datatypes which can hold several other datatypes. We can represent lights, input data and other complex data with structs. To use a struct we first have to define it, then we can use it somewhere else.
-image
+
+```glsl
+//define the struct
+struct InputData{
+    float4 position;
+    fixed4 color;
+    half4 normal;
+};
+
+//create a instance and use the struct
+InputData data;
+data.position = float4(1, 0, 0, 1);
+```
 
 ## Functions
-All instructions in hlsl are written in functions. Before a function can be called, it has to be defined somewhere else in the shader.
-We write the variable type that is returned by the function in front of the name, the return type can also be void, which means that the function doesn’t return a value. Behind the function name we put the arguments, which is data the function recieves. And in the function we return the value which is then given to the function which called this function.
-image
+While we can define variables outside of functions to give information to the shader, we can only run logical operations in functions. Some functions will be called automatically and will return values that will manipulate the way we handle vertices or draw colors. But we can also call functions ourselves and use the values they return. We write the variable type that is returned by the function in front of the name, the return type can also be void, which means that the function doesn’t return a value. Behind the function name we put the arguments, which is data the function recieves. And in the function we return the value which is then given to the function which called this function.
+
+```glsl
+float add(float arg1, float arg2){
+    float sum = arg1 + arg2;
+    return sum;
+}
+
+float function(){
+    return add(3.5, 0.7);
+}
+```
 
 ## Include files
-You can write code in one file and then include it into others. It works as if the content of the included file was in the file that’s including it at the place the include command stands. The syntax for including files is
+You can write code in one file and then include it into others. It works as if the content of the included file was in the file that’s including it at the place the include command stands. All shader files, including include files can include other files. Include files are mostly used as libraries or to split long shaders into multiple files.
 ```glsl
 #include “IncludeFile.cginc”
+
+void function(){
+    functionDeclaredInIncludeFile(3, variableInIncludeFile);
+}
 ```
-All shader files, including include files can include other files. Include files are mostly used as libraries or to split big shaders into multiple files.

@@ -27,7 +27,7 @@ float high_precision; //high precision number
 ```
 
 ### Vector Types
-Then there are vector values based on the scalar (one-dimensional) ones. With vector values we can represent things like colors, positions and directions. To get them we just write the number of dimensions we need at the end of the type, so we get types like float2, int3, half4 etc.. (Note that the maximum here is 4 dimensions, for more you have to use arrays, we won’t get into them here, but if you know arrays from other languages be told that they are a bit messy in hlsl)
+Then there are vector values based on the scalar ones. With vector values we can represent things like colors, positions and directions that have multiple values in a variable. To declare them in HLSL we just write the number of dimensions we need at the end of the type, so we get types like float2, int3, half4 etc.. (Note that the maximum here is 4 dimensions, for more you have to use arrays, we won’t get into them here, but if you know arrays from other languages be told that they are a bit messy in hlsl)
 image
 
 ### Matrix Types

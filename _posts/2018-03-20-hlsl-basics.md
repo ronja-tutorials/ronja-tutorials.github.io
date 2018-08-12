@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "HLSL basics"
+title: "HLSL Basics"
 ---
 
 ## Summary

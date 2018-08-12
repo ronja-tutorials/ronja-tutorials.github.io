@@ -11,6 +11,9 @@ google_analytics:
 cayman-blog:
   date_format: "%b %-d, %Y"
 
+pygments_options:
+  tabsize: 4
+
 theme: # leave it empty
 
 # social

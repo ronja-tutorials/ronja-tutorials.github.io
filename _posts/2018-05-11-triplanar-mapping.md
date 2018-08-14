@@ -4,7 +4,6 @@ title: "Triplanar Mapping"
 ---
 
 ## Summary
-
 I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.
 
 This tutorial will build upon the [planar mapping shader](https://ronja-tutorials.tumblr.com/post/173237524147/planar-mapping) which is a unlit shader, but you can use the technique with many shaders, including surface shaders.

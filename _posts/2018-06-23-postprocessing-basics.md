@@ -4,7 +4,6 @@ title: "Postprocessing Basics"
 ---
 
 ## Summary
-
 We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
 
 Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first. If you have read/understand my [tutorial about rendering rextures]({{ site.baseurl }}{% post_url 2018-03-23-textures %}) you should be fine. 

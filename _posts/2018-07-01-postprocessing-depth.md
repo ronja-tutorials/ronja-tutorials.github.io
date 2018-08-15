@@ -6,7 +6,7 @@ title: "Postprocessing with the Depth Texture"
 ## Summary
 In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
 
-To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here: https://ronja-tutorials.tumblr.com/post/175172770247/postprocessing
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that [here]({{ site.baseurl }}{% post_url 2018-06-23-postprocessing-basics %}).
 
 ![Result](/assets/images/posts/017/Result.gif)
 

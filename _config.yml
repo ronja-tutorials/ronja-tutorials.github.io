@@ -19,6 +19,9 @@ theme: # leave it empty
 # social
 author: "Ronja Böhringer"
 image: /thumbnail-jumbo.png
+disqus:
+  shortname:
+    ronja-tutorials
 twitter:
   username: axoila
 #  site:

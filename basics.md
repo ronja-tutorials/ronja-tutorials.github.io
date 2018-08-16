@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Shader Basics
-tagline: Ah snap! We could not find what you are looking for!
+tagline: This is where to start learning.
 ---
 
 Most of the tutorials are written so they only depend of a few other tutorials, so you don't have to read all of them, but if you're completely new to shaders I recommend you to read the first few in order no matter what you'll do after that.

@@ -1,17 +1,9 @@
 ---
-#
-# Here you can change the text shown in the Home page before the Latest Posts section.
-#
-# Edit cayman-blog's home layout in _layouts instead if you wanna make some changes
-# See: https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-#
 layout: home
 ---
 
-Cayman Blog Theme is a clean, responsive blogging theme for Jekyll, with social features. It is inspired by the Cayman Theme for Github Pages, which can be greatly used for single projects but not as blogging platform.
+Hey there, I'm Ronja and I make shader tutorials with the goal to make shaders understandable by everyone. 
+The focus of this tutorials is on unity shaders with hlsl because they are more accessible than direct implementations of the shader APIs yet flexible and powerful.
+I try to make a new tutorial every week so the list of tutorials is growing quickly. If you have any wishes for shaders you want to know how they work write me a message and I'll see what I can do.
 
-This theme has instead all you need to start today blogging with Jekyll, and no effort: pages, posts, few social buttons. Try loading this on mobile too.
-
-Have a look at the Github page for more information.
-
-You find this descriptive text in the `index.md` file, so you can change it, or remove it completely, according to your needs.
+If you like what I do and want to support me you can do that on Ko-Fi: <https://ko-fi.com/axoila>.

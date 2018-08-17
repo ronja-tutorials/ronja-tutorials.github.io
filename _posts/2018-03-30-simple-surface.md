@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Surface Shader Basics"
+image: /assets/images/posts/005/Result.png
 ---
 
 ## Summary

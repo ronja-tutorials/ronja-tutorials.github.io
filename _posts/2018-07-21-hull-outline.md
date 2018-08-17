@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Hull Outlines"
+image: /assets/images/posts/020/Result.png
 ---
 
 ## Summary

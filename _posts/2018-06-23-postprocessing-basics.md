@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Postprocessing Basics"
+image: /assets/images/posts/016/Result.jpg
 ---
 
 ## Summary

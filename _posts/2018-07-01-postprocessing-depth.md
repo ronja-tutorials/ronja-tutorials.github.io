@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Postprocessing with the Depth Texture"
+image: /assets/images/posts/017/Result.gif
 ---
 
 ## Summary

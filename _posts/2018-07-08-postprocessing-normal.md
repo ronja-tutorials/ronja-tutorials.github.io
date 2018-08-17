@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Postprocessing with Normal Texture"
+image: /assets/images/posts/018/Result.png
 ---
 
 ## Summary

@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Color Interpolation"
+image: /assets/images/posts/009/Result.png
 ---
 
 ## Summary

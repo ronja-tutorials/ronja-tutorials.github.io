@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Polygon Clipping"
+image: /assets/images/posts/014/Result.gif
 ---
 
 ## Summary

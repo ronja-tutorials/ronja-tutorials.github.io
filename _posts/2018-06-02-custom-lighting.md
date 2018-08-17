@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Custom Lighting"
+image: /assets/images/posts/013/Result.png
 ---
 
 ## Summary

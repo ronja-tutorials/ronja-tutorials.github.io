@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Properties"
+image: /assets/images/posts/003/result.png
 ---
 ## Summary
 When we write shaders, we usually want to be able to change parameters on a per material basis. Properties allow us to do that in unity. In this simple example we’re just going to make color of our unlit shader adjustable.

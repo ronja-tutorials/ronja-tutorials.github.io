@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Simple color"
+image: /assets/images/posts/002/result.png
 ---
 
 ## Summary

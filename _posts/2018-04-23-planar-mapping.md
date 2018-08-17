@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Planar Mapping"
+image: /assets/images/posts/008/Result.png
 ---
 
 ## Summary

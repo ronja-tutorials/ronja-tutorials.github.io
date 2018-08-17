@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Basic Transparency"
+image: /assets/images/posts/006/SemitransparentCube.png
 ---
 ## Summary
 In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.

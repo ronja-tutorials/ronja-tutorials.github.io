@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Checkerboard Pattern"
+image: /assets/images/posts/011/Result.png
 ---
 
 ## Summary

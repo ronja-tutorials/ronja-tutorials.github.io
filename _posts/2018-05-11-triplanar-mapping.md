@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Triplanar Mapping"
+image: /assets/images/posts/010/Result.gif
 ---
 
 ## Summary

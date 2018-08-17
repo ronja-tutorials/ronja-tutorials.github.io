@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Outlines via Postprocessing"
+image: /assets/images/posts/019/Result.gif
 ---
 
 ## Summary

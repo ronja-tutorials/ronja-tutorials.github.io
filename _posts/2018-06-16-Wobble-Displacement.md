@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Wobble Displacement"
+image: /assets/images/posts/015/Result.gif
 ---
 
 ## Summary

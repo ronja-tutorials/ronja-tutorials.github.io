@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Sprite Shaders"
+image: /assets/images/posts/007/Result.png
 ---
 ## Summary
 In unity the way sprites are rendered is very similar to the way 3d objects are rendered. Most of the work is done by the sprite renderer component. I’ll go a bit over what the component is doing and how we can change our shader to do some of the stuff the default sprite renderer is doing.

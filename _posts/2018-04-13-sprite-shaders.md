@@ -8,15 +8,15 @@ In unity the way sprites are rendered is very similar to the way 3d objects are 
 This tutorial will build on the transparent shader we made previously so it’s best that you understand that one first:
 <https://ronja-tutorials.tumblr.com/post/172658736322/basic-transpararency>
 
-![Result]({{ "/assets/images/posts/007/Result.png" | absolute_url }})
+![Result](/assets/images/posts/007/Result.png)
 
 ## Scene Setup
 To work on sprite shaders I’ll change the scene to be simpler. I made the camera orthographic, replaced the cube I used in previous examples with a sprite renderer and converted the images I use to sprites.
 
-![hierarchy with camera and sprite]({{ "/assets/images/posts/007/Hierarchy.png" | absolute_url }})<br/>
-![Inspector window of orthographic camera]({{ "/assets/images/posts/007/CameraInspector.png" | absolute_url }})<br/>
-![Inspector window of configured sprite renderer]({{ "/assets/images/posts/007/SpriteInspector.png" | absolute_url }})<br/>
-![Inspector window of the sprite importer]({{ "/assets/images/posts/007/SpriteImporter.png" | absolute_url }})
+![hierarchy with camera and sprite](/assets/images/posts/007/Hierarchy.png)<br/>
+![Inspector window of orthographic camera](/assets/images/posts/007/CameraInspector.png)<br/>
+![Inspector window of configured sprite renderer](/assets/images/posts/007/SpriteInspector.png)<br/>
+![Inspector window of the sprite importer](/assets/images/posts/007/SpriteImporter.png)
 
 ## Changing the Shader
 With all of those changes and the transparent material put into the material slot of the sprite renderer, everything already seems to work.
@@ -66,7 +66,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 
 With those changes the shader will now act as we expect it to and we can expand it to do other stuff we’re interrested in in the future.
 
-![Playing around with the variables]({{ "/assets/images/posts/007/AdjustVariables.gif" | absolute_url }})
+![Playing around with the variables](/assets/images/posts/007/AdjustVariables.gif)
 
 ```glsl
 Shader "Tutorial/007_Sprite"{

@@ -7,7 +7,7 @@ title: "Color Interpolation"
 Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
 
 This tutorial will build on the simple textured shader (https://ronja-tutorials.tumblr.com/post/172173911737/textures), but you can use this technique with any shader including surface shaders.
-![Result]({{ "/assets/images/posts/009/Result.png" | absolute_url }})
+![Result](/assets/images/posts/009/Result.png)
 
 ## Interpolate Colors
 The first version of this shader we’re exploring will just interpolate between two plain colors based on a value. Because of that we don’t need the variables connected to uv coordinates or textures for now, instead we add a second color variable and a simple value which will determine if the material shows the first of the second color. We define that blending property as a “Range” so we get a nice slider in the inspector.
@@ -41,7 +41,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
-![Blend Between two colors in a wrong way]({{ "/assets/images/posts/009/BlendColorsAdd.gif" | absolute_url }})
+![Blend Between two colors in a wrong way](/assets/images/posts/009/BlendColorsAdd.gif)
 
 We can already see that the color changes, but it doesn’t change to the secondary color. That’s because while the secondary color gets factored in, the primary color is still there (it’s similar to pointing two lights of different colors at one spot).
 
@@ -53,7 +53,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
-![Blend Between two colors correctly]({{ "/assets/images/posts/009/BlendColors.gif" | absolute_url }})
+![Blend Between two colors correctly](/assets/images/posts/009/BlendColors.gif)
 
 This process is also called linear interpolation and theres a function built into hlsl that does this for us called lerp. It takes a value to interpolate from, a value to interpolate to and a interpolation value.
 
@@ -183,7 +183,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
-![Blend Between two Textures]({{ "/assets/images/posts/009/BlendTextures.gif" | absolute_url }})
+![Blend Between two Textures](/assets/images/posts/009/BlendTextures.gif)
 
 The complete shader for interpolating between two textures looks like this:
 
@@ -314,7 +314,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
-![Blend Between two textures based on a texture]({{ "/assets/images/posts/009/BlendWithTexture.png" | absolute_url }})
+![Blend Between two textures based on a texture](/assets/images/posts/009/BlendWithTexture.png)
 
 The complete shader for interpolating based on a texture looks like this:
 

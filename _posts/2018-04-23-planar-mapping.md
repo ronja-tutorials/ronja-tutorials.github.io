@@ -8,7 +8,7 @@ Sometimes you don’t have texture coordinates on your object, you want to make 
 
 This tutorial will build on the [simple textured shader]({{ site.baseurl }}{% post_url 2018-03-23-textures %}), but you can use the technique with any shader including surface shaders.
 
-![Result]({{ "/assets/images/posts/008/Result.png" | absolute_url }})
+![Result](/assets/images/posts/008/Result.png)
 
 ## Basics
 We start by removing the uv coordinates from the input struct as we'll generate our own texture coordinates.
@@ -40,7 +40,7 @@ v2f vert(appdata v){
     return o;
 }
 ```
-![adjust tiling and offset and watch the material react]({{ "/assets/images/posts/008/AdjustTilingOffset.gif" | absolute_url }})
+![adjust tiling and offset and watch the material react](/assets/images/posts/008/AdjustTilingOffset.gif)
 
 ## Texture Coordinates based on World Position
 To take the object position and rotation out of the equation, we have to use the position of the vertex in the world (previously we used the position relative to the object center). To calculate the world position, we multiply the object to world matrix with it (I won’t go into matrix multiplication here). After we obtain the world position, we use that to set the uv coordinates.
@@ -53,7 +53,7 @@ v2f vert(appdata v){
     return o;
 }
 ```
-![create a few spheres with the new material and move them around]({{ "/assets/images/posts/008/MoveSphere.gif" | absolute_url }})
+![create a few spheres with the new material and move them around](/assets/images/posts/008/MoveSphere.gif)
 
 As you see this technique has some disadvantages, mainly that it only works with tileable textures and the stretching on the sides, but that can be mitigated with some more advanced techniques like triplanar mapping which I’ll get into in a later tutorial.
 

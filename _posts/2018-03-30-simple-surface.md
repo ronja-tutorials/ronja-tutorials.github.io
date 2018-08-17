@@ -11,7 +11,7 @@ which does the complex light calculations. Those shaders are called
 
 To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them [here]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
 
-![Result]({{ "/assets/images/posts/005/Result.png" | absolute_url }})
+![Result](/assets/images/posts/005/Result.png)
 
 ## Conversion to simple Surface Shader
 When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us. For the conversion to a surface shader we can delete our vertex shader  completely. We can delete the pragma definitions of the vertex and fragment function. We can delete the input as well as the vertex to fragment struct. We can delete the MainTex_ST variable for texture scaling and we can delete the inclusion of the UnityCG include file. And we remove the pass beginning and end, Unity will generate passes for us. After all of that our emptied Shader should look like this:
@@ -114,7 +114,7 @@ Shader "Tutorial/005_surface" {
 	}
 }
 ```
-![Simple Albedo Material]({{ "/assets/images/posts/005/SimpleAlbedo.png" | absolute_url }})
+![Simple Albedo Material](/assets/images/posts/005/SimpleAlbedo.png)
 
 ## Standard Lighting Properties
 To expand the shader we can now make more use of the material properties. The different values in the output struct are:
@@ -191,7 +191,7 @@ Properties {
 	_Metallic ("Metalness", Range(0, 1)) = 0
 }
 ```
-![Inspector and Material with smoothness und metalness]({{ "/assets/images/posts/005/Inspector.png" | absolute_url }})
+![Inspector and Material with smoothness und metalness](/assets/images/posts/005/Inspector.png)
 
 Next we add the emissive color. First as a variable in the hlsl code and then as a property. We use the color property type, just like we did for the tint. We store a half3 as a type because it’s a RGB color without alpha and it can have values bigger than 1 (also the output struct uses a half3). Then we also assign the value in the surface output like we did with the others.
 ```glsl
@@ -207,14 +207,14 @@ half3 _Emission;
 
 o.Emission = _Emission;
 ```
-![Emissive Material]({{ "/assets/images/posts/005/Emissive.png" | absolute_url }})
+![Emissive Material](/assets/images/posts/005/Emissive.png)
 
 Apart from the fact that a object that glows everywhere looks kinda weird, we also only can assign normal colors to our material, not HDR colors with values over 1. To fix that, we add the hdr tag in front of the emission property. With those changes we can now set the brightness to higher values. To make better use of emission, you should probably use textures, you can implement other textures the same way we implemented the main texture we use for the albedo value.
 
 ```glsl
 [HDR] _Emission ("Emission", Color) = (0,0,0,1)
 ```
-![HDR Inspector]({{ "/assets/images/posts/005/HdrInspector.png" | absolute_url }})
+![HDR Inspector](/assets/images/posts/005/HdrInspector.png)
 
 ## Minor Improvements
 Finally I’m gonna show you two small things that make your shader look a bit better. Firstly you can add a fallback shader under the subshader. This allows unity to use functions of that other shader and we don’t have to implement them ourselves. For this we will set the standard shader as a fallback and unity will borrow the “shadow pass” from it, making our material throw shadows on other objects. Next we can extend our pragma directives. We add the fullforwardshadows parameter to the surface shader directive, that way we get better shadows. Also we add a directive setting the build target to 3.0, that means unity will use higher precision values that should lead to a bit prettier lighting.
@@ -261,7 +261,7 @@ Shader "Tutorial/005_surface" {
 }
 ```
 
-![Result]({{ "/assets/images/posts/005/Result.png" | absolute_url }})
+![Result](/assets/images/posts/005/Result.png)
 
 I hope I was able to show you how to make shaders with good looking lighting with simple tools.
 

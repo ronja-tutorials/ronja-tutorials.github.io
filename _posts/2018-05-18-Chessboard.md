@@ -8,7 +8,7 @@ For me, one of the most interresting things to do with shaders is procedural ima
 
 This tutorial will build on the [simple shader with only properties]({{ site.baseurl }}{% post_url 2018-03-22-properties %}), but as always, you can also use the technique to generate colors in more complex shaders.
 
-![Result of the tutorial]({{ "/assets/images/posts/011/Result.png" | absolute_url }})
+![Result of the tutorial](/assets/images/posts/011/Result.png)
 
 ## Stripes 
 I will take the world position of the surface to generate the chessboard texture, that way we can later move and rotate the model around and the generated patterns will fit together. If you want to pattern to move and rotate with the model, you can also use the object space coordinates (the ones from appdata, not multiplied with anything).
@@ -46,7 +46,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
-![stripes on a material]({{ "/assets/images/posts/011/1d.png" | absolute_url }})
+![stripes on a material](/assets/images/posts/011/1d.png)
 
 ## Checkerboard in 2d and 3d
 Next, we make the pattern two dimensional. To do that we only have to add a additional axis to the value we’re evaluating. That’s because when we add one to our rows all of the even values become odd and the odd values become even. This is also the main reason why we floor our values. We easily could have made the pattern work in one dimension without flooring them, but this makes it easier to add more dimensions.
@@ -62,9 +62,9 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
-![even and odd numbers on a 2d grid where the components are added]({{ "/assets/images/posts/011/OddEvenPattern.png" | absolute_url }})
+![even and odd numbers on a 2d grid where the components are added](/assets/images/posts/011/OddEvenPattern.png)
 
-![checkerboard pattern on a material]({{ "/assets/images/posts/011/2d.png" | absolute_url }})
+![checkerboard pattern on a material](/assets/images/posts/011/2d.png)
 
 After that we can go even further and add the third dimension in the same way as we added the second.
 ```glsl
@@ -78,7 +78,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
-![checkerboard pattern on a sphere]({{ "/assets/images/posts/011/3d.png" | absolute_url }})
+![checkerboard pattern on a sphere](/assets/images/posts/011/3d.png)
 
 ## Scaling
 Next I’d like to add the ability to make the pattern bigger or smaller. For that, we add a new property for the scale of the pattern. We divide the position by the scale before we do anything else with it, that way, if the scale is smaller than one, the pattern is generated as if the object is bigger than it is and as such it has more pattern density per surface area.
@@ -112,7 +112,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 
 //...
 ```
-![scaling checkerboard bigger and smaller]({{ "/assets/images/posts/011/Scaling.gif" | absolute_url }})
+![scaling checkerboard bigger and smaller](/assets/images/posts/011/Scaling.gif)
 
 ## Customizable Colors
 Finally I’d like to add the possibility to add Colors to the Pattern, One for the even areas, one for the odd. We add two new Properties and the matching values for those colors to the shader.
@@ -154,7 +154,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 //...
 ```
 
-![colorful checkerboard pattern on a material]({{ "/assets/images/posts/011/colors.png" | absolute_url }})
+![colorful checkerboard pattern on a material](/assets/images/posts/011/colors.png)
 
 The complete shader for interpolating generating a checkerboard pattern on a surface should now look like this:
 

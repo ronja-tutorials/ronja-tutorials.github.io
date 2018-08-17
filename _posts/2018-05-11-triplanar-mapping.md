@@ -7,7 +7,7 @@ title: "Triplanar Mapping"
 I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.
 
 This tutorial will build upon the [planar mapping shader](https://ronja-tutorials.tumblr.com/post/173237524147/planar-mapping) which is a unlit shader, but you can use the technique with many shaders, including surface shaders.
-![Result]({{ "/assets/images/posts/010/Result.gif" | absolute_url }})
+![Result](/assets/images/posts/010/Result.gif)
 
 ## Calculate Projection Planes
 To generate three different sets of UV coordinates, we start by changing the way we get the UV coordinates. Instead of returning the transformed uv coordinates from the vertex shader we return the world position and then generate the UV coordinates in the fragment shader.
@@ -54,7 +54,7 @@ fixed4 col = (col_front + col_side + col_top) / 3;
 col *= _Color;
 return col;
 ```
-![Add projections from all sides together]({{ "/assets/images/posts/010/AllSides.png" | absolute_url }})
+![Add projections from all sides together](/assets/images/posts/010/AllSides.png)
 
 ## Normals
 Having done that our material looks really weird. That’s because we display the average of the three projections. To fix that we have to show different projections based on the direction the surface is facing. The facing direction of the surface is also called “normal” and it’s saved in the object files, just like the position of the vertices.
@@ -65,7 +65,7 @@ For the conversion of the normal from object space to world space, we have to mu
 
 The way we use the inverse transpose object to world matrix is that we multiply the normal with the world to object matrix (previously we multiplied the matrix with the vector, order is important here).
 
-![Why we have to scale the normal with the inverse matrix instead of the regular one]({{ "/assets/images/posts/010/NormalScaling.png" | absolute_url }})
+![Why we have to scale the normal with the inverse matrix instead of the regular one](/assets/images/posts/010/NormalScaling.png)
 ```glsl
 struct appdata{
     float4 vertex : POSITION;
@@ -99,7 +99,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return fixed4(i.normal.xyz, 1);
 }
 ```
-![The normals as colors]({{ "/assets/images/posts/010/Normals.png" | absolute_url }})
+![The normals as colors](/assets/images/posts/010/Normals.png)
 
 To convert the normals to weights for the different projections we start by taking the absolute value of the normal. That’s because the normals go in the positive and negative directions. That’s also why in our debug view the “backside” of our object, where the axes go towards the negative direction, is black.
 
@@ -112,7 +112,7 @@ After that we can multiply the different projections with the weights, making th
 
 We also remove the division by 3 because we don’t add them all together anymore.
 
-![Illustration of a plane based on asurface normal]({{ "/assets/images/posts/010/ZPlane.png" | absolute_url }})
+![Illustration of a plane based on asurface normal](/assets/images/posts/010/ZPlane.png)
 ```glsl
 //generate weights from world normals
 float3 weights = i.normal;
@@ -131,7 +131,7 @@ fixed4 col = col_front + col_side + col_top;
 col *= _Color;
 return col;
 ```
-![the planar projections added based on normals]({{ "/assets/images/posts/010/AddPlanes.jpg" | absolute_url }})
+![the planar projections added based on normals](/assets/images/posts/010/AddPlanes.jpg)
 
 That’s way better already, but now we have the same problem again why we added the division by 3, the components of the normals add up to more than 3 sometimes, making the texture appear brighter than it should be. We can fix that by dividing it by the sum of it’s components, forcing it to add up to 1.
 
@@ -139,7 +139,7 @@ That’s way better already, but now we have the same problem again why we added
 //make it so the sum of all components is 1
 weights = weights / (weights.x + weights.y + weights.z);
 ```
-![the planar projections added based on normals with normalized blend factors]({{ "/assets/images/posts/010/AddPlanesNormalized.jpg" | absolute_url }})
+![the planar projections added based on normals with normalized blend factors](/assets/images/posts/010/AddPlanesNormalized.jpg)
 
 And with that we’re back to the expected brightness.
 
@@ -160,7 +160,7 @@ weights = pow(weights, _sharpness)
 
 //...
 ```
-![adjusting the blend sharpness]({{ "/assets/images/posts/010/BlendSharpness.gif" | absolute_url }})
+![adjusting the blend sharpness](/assets/images/posts/010/BlendSharpness.gif)
 
 Triplanar Mapping still isn’t perfect, it needs tiling textures to work, it breaks at surfaces that are exactly 45° and it’s obviously more expensive than a single texture sample (though not by that much).
 

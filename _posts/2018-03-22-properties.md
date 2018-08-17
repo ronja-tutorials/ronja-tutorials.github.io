@@ -7,7 +7,7 @@ When we write shaders, we usually want to be able to change parameters on a per 
 
 For this tutorial you should know how to make a super basic unlit shader, you can find a tutorial for that [here]({{ site.baseurl }}{% post_url 2018-03-21-simple-color %}).
 
-![Apply]({{ "/assets/images/posts/003/result.png" | absolute_url }})
+![](/assets/images/posts/003/result.png)
 
 ## Properties
 The first thing we do is change our shader to use a variable as output value instead of a fixed value. We can declare the variable anywhere in the HLSL section of the shader outside of functions or structs. After that the material should look solid black in the editor.
@@ -19,7 +19,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 }
 ```
 
-![Apply]({{ "/assets/images/posts/003/Black.png" | absolute_url }})
+![](/assets/images/posts/003/Black.png)
 
 Next we add the Properties section to the top of the shader, outside of our subshader. And we add our _Color Property, tell unity to show it as Color in the inspector, define the type as a Color and set the default value to black.
 ```glsl
@@ -30,11 +30,11 @@ Shader "Tutorial/03_Properties"{
     ...
 ```
 
-![Apply]({{ "/assets/images/posts/003/White.png" | absolute_url }})
+![](/assets/images/posts/003/White.png)
 
 The material then looks white. The reason why it didn’t use our default value we defined in the shader is that our material was originally a material with a default shader and had the Color property set to white, that transferred to our new shader. To change the color we can now select the object our material is applied to or the material in the edtitor and change it in the inspector.
 
-![Apply]({{ "/assets/images/posts/003/Apply.gif" | absolute_url }})
+![](/assets/images/posts/003/Apply.gif)
 
 I hope it's clear now how to use properties to change variables in the materials that use your shader instead of writing a lot of slightly different shaders.
 

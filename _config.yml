@@ -3,7 +3,7 @@ description: I'm making shader tutorials for Unity aimed at beginners.
 show_downloads: true
 
 baseurl: "" # change this to the subpath of your site, e.g. /blog. Leave it empty if you don't need it.
-url: "www.ronja-tutorials.com" # change this to the base hostname & protocol for your site
+url: "https://www.ronja-tutorials.com" # change this to the base hostname & protocol for your site
 
 google_analytics: UA-124040112-1
 # cayman-blog date format

@@ -20,9 +20,9 @@ layout: default
         <h2>
           <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}</a>
         </h2>
-        {% if {{post.image}} %}
+        {% if post.image %}
           <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">
-            <img src={{post.image}} alt="the planar projections added based on normals with normalized blend factors" style="max-width: 50%">
+            <img src="{{ post.image }}" alt="the planar projections added based on normals with normalized blend factors" style="max-width: 50%">
           </a>
         {% else %}
           <span>{{ post.excerpt | markdownify | truncatewords: 30 }}</span>

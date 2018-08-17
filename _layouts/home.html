@@ -6,30 +6,84 @@ layout: default
 
   {{ content }}
 
-  <h2>Latest Posts</h2>
+  <h2>Tutorials</h2>
+  <input type="text" oninput="filterPosts(this.value)"/>
+  <br/>chronological? <input type="checkbox" oninput="setOrder(this.checked)"/>
+  <br/>show images? <input type="checkbox" checked oninput="minimize(!this.checked)"/>
 
   <div>&nbsp;</div>
 
   <ul class="post-list">
     {% for post in site.posts %}
-      <li>
+      <li name="{{ post.title }}">
 
         {% assign date_format = site.cayman-blog.date_format | default: "%b %-d, %Y" %}
         <span class="post-meta">{{ post.date | date: date_format }}</span>
 
         <h2>
-          <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}</a>
+          <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}
         </h2>
         {% if post.image %}
-          <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">
-            <img src="{{ post.image }}" alt="the planar projections added based on normals with normalized blend factors" style="max-width: 50%">
+            <img src="{{ post.image }}" alt="the planar projections added based on normals with normalized blend factors" style="max-width: 50%" 
+                name="preview" class="preview">
           </a>
         {% else %}
-          <span>{{ post.excerpt | markdownify | truncatewords: 30 }}</span>
+          </a>
+          <span class="preview">{{ post.excerpt | markdownify | truncatewords: 30 }}</span>
         {% endif %}
 
       </li>
     {% endfor %}
   </ul>
+  <script>
+    root = document.getElementsByClassName("post-list")[0];
+    this.posts = root.getElementsByTagName("li");
+    console.log(root);
+    console.log(this.posts);
+    this.flippedOrder = false;
+    
+    function filterPosts(searchTerm){
+      for(i=0;i<this.posts.length;i++){
+        post = this.posts[i];
+        //console.log(post);
+        var found = post.getAttribute("name").toLowerCase().includes(searchTerm.toLowerCase());
+        post.style.display = found?"block":"none";
+      }
+    }
+
+    function setOrder(chrono){
+      if((this.flippedOrder && !chrono) || (!this.flippedOrder && chrono))
+        flipOrder();
+    }
+
+    function minimize(mini){
+      if(this.maginBottom == undefined){
+        this.maginBottom = this.posts[0].style.marginBottom;
+      }
+      for(i=0;i<this.posts.length;i++){
+        post = this.posts[i];
+        post.getElementsByClassName("preview")[0].style.display = mini?"none":"block";
+        post.getElementsByClassName("post-meta")[0].style.display = mini?"none":"block";
+        post.style.marginBottom = mini?0:this.maginBottom;
+      }
+    }
+
+    function flipOrder(){
+      var elements = document.createDocumentFragment();
+      var count = this.posts.length;
+      var flippedPosts = [];
+      for(i=1;i<=count;i++){
+        var newElement = this.posts[count-i].cloneNode(true);
+        elements.appendChild(newElement);
+        flippedPosts.push(newElement);
+      }
+      while (root.firstChild) {
+        root.removeChild(root.firstChild);
+      }
+      root.appendChild(elements);
+      this.posts = flippedPosts;
+      this.flippedOrder = !this.flippedOrder;
+    }
+  </script>
 
 </div>

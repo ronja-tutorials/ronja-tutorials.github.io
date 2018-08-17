@@ -1,14 +1,14 @@
 ---
 layout: post
 title: "Properties"
-image: /assets/images/posts/003/result.png
+image: /assets/images/posts/003/Result.png
 ---
 ## Summary
 When we write shaders, we usually want to be able to change parameters on a per material basis. Properties allow us to do that in unity. In this simple example we’re just going to make color of our unlit shader adjustable.
 
 For this tutorial you should know how to make a super basic unlit shader, you can find a tutorial for that [here]({{ site.baseurl }}{% post_url 2018-03-21-simple-color %}).
 
-![](/assets/images/posts/003/result.png)
+![](/assets/images/posts/003/Result.png)
 
 ## Properties
 The first thing we do is change our shader to use a variable as output value instead of a fixed value. We can declare the variable anywhere in the HLSL section of the shader outside of functions or structs. After that the material should look solid black in the editor.

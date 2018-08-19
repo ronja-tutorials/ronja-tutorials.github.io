@@ -7,7 +7,7 @@ image: /assets/images/posts/009/Result.png
 ## Summary
 Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
 
-This tutorial will build on the simple textured shader (https://ronja-tutorials.tumblr.com/post/172173911737/textures), but you can use this technique with any shader including surface shaders.
+This tutorial will build on the [simple textured shader]({{ site.baseurl }}{% post_url 2018-03-23-textures %}), but you can use this technique with any shader including surface shaders.
 ![Result](/assets/images/posts/009/Result.png)
 
 ## Interpolate Colors

@@ -207,8 +207,6 @@ Shader "Tutorial/022_stencil_buffer/write"{
 			#pragma vertex vert
 			#pragma fragment frag
 
-			fixed4 _Color;
-
 			struct appdata{
 				float4 vertex : POSITION;
 			};

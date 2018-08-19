@@ -5,7 +5,7 @@ image: /assets/images/posts/022/Result.gif
 ---
 
 ## Summary
-The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for "stencil operations". This part of the depth buffer is commonly referred to as stecil buffer. Stencil buffers are mostly used to only render parts of objects while discardin others.
+The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for "stencil operations". This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discardin others.
 
 This tutorial will go into some of the basics of the stencil buffer and show read and write from it. We will start with the [basic surface shader]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %})) but it works just as well with all other types of shaders including unlit and postprocessing ones. In any case you should understand [basics shaders](/basics.html) before getting into manipulating stencil buffers.
 

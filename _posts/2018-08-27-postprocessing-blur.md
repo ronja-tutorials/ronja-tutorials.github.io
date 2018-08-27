@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Blurring the Screen"
+title: "Blur Postprocessing Effect"
 image: /assets/images/posts/023/Result.gif
 ---
 

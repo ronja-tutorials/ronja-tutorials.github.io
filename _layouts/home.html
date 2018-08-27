@@ -7,7 +7,7 @@ layout: default
   {{ content }}
 
   <h2>Tutorials</h2>
-  <input type="text" oninput="filterPosts(this.value)"/>
+  <input id="SearchField" type="text" oninput="filterPosts(this.value)"/>
   <br/>chronological? <input type="checkbox" oninput="setOrder(this.checked)"/>
   <br/>show images? <input type="checkbox" checked oninput="minimize(!this.checked)"/>
 
@@ -83,6 +83,12 @@ layout: default
       root.appendChild(elements);
       this.posts = flippedPosts;
       this.flippedOrder = !this.flippedOrder;
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('search')){
+      document.getElementById("SearchField").value = urlParams.get('search')
+      filterPosts(urlParams.get('search'))
     }
   </script>
 

@@ -24,7 +24,7 @@ layout: default
           <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}
         </h2>
         {% if post.image %}
-            <img src="{{ post.image }}" alt="the planar projections added based on normals with normalized blend factors" style="max-width: 50%" 
+            <img src="{{ post.image }}" alt="{{ post.image }}" style="max-width: 50%" 
                 name="preview" class="preview">
           </a>
         {% else %}

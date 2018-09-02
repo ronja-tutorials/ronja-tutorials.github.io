@@ -7,4 +7,4 @@ The focus of this tutorials is on unity shaders with hlsl. They are more accessi
 
 I try to make a new tutorial every week so the list of tutorials is growing quickly. If you have any wishes for shaders you want to know how they work write me a message and I'll see what I can do.
 
-If you like what I do and want to support me you can do that on Ko-Fi: <https://ko-fi.com/axoila>.
+If you like what I do and want to support me you can do that on Patreon (<https://patreon.com/ronja_tutorials>) or Ko-Fi (<https://ko-fi.com/axoila>).

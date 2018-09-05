@@ -379,8 +379,8 @@ float3 rand1dTo3d(float value){
 ```
 
 You can also find the source here:
-- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_WhiteNoise/WhiteNoise.cginc>
-- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_WhiteNoise/white_noise_random.shader>
-- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_WhiteNoise/white_noise_cells.shader>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_White_Noise/WhiteNoise.cginc>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_White_Noise/white_noise_random.shader>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_White_Noise/white_noise_cells.shader>
 
 I hope you know how to generate random numbers in hlsl now. The next few tutorials will build on this to generate different kinds of random patterns.

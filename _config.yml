@@ -15,6 +15,7 @@ pygments_options:
   tabsize: 4
 
 theme: # leave it empty
+future: true
 
 # social
 author: "Ronja Böhringer"

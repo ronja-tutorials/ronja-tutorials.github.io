@@ -15,24 +15,26 @@ layout: default
 
   <ul class="post-list">
     {% for post in site.posts %}
-      <li name="{{ post.title }}">
+      {% unless post.hidden %}
+        <li name="{{ post.title }}">
 
-        {% assign date_format = site.cayman-blog.date_format | default: "%b %-d, %Y" %}
-        <span class="post-meta">{{ post.date | date: date_format }}</span>
+          {% assign date_format = site.cayman-blog.date_format | default: "%b %-d, %Y" %}
+          <span class="post-meta">{{ post.date | date: date_format }}</span>
 
-        <h2>
-          <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}
-        </h2>
-        {% if post.image %}
-            <img src="{{ post.image }}" alt="{{ post.image }}" style="max-width: 50%" 
-                name="preview" class="preview">
-          </a>
-        {% else %}
-          </a>
-          <span class="preview">{{ post.excerpt | markdownify | truncatewords: 30 }}</span>
-        {% endif %}
+          <h2>
+            <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}
+          </h2>
+          {% if post.image %}
+              <img src="{{ post.image }}" alt="{{ post.image }}" style="max-width: 50%" 
+                  name="preview" class="preview">
+            </a>
+          {% else %}
+            </a>
+            <span class="preview">{{ post.excerpt | markdownify | truncatewords: 30 }}</span>
+          {% endif %}
 
-      </li>
+        </li>
+      {% endunless %}
     {% endfor %}
   </ul>
   <script>

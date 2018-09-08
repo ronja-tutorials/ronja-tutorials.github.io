@@ -2,7 +2,7 @@
 layout: post
 title: "Value Noise"
 image: /assets/images/posts/025/Result.gif
-hidden: true
+hidden: false
 ---
 
 ## Summary

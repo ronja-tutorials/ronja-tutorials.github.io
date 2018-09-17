@@ -8,6 +8,8 @@ hidden: false
 ## Perlin Noise
 One of other common form of noise is perlin noise. Perlin noise is one implementation of so called "gradient noise" similarly to value noise it's based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on [white noise]({{ site.baseurl }}{% post_url 2018-09-02-white-noise %}) and [value noise]({{ site.baseurl }}{% post_url 2018-09-08-value-noise %}) first.
 
+![](/assets/images/posts/026/Result.gif)
+
 ## Gradient Noise in one Dimension
 Perlin noise is a specific implementation of gradient noise for multiple dimensions. But generating gradient noise in one dimension is also pretty simple, so we'll start with that.
 

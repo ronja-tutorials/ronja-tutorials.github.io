@@ -88,7 +88,7 @@ float rand1dTo1d(float3 value, float mutator = 0.546){
 
 ## 2d Perlin Noise
 
-For multidimensional perlin noise we can't simply use a normal formula for a 1d line. Instead we interpolate the fraction in multiple dimensions and take the dot product with generated vectors of cells. To make the lines we generate with the dot product go to zero near the cell point itself, we scale the vector. That's because of how the dot product works, a dot product with a `(0, 0)` vector will always be zero and a dot product with any vector and `(1, 0)` will always be twice as big as a dot broduct between `(0.5, 0)` and the same vector. Using the dot product this way means that we can use multiply dimensions as input well, but output will always be limited to one dimension.
+For multidimensional perlin noise we can't simply use a normal formula for a 1d line. Instead we interpolate the fraction in multiple dimensions and take the dot product with generated vectors of cells. To make the lines we generate with the dot product go to zero near the cell point itself, we scale the vector. That's because of how the dot product works, a dot product with a `(0, 0)` vector will always be zero and a dot product with any vector and `(1, 0)` will always be twice as big as a dot product between `(0.5, 0)` and the same vector. Using the dot product this way means that we can use multiple dimensions as input well, but output will always be limited to one dimension.
 
 ```glsl
 float perlinNoise(float2 value){
@@ -114,7 +114,9 @@ float2 upperLeftDirection = rand2dTo2d(float2(floor(value.x), ceil(value.y))) * 
 float2 upperRightDirection = rand2dTo2d(float2(ceil(value.x), ceil(value.y))) * 2 - 1;
 ```
 
-Then we generate the values again. They start at 0 at the cell, and then become bigger the further away they go. For the lower left cell, which is equivalent to the previous cell in the 1d example, we can simply use the fraction as a vector as it is 0 at the cell and the y component becomes bigger the more we go up and the x component grows as we look further to the right, both increasing the absolute value of the result. On the lower right cell, we subtract `(1, 0)` from the value, so the vector will be smallest in the lower left corner and grow as we go left or up. Similarly to the 1d example we can also see here, that the value is negative when we approach the cell from the lower side, giving us continuous functions passing 0 at the cell position. And in the same matter we subtract `(0, 1)` from the fraction before taking the dot product with the upper left corner and subtract `(1, 1)` in case of the upper right corner.
+Then we generate the values again. They start at 0 at the cell, and then become bigger the further away they go. 
+
+For the lower left cell, which is equivalent to the previous cell in the 1d example, we can simply use the fraction as a vector as it is 0 at the cell and the y component becomes bigger the more we go up and the x component grows as we look further to the right, both increasing the absolute value of the result. On the lower right cell, we subtract `(1, 0)` from the value, so the vector will be smallest in the lower right corner and grow as we go left or up. Similarly to the 1d example we can also see here, that the value is negative when we approach the cell from the lower side, giving us continuous functions passing 0 at the cell position. And in the same matter we subtract `(0, 1)` from the fraction before taking the dot product with the upper left corner and subtract `(1, 1)` in case of the upper right corner.
 
 ```glsl
 float2 fraction = frac(value);
@@ -153,7 +155,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
 
 ## 3d Perlin Noise
 
-For 3d we'll implement the readable version with nested loops again. It looks very similar to the 3d value noise shader we wrote, but instead of just writing the random values to the values to interpolate in the innermost cell, we generate a random direction based on the cell. Then we also generate the comparison vector by subtracting the same value we used to get the cell from the fractional vector. After we have both of those vectors, we simply take the dot product between the two vectors and assign it to the noise value we interpolate. The rest of the function looks just like the 3d value noise function we wrote earlier.
+For 3d we'll implement the readable version with nested loops again. It looks very similar to the 3d value noise shader we wrote, but instead of just writing the random values to the values to interpolate in the innermost loop, we generate a random direction based on the cell. Then we also generate the comparison vector by subtracting the same value we used to get the cell from the fractional vector. After we have both of those vectors, we simply take the dot product between the two vectors and assign it to the noise value we interpolate. The rest of the function looks just like the 3d value noise function we wrote earlier.
 
 ```glsl
 float perlinNoise(float3 value){
@@ -186,7 +188,7 @@ float perlinNoise(float3 value){
 }
 ```
 
-For the input of the 3d noise, we now obviously have to use 3d values as a input. With this 3d noise, we can then make coherent noise in 3d space without having to worry about generating 2d UVs or anything like that.
+For the input of the 3d noise, we now have to use 3d values as a input. With this 3d noise, we can then make coherent noise in 3d space without having to worry about generating 2d UVs or anything like that.
 
 ```glsl
 void surf (Input i, inout SurfaceOutputStandard o) {
@@ -218,7 +220,9 @@ o.Albedo = noise;
 
 ![](/assets/images/posts/026/fracNoise.png)
 
-Then we can then make smooth lines from that. First we have to find out how how much the noise changes in one pixel distance, for that we simply use the fwidth function. Then we can make a smooth half line at the top of the fractional range, so near 1, by using the smoothstep function. We give the smoothstep function 1 minus the amount the noise changes in the neighboring pixels as the first parameter, one as the second parameter and the noise itself as the third parameter. That way the function will return 0 for all values that are more than 1 pixel away, and interpolate to a value of 1 until it reaches 1, which is the maximum value after we appied the frac function. Similarly we do a smoothstep for the lower end of the range. We feed it the change of the noise to the neighboring pixels as a first parameter, 0 as a second one and simply the fraction of the noise as the third parameter. This function will then return 0 for all values over the noise pixel change and then interpolate to 1 towards 0. To get the whole line, we'll simply add the two values and return them.
+Then we can then make smooth lines from that. First we have to find out how how much the noise changes in one pixel distance, for that we simply use the fwidth function. Then we can make a smooth half line at the top of the fractional range, so near 1, by using the smoothstep function. 
+
+We give the smoothstep function 1 minus the amount the noise changes in the neighboring pixels as the first parameter, one as the second parameter and the noise itself as the third parameter. That way the function will return 0 for all values that are more than 1 pixel away, and interpolate to a value of 1 until it reaches 1, which is the maximum value after we appied the frac function. Similarly we do a smoothstep for the lower end of the range. We feed it the change of the noise to the neighboring pixels as a first parameter, 0 as a second one and simply the fraction of the noise as the third parameter. This function will then return 0 for all values over the noise pixel change and then interpolate to 1 towards 0. To get the whole line, we'll simply add the two values and return them.
 
 ```glsl
 void surf (Input i, inout SurfaceOutputStandard o) {

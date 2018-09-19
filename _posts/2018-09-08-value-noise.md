@@ -11,7 +11,7 @@ In the last tutorial we learned how to generate random numbers in a shader. In t
 ![](/assets/images/posts/025/Result.gif)
 
 ## Show a Line
-First we will implement a easy way for us to visualize 1d noise. To do that we start with the noise with cells of the [previous tutorial]({{ site.baseurl }}{% post_url 2018-09-02-white-noise %}) and expand from there. We then change the cell size to a float value because we'll operate in 1d for now. Then we'll also make the value we feed to our noise function scalar by only using the x component of the position and use the 1d to 1d random function.
+First we will implement an easy way for us to visualize 1d noise. To do that we start with the noise with cells of the [previous tutorial]({{ site.baseurl }}{% post_url 2018-09-02-white-noise %}) and expand from there. We then change the cell size to a float value because we'll operate in 1d for now. Then we'll also make the value we feed to our noise function scalar by only using the x component of the position and use the 1d to 1d random function.
 
 ```glsl
 Properties {

@@ -56,7 +56,7 @@ Theres a new problem that arises from that though. Namely that by multiplying th
 
 ![](/assets/images/posts/024/FloatRange.png)
 
-The fix for that is to use a operation that limits the range of the random value to a low number before multiplying it with a big number. I just use a sine function here (apparently they're just a expensive as multiplications or additions in shaders because they're calculated in special calculation units, who knew...). And if we're concerned about artefects when looking really close at the material when the object has a position in the low thousands we can also use a sine function to limit the range of the input vector before taking the dot product.
+The fix for that is to use a operation that limits the range of the random value to a low number before multiplying it with a big number. I just use a sine function here (apparently they're just a expensive as multiplications or additions in shaders because they're calculated in special calculation units, who knew...). And if we're concerned about artafects when looking really close at the material when the object has a position in the low thousands we can also use a sine function to limit the range of the input vector before taking the dot product.
 
 ```glsl
 //get a scalar random value from a 3d value
@@ -106,7 +106,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
 ```
 ![](/assets/images/posts/024/ColorfulWhiteNoise.png)
 
-To create functions that take a 2d input we simply take the dot product with another 2d vector to get a scalar value and to use a scalar input we just leave out the step with the dot product because we don't need to convert it to a scalar value. With this knowledge we can create 9 methods that take all different inputs and outputs. The advantage of writing all of them down now, is that we never have to write them down again. We don't even have to copy them if we put them in a include file.
+To create functions that take a 2d input we simply take the dot product with another 2d vector to get a scalar value. And to use a scalar input we just leave out the step with the dot product because we don't need to convert it to a scalar value, as a variable to get different results for the same input, we'll add a mutator variable similar to the vector for the multiple dimension input methods. We then add the mutator to our input variable before doing the other random operations. Having a default mutator that's not 1 and is added, also has the advantage that when we input a value of 0 into the function we don't get 0 as a result, which could lead to weird artefacts otherwise. With this knowledge we can create 9 methods that take all different inputs and outputs. The advantage of writing all of them down now, is that we never have to write them down again. We don't even have to copy them if we put them in a include file.
 
 ```glsl
 //to 1d functions
@@ -129,9 +129,9 @@ float rand2dTo1d(float2 value, float2 dotDir = float2(12.9898, 78.233)){
     return random;
 }
 
-float rand1dTo1d(float3 value, float multiplier){
-    float random = frac(sin(value) * 143758.5453);
-    return random;
+float rand1dTo1d(float3 value, float mutator = 0.546){
+	float random = frac(sin(value + mutator) * 143758.5453);
+	return random;
 }
 
 //to 2d functions
@@ -321,8 +321,8 @@ float rand2dTo1d(float2 value, float2 dotDir = float2(12.9898, 78.233)){
 	return random;
 }
 
-float rand1dTo1d(float3 value, float multiplier){
-	float random = frac(sin(value) * 143758.5453);
+float rand1dTo1d(float3 value, float mutator = 0.546){
+	float random = frac(sin(value + mutator) * 143758.5453);
 	return random;
 }
 

@@ -48,10 +48,14 @@ To take the object position and rotation out of the equation, we have to use the
 
 ```glsl
 v2f vert(appdata v){
-    v2f o;
-    o.position = UnityObjectToClipPos(v.vertex);
-    o.uv = TRANSFORM_TEX(v.vertex.xz, _MainTex);
-    return o;
+	v2f o;
+	//calculate the position in clip space to render the object
+	o.position = UnityObjectToClipPos(v.vertex);
+	//calculate world position of vertex
+	float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+	//change UVs based on tiling and offset of texture
+	o.uv = TRANSFORM_TEX(worldPos.xz, _MainTex);
+	return o;
 }
 ```
 ![create a few spheres with the new material and move them around](/assets/images/posts/008/MoveSphere.gif)

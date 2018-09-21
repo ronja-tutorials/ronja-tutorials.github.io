@@ -202,7 +202,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
 
 ![](/assets/images/posts/026/3dPerlin.png)
 
-## Bonus visualisations.
+## Special Use Case
 
 Perlin noise itself usually just looks like weird clouds, but we can do some interresting effects with it if we know what we want.
 

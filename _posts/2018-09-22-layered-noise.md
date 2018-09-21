@@ -2,7 +2,7 @@
 layout: post
 title: "Layered Noise"
 image: /assets/images/posts/027/Result.gif
-hidden: false
+hidden: true
 ---
 
 ## Layered Noise

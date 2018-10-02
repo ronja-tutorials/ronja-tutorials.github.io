@@ -233,13 +233,14 @@ Because we used a linear interpolation to decide between the border and the cell
 
 ```glsl
 void surf (Input i, inout SurfaceOutputStandard o) {
-    float2 value = i.worldPos.xz / _CellSize;
-    float3 noise = voronoiNoise(value);
+	float2 value = i.worldPos.xz / _CellSize;
+	float3 noise = voronoiNoise(value);
 
-    float3 cellColor = rand1dTo3d(noise.y); 
-    float isBorder = step(noise.z, 0.05);
-    float3 color = lerp(cellColor, _BorderColor, isBorder);
-    o.Albedo = color;
+	float3 cellColor = rand1dTo3d(noise.y); 
+	float valueChange = length(fwidth(value)) * 0.5;
+	float isBorder = 1 - smoothstep(0.05 - valueChange, 0.05 + valueChange, noise.z);
+	float3 color = lerp(cellColor, _BorderColor, isBorder);
+	o.Albedo = color;
 }
 ```
 ![](/assets/images/posts/028/BordersNoAliasing.png)

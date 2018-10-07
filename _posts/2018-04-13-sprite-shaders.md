@@ -6,8 +6,7 @@ image: /assets/images/posts/007/Result.png
 ## Summary
 In unity the way sprites are rendered is very similar to the way 3d objects are rendered. Most of the work is done by the sprite renderer component. I’ll go a bit over what the component is doing and how we can change our shader to do some of the stuff the default sprite renderer is doing.
 
-This tutorial will build on the transparent shader we made previously so it’s best that you understand that one first:
-<https://ronja-tutorials.tumblr.com/post/172658736322/basic-transpararency>
+This tutorial will build on [the transparent shader]({{ site.baseurl }}{% post_url 2018-04-06-simple-transparency %}) we made previously so it’s best that you understand [that one]({{ site.baseurl }}{% post_url 2018-04-06-simple-transparency %}) first.
 
 ![Result](/assets/images/posts/007/Result.png)
 

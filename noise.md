@@ -4,7 +4,7 @@ title: Noise Functions
 tagline: This is where to start learning.
 ---
 
-A great way to generate images without textures is to use noise functions. In this series I go through the most common ones and how to use them. To write noise functions I recommend you to first {know the basics of shaders in unity](/basics.html). The tutorials also use [surface shaders]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}), so if you have problems understanding that part I recommend looking into [it]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}) first.
+A great way to generate images without textures is to use noise functions. In this series I go through the most common ones and how to use them. To write noise functions I recommend you to first [know the basics of shaders in unity](/basics.html). The tutorials also use [surface shaders]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}), so if you have problems understanding that part I recommend looking into [it]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}) first.
 
 I also recommend reading the noise tutorials in order since some of them build on each other and they become more complex for the most part.
 
@@ -18,5 +18,7 @@ I also recommend reading the noise tutorials in order since some of them build o
     * This tutorial explains how to sample noise several times and layer it over itself to give the result more texture.
 5. [Voronoi Noise]({{ site.baseurl }}{% post_url 2018-09-29-voronoi-noise %}):
     * Voronoi noise is another kind of noise which generates cells. We can use random values in the cells or the distance to the border between the cells.
-5. [Bake shader output into texture]():
-    * coming soon™
+6. [Tiling Noise]({{ site.baseurl }}{% post_url 2018-10-06-tiling-noise %}):
+    * Sometimes we want our noise to repeat after a few cells, this is how.
+7. [Bake Noise into Texture]():
+    * Coming soon.

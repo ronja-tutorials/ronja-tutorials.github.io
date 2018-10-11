@@ -20,5 +20,5 @@ I also recommend reading the noise tutorials in order since some of them build o
     * Voronoi noise is another kind of noise which generates cells. We can use random values in the cells or the distance to the border between the cells.
 6. [Tiling Noise]({{ site.baseurl }}{% post_url 2018-10-06-tiling-noise %}):
     * Sometimes we want our noise to repeat after a few cells, this is how.
-7. [Bake Noise into Texture]():
-    * Coming soon.
+7. [Bake Noise into Texture]({{ site.baseurl }}{% post_url 2018-10-13-baking_shaders %}):
+    * Noise can get pretty expensive, especially layered noise with multiple octaves. One simply way to counteract that is to bake the output of the noise to a texture and use that texture instead of procedural noise.

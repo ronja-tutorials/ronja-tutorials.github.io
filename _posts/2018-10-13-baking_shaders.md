@@ -2,7 +2,7 @@
 layout: post
 title: "Baking Shaders into Textures"
 image: /assets/images/posts/030/MagicEditor.png
-hidden: true
+hidden: false
 ---
 
 Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don't need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn't depend on external parameters like object position or lighting.

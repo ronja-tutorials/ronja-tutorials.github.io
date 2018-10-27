@@ -7,6 +7,8 @@ hidden: false
 
 [Last weeks tutorial]({{ site.baseurl }}{% post_url 2018-10-20-single-step-toon %}) was about making a simple toon shader, but I felt like there's still a lot to improve about it so this weeks tutorial is too. We'll fix a thing, and add multiple steps to the lighting as well as a specular highlight. I recommend you to read [the previous tutorial]({{ site.baseurl }}{% post_url 2018-10-20-single-step-toon %}) if you haven't because this one is heavily based on it and expands its code.
 
+![](/assets/images/posts/032/Demo.gif)
+
 ## Improved shadows for multiple lights.
 
 If we have multiple lights in our scene we want them to all light up the light parts, but not have it change the areas where all of them have shadows. With the custom shadow color we have right now applied in the lighting function we also add the shadow color the more lights we have. This is also critical because point lights will add lighting in a weird square shape that we definitely don't want.

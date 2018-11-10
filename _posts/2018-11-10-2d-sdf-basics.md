@@ -2,7 +2,7 @@
 layout: post
 title: "2D Signed Distance Field Basics"
 image: /assets/images/posts/034/Result.gif
-hidden: true
+hidden: false
 ---
 
 So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.

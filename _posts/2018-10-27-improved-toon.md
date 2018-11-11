@@ -380,4 +380,4 @@ Shader "Tutorial/032_ImprovedToon" {
 }
 ```
 
-I mainly concentrated on the lighting function in those tutorials, you can easily expand the shader by passint out different values from the surface function including using textures for emissive color or normals. I also think it might be a good call to add the specular size to the surface struct and use that in the lighting function to be able to do drive the look more via textures. Whatever you end up doing I hope this tutorial made you curious about non photorealistic lighting and helped you realise the look you wanted to create.
+I mainly concentrated on the lighting function in those tutorials, you can easily expand the shader by writing different values from the surface function and use textures for emissive color or normals. I also think it might be a good call to add the specular size to the surface struct and use that in the lighting function to be able to do drive the look more via textures. Whatever you end up doing I hope this tutorial made you curious about non photorealistic lighting and helped you realise the look you wanted to create.

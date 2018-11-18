@@ -2,7 +2,7 @@
 layout: post
 title: "2D SDF Combination"
 image: /assets/images/posts/035/Result.gif
-hidden: true
+hidden: false
 ---
 
 In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find [here (http://mercury.sexy/hg_sdf)](http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don't go into here.

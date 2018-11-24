@@ -330,6 +330,109 @@ position = lerp(position, period - position, flip);
 
 ![](/assets/images/posts/036/FlippedCells.png)
 
+## Radial Cells
+
+Another cool thing is to repeat the space in a radial pattern.
+
+To get that effect, we first calculate the radial position. For that we encode the angle around the center in the x axis and the distance from the center in the y axis.
+
+```glsl
+float2 radialPosition = float2(atan2(position.x, position.y), length(position));
+```
+
+Then we repeat the angle. Because passing in the amount of repetitions is way easier than the angle of each slice we first calculate the size of each slice. A whole circle is 2 times pi, so to get the part we want we divide 2 times pi by the cell amount.
+
+```glsl
+const float PI = 3.14159;
+float cellSize = PI * 2 / cells;
+```
+
+With this infomation we can now repeat the x component of the radial position every cellSize units. We do the repetition via the modulo, just like before we get problems with negative numbers here which we have to mitigate by using two modulo functions.
+
+```glsl
+radialPosition.x = fmod(fmod(radialPosition.x, cellSize) + cellSize, cellSize);
+```
+
+Then we have to transfer the new position back into normal xy coordinates. We use the sincos function with the x component of the radial position as the angle here to write the sine into the x coordinate of the position and the cosine into the y coordinate. With this step we get the normalised position. To get the correct distance from the center we then have to multiply it by the y component of the radial position, which signifies the length.
+
+```glsl
+//in 2D_SDF.cginc
+
+void radial_cells(inout float2 position, float cells){
+    const float PI = 3.14159;
+
+    float cellSize = PI * 2 / cells;
+    float2 radialPosition = float2(atan2(position.x, position.y), length(position));
+    radialPosition.x = fmod(fmod(radialPosition.x, cellSize) + cellSize, cellSize);
+
+    sincos(radialPosition.x, position.x, position.y);
+    position = position * radialPosition.y;
+}
+```
+
+```glsl
+//in shader function
+
+float2 period = 6;
+radial_cells(position, period, false);
+```
+
+![](/assets/images/posts/036/RadialSymmetry.png)
+
+Then we can also add a cell index and mirroring just like we did for the regular cells.
+
+We have to calculate the cell index after calculating the radial position, but before taking it's modulo. We get it by dividing the x component of the radial position and flooring the result. In this case the index can also be negative, that's a problem if we have a uneven amount of cells. For example with 3 cells, we'd get 1 cell with index 0, 1 cell with a index of -1 and 2 half cells with each 1 and -2. To sidestep this problem, we add the amount of cells to the floored variable and then take a modulo with the cellsize.
+
+```glsl
+//in 2D_SDF.cginc
+
+float cellIndex = fmod(floor(radialPosition.x / cellSize) + cells, cells);
+
+//at the end of the function:
+return cellIndex;
+```
+
+To mirror this, we'd like to have the coordinates as radial coordinates, so to avoid calculating the radial coordinates again outside of the function we're going to give the option via a bool argument. Usually we really don't like having branching (if statements) in our shaders, but in this case all pixels on the screen will take the same path, so it's fine.
+
+The mirroring has to happen after the radial coordinate was looped, but before it's transformed back into a regular position. We get whether the current cell should be flipped or not by taking the modulo of the cell index and 2. This usually should give us zeroes and ones, but in my case I experienced some twos, which is weird, but we can work with. To fix the twos, we simply subtract one 1 from our flip variable and then take the absolute value, this way zeroes and twos become ones and the ones become zero, just like we like it, just the other way around.
+
+Because the zeroes and ones are the wrong way around, we do a linear interpolation from the flipped version to the unflipped one, not the other way around that we did previously. To flip the coordinate we just subtract the position from the cell size.
+
+```glsl
+//in 2D_SDF.cginc
+
+float radial_cells(inout float2 position, float cells, bool mirrorEverySecondCell = false){
+    const float PI = 3.14159;
+
+    float cellSize = PI * 2 / cells;
+    float2 radialPosition = float2(atan2(position.x, position.y), length(position));
+
+    float cellIndex = fmod(floor(radialPosition.x / cellSize) + cells, cells);
+
+    radialPosition.x = fmod(fmod(radialPosition.x, cellSize) + cellSize, cellSize);
+
+    if(mirrorEverySecondCell){
+        float flip = fmod(cellIndex, 2);
+        flip = abs(flip-1);
+        radialPosition.x = lerp(cellSize - radialPosition.x, radialPosition.x, flip);
+    }
+
+    sincos(radialPosition.x, position.x, position.y);
+    position = position * radialPosition.y;
+
+    return cellIndex;
+}
+```
+
+```glsl
+//in shader function
+
+float2 period = 6;
+radial_cells(position, period, true);
+```
+
+![](/assets/images/posts/036/MirroredRadialSymmetry.png)
+
 ## Wobbly space
 
 But we don't have to repeat the space to change it. In the tutorial about basics we rotate, transform and scale it for example. Another thing we can do is to move each axis based on the other one with a sine wave. This does make the distances of the signed distance funciton less precise, but as long as we don't make it wobble too much it should be fine.
@@ -491,6 +594,28 @@ float2 cells(inout float2 position, float2 period){
     position += period;
     //second mod doesn't change values between 0 and period, but brings down values that are above period.
     position = fmod(position, period);
+
+    return cellIndex;
+}
+
+float radial_cells(inout float2 position, float cells, bool mirrorEverySecondCell = false){
+    const float PI = 3.14159;
+
+    float cellSize = PI * 2 / cells;
+    float2 radialPosition = float2(atan2(position.x, position.y), length(position));
+
+    float cellIndex = fmod(floor(radialPosition.x / cellSize) + cells, cells);
+
+    radialPosition.x = fmod(fmod(radialPosition.x, cellSize) + cellSize, cellSize);
+
+    if(mirrorEverySecondCell){
+        float flip = fmod(cellIndex, 2);
+        flip = abs(flip-1);
+        radialPosition.x = lerp(cellSize - radialPosition.x, radialPosition.x, flip);
+    }
+
+    sincos(radialPosition.x, position.x, position.y);
+    position = position * radialPosition.y;
 
     return cellIndex;
 }

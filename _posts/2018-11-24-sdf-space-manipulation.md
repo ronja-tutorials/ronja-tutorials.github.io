@@ -2,7 +2,7 @@
 layout: post
 title: "2D SDF Space Manipulation"
 image: /assets/images/posts/036/Result.gif
-hidden: true
+hidden: false
 ---
 
 When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren't bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) and [combine sdf shapes]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).

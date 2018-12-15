@@ -1,0 +1,47 @@
+---
+layout: post
+title: "2D SDF Ambient Occlusion"
+image: /assets/images/posts/038/Result.gif
+hidden: false
+---
+
+A way we can use 2d signed distance fields is by calculating ambient occlusion pretty cheaply with them. If we want to we can then also combine this effect with 2d lighting, which I also made a [tutorial]({{ site.baseurl }}{% post_url 2018-12-01-2d-shadows%}) for.
+
+To do cool stuff with signed distance fields, you should understand how signed distance fields work fist, so I recommend you do do the first three tutorials of my [SDF tutorial series]({{ site.baseurl }}/SDF_Raytracing.html) if you aren't comfortable with them yet.
+
+![](/assets/images/posts/038/Result.gif)
+
+## Normals
+
+To calculate the Ambient occlusion, we have to know a normal of the point, so which direction is away from the nearest surface. In signed distance fields we can get the normal by calculating what's called the "gradient descent", which just means that we calculate in which direction the signed distance function has higher values and then know that this direction is away from the surface.
+
+The way we calculate this is by looking at the the different directions separately and getting separate gradient descent values. You can imagine it like a scalar function where you pass two values and by comparing the values you can approximate the tangent of the function. We already know the x coordinate of the approximate tangent because that's what we used as the input and we can then use the difference between the output values as the y value of the tangent.
+
+![](assets/images/posts/038/2d_descent.png)
+
+Similarly we move out point for the normal a bit to the right and to the left and sample the scene at both points, then we take the difference and can use it as the appropriate component. In the end we normalize the resulting vector because having a normal with the length of one is the easiest to work with.
+
+```glsl
+float2 calculateNormal(float2 position, float distance = 0.01){
+    float x = scene(position + float2(distance, 0)) - scene(position - float2(distance, 0));
+    float y = scene(position + float2(0, distance)) - scene(position - float2(0, distance));
+
+    return normalize(float2(x, y));
+}
+```
+
+```glsl
+fixed4 frag(v2f i) : SV_TARGET{
+    float2 position = i.worldPos.xz;
+
+    float2 normal = calculateNormal(position);
+
+    return float4(normal, 1, 1);
+}
+```
+
+![](assets/images/posts/038/Normals.png)
+
+## Single Sample AO
+
+To calculate the ambient occlusion we can simply step away from the nearest surface by a certain distance. If the difference between the distances from the scene is less than the distance we calculated, we can assume it's occluded.

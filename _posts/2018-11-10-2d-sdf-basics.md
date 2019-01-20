@@ -436,7 +436,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 
 ### 2d SDF Functions
 
-- <http://github.com>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/2D_SDF.cginc>
 
 ```glsl
 #ifndef SDF_2D

@@ -69,7 +69,7 @@ struct appdata{
 Then we write a struct which will be returned by the vertex shader. For now we only need the position of the vertices relative to the screen. For unity to know that that’s the data in the variable, we mark it with the sv_position attribute.
 ```glsl
 struct v2f{
-    float4 vertex : SV_POSITION;
+    float4 position : SV_POSITION;
 }
 ```
 
@@ -77,7 +77,7 @@ Next is the vertex shader, it returns the vertex to fragment struct and it takes
 ```glsl
 v2f vert(appdata v){
     v2f o;
-    o.vertex = UnityObjectToClipPos(v.vertex);
+    o.position = UnityObjectToClipPos(v.vertex);
     return o;
 }
 ```
@@ -111,12 +111,12 @@ Shader "Tutorial/01_Basic"{
 			};
 
 			struct v2f{
-				float4 vertex : SV_POSITION;
+				float4 position : SV_POSITION;
 			};
 
 			v2f vert(appdata v){
 				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.position = UnityObjectToClipPos(v.vertex);
 				return o;
 			}
 

@@ -8,7 +8,7 @@ Most of the tutorials are written so they only depend of a few other tutorials, 
 
 If you don't understand those tutorials, please message me so I can make them more accessible!
 
-1. [HLSL Basics]({{ site.baseurl }}{% post_url 2018-03-23-textures %}):
+1. [HLSL Basics]({{ site.baseurl }}{% post_url 2018-03-20-hlsl-basics %}):
     * In this tutorial I go over the basics of HLSL which we will mostly use to write shaders.
 2. [Basic Color]({{ site.baseurl }}{% post_url 2018-03-21-simple-color %}):
     * In this tutorial we make a very basic shader that introduces a few concepts the like the shaderlab environment and vertex/fragment shaders. 

@@ -29,7 +29,7 @@ SubShader {
     //surface shader code...
 ```
 
-The most important parameter of the stencil operation is `Ref` which marks the reference value we operate on. the default value is 255 which is the maximum value a stencil buffer can have. For now we'll set it to 0 which is the value the stencil buffer has before we write to it.
+The most important parameter of the stencil operation is `Ref` which marks the reference value we operate on. The default value is 0 which is the default value the buffer has before anything writes to it. We'll set it to 0 at first which doesn't change anything, but having it typed out explicitely makes the code a bit clearer and let's us change it easily later.
 
 Another parameter of the stencil operation we need is `Comp` which defines when the stencil operation passes. The default value is `Always`, which means that no matter what reference value we use, the object will always be drawn. For this shader reading from the stencil buffer we'll use `Equal` which results in the object only being drawn when the stencil buffer at that position is at the value we mark as `Ref`.
 

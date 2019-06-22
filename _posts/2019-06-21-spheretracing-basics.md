@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Spheretracing basics"
+title: "Spheretracing Basics"
 image: /assets/images/posts/043/Result.png
 hidden: false
 ---

@@ -19,7 +19,7 @@ With this data we can take steps through our SDF scene. We'll advance the distan
 
 As mentioned previously what we need to define a ray for each pixel is the origin and the direction of the ray. We can do the raytracing in any "space" we want to. If we do it in world space we can move around the object and it moves like a window into the traced world. If we do it in object space the raytraced objects will be moved, scaled and rotated with the object that's moved. For this tutorial I'll do the spheretracing in object space because it's more intuitive and it's a bit harder to do so you might be able to figure out how to do it in worldspace yourself if you want that.
 
-As the origin of the ray we'll use the local coordinates which is the data that's given to the shader via the appdata struct. The object space view direction is a bit trickier - we get it by transforming the camera world position into object space and then subtracting it from the local position. For some reason multiplying the world to object matrix with the camera position doesn't give the correct result, but if you subtract the position of the object before the multiplication it works out. If you know why this is the case, please tell me. Luckily for us we can get the object position by extracting the last column of the object to world matrix.
+As the origin of the ray we'll use the local coordinates which is the data that's given to the shader via the appdata struct. The object space view direction is a bit trickier - we get it by transforming the camera world position into object space and then subtracting it from the local position. To transform the camera position into local space we have to multiply the world to object matrix with it, but before this multiplication we have to transform it from a float3 into a float4 with a "1" as the w component. If we don't do that the w component would be filled with a 0 and the movement would be ignored, only rotation and scale would be applied.
 
 ```glsl
 //input data
@@ -40,10 +40,8 @@ v2f vert(appdata v){
     o.position = UnityObjectToClipPos(v.vertex);
     //save local position for origin
     o.localPosition = v.vertex;
-    //extract object position out of transform matrix
-    float4 objectPosition = unity_ObjectToWorld._m03_m13_m23_m33;
     //get camera position in local space
-    float4 objectSpaceCameraPos = mul(unity_WorldToObject, _WorldSpaceCameraPos - objectPosition);
+    float4 objectSpaceCameraPos = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1));
     //get local view vector
     o.viewDirection = v.vertex - objectSpaceCameraPos;
     return o;
@@ -218,10 +216,8 @@ Shader "Tutorial/042_SphereTracingBasics"{
                 o.position = UnityObjectToClipPos(v.vertex);
                 //save local position for origin
                 o.localPosition = v.vertex;
-                //extract object position out of transform matrix
-                float4 objectPosition = unity_ObjectToWorld._m03_m13_m23_m33;
                 //get camera position in local space
-                float4 objectSpaceCameraPos = mul(unity_WorldToObject, _WorldSpaceCameraPos - objectPosition);
+                float4 objectSpaceCameraPos = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1));
                 //get local view vector
                 o.viewDirection = v.vertex - objectSpaceCameraPos;
                 return o;

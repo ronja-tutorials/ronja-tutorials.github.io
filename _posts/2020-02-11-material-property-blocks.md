@@ -2,6 +2,7 @@
 layout: post
 title: "Instancing and Material Property Blocks"
 image: /assets/images/posts/048/BallPit.png
+tags: shader, unity, basics
 ---
 
 ## Current State

@@ -8,8 +8,23 @@ layout: default
 
   <h2>Tutorials</h2>
   <input id="SearchField" type="text" oninput="filterPosts(this.value)"/>
-  <br/>chronological? <input id="Chronological" type="checkbox" oninput="setOrder(this.checked)"/>
-  <br/>show images? <input id="BigView" type="checkbox" checked oninput="minimize(!this.checked)"/>
+  
+  <div>
+    Newest first
+    <label class="switch">
+      <input id="Chronological" type="checkbox" oninput="setOrder(this.checked)"/>
+      <span class="slider round"></span>
+    </label>
+    Oldest first
+  </div>
+  <div>
+    Small View
+    <label class="switch">
+      <input id="BigView" type="checkbox" checked oninput="minimize(!this.checked)"/>
+      <span class="slider round"></span>
+    </label>
+    Big View
+  </div>
 
   <div>&nbsp;</div>
 

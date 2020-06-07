@@ -8,8 +8,8 @@ layout: default
 
   <h2>Tutorials</h2>
   <input id="SearchField" type="text" oninput="filterPosts(this.value)"/>
-  <br/>chronological? <input type="checkbox" oninput="setOrder(this.checked)"/>
-  <br/>show images? <input type="checkbox" checked oninput="minimize(!this.checked)"/>
+  <br/>chronological? <input id="Chronological" type="checkbox" oninput="setOrder(this.checked)"/>
+  <br/>show images? <input id="BigView" type="checkbox" checked oninput="minimize(!this.checked)"/>
 
   <div>&nbsp;</div>
 
@@ -40,25 +40,28 @@ layout: default
   <script>
     root = document.getElementsByClassName("post-list")[0];
     this.posts = root.getElementsByTagName("li");
-    console.log(root);
-    console.log(this.posts);
-    this.flippedOrder = false;
+
+    this.flipped = false;
+    this.minimized = false;
+    this.filter = "";
     
     function filterPosts(searchTerm){
+      this.filter = searchTerm;
       for(i=0;i<this.posts.length;i++){
         post = this.posts[i];
-        //console.log(post);
         var found = post.getAttribute("name").toLowerCase().includes(searchTerm.toLowerCase());
         post.style.display = found?"block":"none";
       }
+      updateUrl();
     }
 
     function setOrder(chrono){
-      if((this.flippedOrder && !chrono) || (!this.flippedOrder && chrono))
+      if((this.flipped && !chrono) || (!this.flipped && chrono))
         flipOrder();
     }
 
     function minimize(mini){
+      this.minimized = mini;
       if(this.maginBottom == undefined){
         this.maginBottom = this.posts[0].style.marginBottom;
       }
@@ -68,6 +71,7 @@ layout: default
         post.getElementsByClassName("post-meta")[0].style.display = mini?"none":"block";
         post.style.marginBottom = mini?0:this.maginBottom;
       }
+      updateUrl();
     }
 
     function flipOrder(){
@@ -84,14 +88,52 @@ layout: default
       }
       root.appendChild(elements);
       this.posts = flippedPosts;
-      this.flippedOrder = !this.flippedOrder;
+      this.flipped = !this.flipped;
+      updateUrl();
     }
 
-    var urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has('search')){
-      document.getElementById("SearchField").value = urlParams.get('search')
-      filterPosts(urlParams.get('search'))
+    function updateUrl(){
+      var urlParams = new URLSearchParams()
+      var any = 0;
+      if(this.filter){
+        urlParams.set("search", this.filter);
+        any = true;
+      }
+      if(this.flipped){
+        urlParams.set("flipped", this.flipped);
+        any = true;
+      }
+      if(this.minimized){
+        urlParams.set("minimized", this.minimized);
+        any = true;
+      }
+
+      var loc = window.location;
+      var url = loc.protocol + "//" + loc.host + loc.pathname;
+      if(any)
+        url += "?" + urlParams.toString();
+      window.history.replaceState({path: url},"", url);
     }
+
+    function init(){
+      var urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.has('search')){
+        document.getElementById("SearchField").value = urlParams.get('search');
+        filterPosts(urlParams.get('search'));
+      }
+      if(urlParams.has('flipped')){
+        var value = urlParams.get('flipped') == "true";
+        document.getElementById("Chronological").checked = value;
+        setOrder(value);
+      }
+      if(urlParams.has('minimized')){
+        var value = urlParams.get('minimized') == "true";
+        document.getElementById("BigView").checked = !value;
+        minimize(value);
+      }
+    }
+    
+    init();
   </script>
 
 </div>

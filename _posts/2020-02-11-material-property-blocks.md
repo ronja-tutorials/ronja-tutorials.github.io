@@ -7,7 +7,7 @@ tags: shader, unity, basics
 
 ## Current State
 
-I'm going to go off the shader from the [basic properties tutorial]({{ site.baseurl }}{% post_url 2018-03-22-properties %}) in this tutorial. In all tutorials since that one we always set the properties at a "per material" basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without 
+I'm going to go off a [basic unlit shader](/basics.html) in this tutorial. In all tutorials since that one we always set the properties at a "per material" basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without
 
 Important to mention here is that if you're using one of Unity's new scriptable render pipelines the performance slowdown might be way less and you can even make the performance worse by using property blocks. That's because of the new SRP batcher which is able to batch models with different materials, but doesn't support property block as far as I know (it's better to read yourself into the current state of tech yourself and trying out what works better).
 
@@ -23,7 +23,7 @@ using UnityEngine;
 public class ColorPropertySetter : MonoBehaviour
 {
     public Color MaterialColor;
-    
+
     // OnValidate is called in the editor after the component is edited
     void OnValidate()
     {
@@ -77,7 +77,7 @@ public class ColorPropertySetter : MonoBehaviour
 
     //The material property block we pass to the GPU
     private MaterialPropertyBlock propertyBlock;
-    
+
     // OnValidate is called in the editor after the component is edited
     void OnValidate()
     {
@@ -100,7 +100,7 @@ With this we are setting the MPBs correctly and we can see 3 models with the sam
 
 ## Making your Shader support Instancing
 
-First we have to tell Unity that the shader is able to be instanced, to do this we add the line `#pragma multi_compile_instancing` next to the `#pragma` declarations for the shader functions, this makes the material inspector show the "Enable GPU Instancing" option which we want to enable. In the case of surface shaders this shouldn't be needed. 
+First we have to tell Unity that the shader is able to be instanced, to do this we add the line `#pragma multi_compile_instancing` next to the `#pragma` declarations for the shader functions, this makes the material inspector show the "Enable GPU Instancing" option which we want to enable. In the case of surface shaders this shouldn't be needed.
 
 ![](/assets/images/posts/048/InstancingOption.png)
 
@@ -135,7 +135,7 @@ Shader "Tutorial/048_Instancing" {
       //shader functions
       #pragma vertex vert
       #pragma fragment frag
-      
+
       //use unity shader library
       #include "UnityCG.cginc"
 
@@ -150,18 +150,18 @@ Shader "Tutorial/048_Instancing" {
         float4 position : SV_POSITION;
         UNITY_VERTEX_INPUT_INSTANCE_ID
       };
-      
+
       UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
       UNITY_INSTANCING_BUFFER_END(Props)
 
       v2f vert(appdata v){
         v2f o;
-        
+
         //setup instance id
         UNITY_SETUP_INSTANCE_ID(v);
         UNITY_TRANSFER_INSTANCE_ID(v, o);
-        
+
         //calculate the position in clip space to render the object
         o.position = UnityObjectToClipPos(v.vertex);
         return o;
@@ -241,7 +241,7 @@ public class ColorPropertySetter : MonoBehaviour
 
     //The material property block we pass to the GPU
     private MaterialPropertyBlock propertyBlock;
-    
+
     // OnValidate is called in the editor after the component is edited
     void OnValidate()
     {
@@ -279,7 +279,7 @@ Shader "Tutorial/048_Instancing" {
             //shader functions
 			#pragma vertex vert
 			#pragma fragment frag
-			
+
 			//use unity shader library
 			#include "UnityCG.cginc"
 
@@ -294,18 +294,18 @@ Shader "Tutorial/048_Instancing" {
 				float4 position : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
-			
+
 			UNITY_INSTANCING_BUFFER_START(Props)
                 UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
             UNITY_INSTANCING_BUFFER_END(Props)
 
 			v2f vert(appdata v){
 				v2f o;
-				
+
 				//setup instance id
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
-				
+
 				//calculate the position in clip space to render the object
 				o.position = UnityObjectToClipPos(v.vertex);
 				return o;

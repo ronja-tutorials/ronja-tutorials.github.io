@@ -11,7 +11,7 @@ allows us to define some parameters and let unity generate the code
 which does the complex light calculations. Those shaders are called
 "surface shaders".
 
-To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them [here]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them [here]({{ site.baseurl }}{% post_url 2018-03-23-basic %}).
 
 ![Result](/assets/images/posts/005/Result.png)
 

@@ -12,6 +12,7 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
 ![](/assets/images/posts/029/Result.png)
 
 ## Tileable noise
+
 We'll use the layered 2d perlin noise as the first shader to modify to be tilable. We expand the perlin function to take another parameter called the period which is how often the noise tiles, counted in cells. Previously we calculated the cell positions directly before we passed them to the random function to calculate the direction of the cell, but to better be able to repeat the noise we'll calculate the maximum and minimum of the cells before passing it and then choosing the correct parameters out of them. We still get the component minimum of the cells by using floor and get the maximum via ceil. Then we use the x or y component of the minimum vector if we previously used floor and use the x or y component of the maximum vector where we previously used ceil.
 
 Then we make the cell positions wrap according to our new period variable. We do that by taking the modulo of the cell variables. The problem with the modulo implementation is that it returns the remainder. The difference between the mathematical remainder and modulo is that the modulo of will always be positive while the remainder of a negative number is negative. for example the modulo between `-5` and `3` would be `1` because if we multiply `3` by `-2` we get `-6` and the modulo is the difference, `1`. In the base of a implementation using the remainder, the result would be `-2` instead because it assumes that it's allowed to to just use `-1` as a multiplier and then in that case the difference to our divident is `-1`. The point of this small journey into mathematics is that we have the remainder, but we want the modulo. The fix for that is to first, get the remainder, then add the divisor again and take the modulo a second time. We know that after the first remainder the value isn't lower than our divisor times -1, so by adding the divisor again, we know the value is positive. And after ensuring we have a positive value we can apply the remainder a second time because we know it behaves exactly the same way as the modulo if we have positive values. We'll add the modulo as a extra function to our shader. The input and output is a `float2` so we can make the x and y coodinate wrap at the same time.
@@ -41,6 +42,7 @@ float perlinNoise(float2 value, float2 period){
 
     //rest of the function unchanged
 ```
+
 ```glsl
 void surf (Input i, inout SurfaceOutputStandard o) {
     float2 value = i.worldPos.xz / _CellSize;
@@ -50,6 +52,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
     o.Albedo = noise;
 }
 ```
+
 ![](/assets/images/posts/029/RepeatingPerlin.png)
 
 ## Layered tileable noise
@@ -72,6 +75,7 @@ float sampleLayeredNoise(float2 value){
     return noise;
 }
 ```
+
 ```glsl
 void surf (Input i, inout SurfaceOutputStandard o) {
     float2 value = i.worldPos.xz / _CellSize;
@@ -94,6 +98,7 @@ Properties {
     _Persistance ("Persistance", Range(0, 1)) = 0.4
 }
 ```
+
 ```glsl
 //global shader variables
 float2 _Period;
@@ -112,7 +117,7 @@ float2 _Period;
 
 So far we always used worldspace coordinates as base values for our noise, specifically to not have to deal with weird scaling or uv mapping on objects. Plus we used surface shaders for super easy access to worldspace coordinates and fancy lighting. But sometimes we want the noise to be in UV space and not use fancy lighting (for example to bake the noise into a texture or to use the cheaper 2d noise on a 3d object). This is how to convert our surface shader into a simpler shader that shows the noise in uv space and doesn't calculate lighting. (To have the noise in UV space and still have a surface shader for fancy lighting it's best to add a custom vertex function to the surface shader and pass the uv coordinates into your input struct from there.)
 
-For the change to a non-surface shader, we add a shader pass just around the `CGPROGRAM` hlsl part, we explicitely import UnityCG library file, then we also define the vertex and fragment functions, add the appdata and vertex to fragment structs and lastly we change the surface function to a fragment function and add the vertex function. I copied most of those changes from the code of the [tutorial about textures]({{ site.baseurl }}{% post_url 2018-03-23-textures %}), so if you have any trouble understanding the changes I recommend you reread [that]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
+For the change to a non-surface shader, we add a shader pass just around the `CGPROGRAM` hlsl part, we explicitely import UnityCG library file, then we also define the vertex and fragment functions, add the appdata and vertex to fragment structs and lastly we change the surface function to a fragment function and add the vertex function. I copied most of those changes from the code of the [tutorial about textures]({{ site.baseurl }}{% post_url 2018-03-23-basic %}), so if you have any trouble understanding the changes I recommend you reread [that]({{ site.baseurl }}{% post_url 2018-03-23-basic %}).
 
 While doing those changes we can also pass the uv coordinates to the fragment shader and replace the world coordinates with them to have noise in UV space.
 
@@ -135,7 +140,7 @@ SubShader {
         #include "Random.cginc"
 
         //global shader variables
-        #define OCTAVES 4 
+        #define OCTAVES 4
 
         float _CellSize;
         float _Roughness;
@@ -193,10 +198,12 @@ In my opinion, this change if space also changes the context of the size of the 
 //parameters
 _CellAmount ("Cell Amount", Range(1, 32)) = 2
 ```
+
 ```glsl
 //global shader variables
 float _CellAmount;
 ```
+
 ```glsl
 //fragment function
 float2 value = i.uv * _CellAmount;
@@ -210,7 +217,7 @@ With those changes we have a shader that will show repeating noise in UV space, 
 
 For the example how to translate those concepts into 3d, I'm going to use voronoi noise. We start deleting the functions and properties that we used for perlin noise and don't need anymore. That's the roughness and persistance properties and the easing, perlin and layered noise functions. Then we add the copy in the code for voronoi noise from the [tutorial about voronoi noise]({{ site.baseurl }}{% post_url 2018-09-29-voronoi-noise %}).
 
-Then we need to expand our shader to handle 3d vectors in a few places. First we add a new property called the "height". We then use it as the `Z` factor of the value we pass to the voronoi function. Because we expect the uv space to go from 0 to 1, I'll also limit the height to be between 0 and 1. Then we change the modulo function to accept and return 3d vectors, the operators work the same way on 2d vectors as on 3d vectors, so we don't have to change anything except the types. 
+Then we need to expand our shader to handle 3d vectors in a few places. First we add a new property called the "height". We then use it as the `Z` factor of the value we pass to the voronoi function. Because we expect the uv space to go from 0 to 1, I'll also limit the height to be between 0 and 1. Then we change the modulo function to accept and return 3d vectors, the operators work the same way on 2d vectors as on 3d vectors, so we don't have to change anything except the types.
 
 ```glsl
 Shader "Tutorial/029_material_baking/repeating_3d_voronoi" {
@@ -237,7 +244,7 @@ Shader "Tutorial/029_material_baking/repeating_3d_voronoi" {
 			#include "Random.cginc"
 
 			//global shader variables
-			#define OCTAVES 4 
+			#define OCTAVES 4
 
 			float _CellAmount;
 			float3 _Period;
@@ -360,7 +367,9 @@ float4 frag (v2f i) : SV_TARGET{
 ## Source
 
 ### Tiling 2d layered perlin
+
 - <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/2d_layered.shader>
+
 ```glsl
 Shader "Tutorial/029_material_baking/layered_repeating_perlin" {
 	Properties {
@@ -387,7 +396,7 @@ Shader "Tutorial/029_material_baking/layered_repeating_perlin" {
 			#include "Random.cginc"
 
 			//global shader variables
-			#define OCTAVES 4 
+			#define OCTAVES 4
 
 			float _CellAmount;
 			float _Roughness;
@@ -496,6 +505,7 @@ Shader "Tutorial/029_material_baking/layered_repeating_perlin" {
 ```
 
 ### Tiling 3d voronoi
+
 - <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/3d_voronoi.shader>
 
 ```glsl
@@ -523,7 +533,7 @@ Shader "Tutorial/029_material_baking/repeating_3d_voronoi" {
 			#include "Random.cginc"
 
 			//global shader variables
-			#define OCTAVES 4 
+			#define OCTAVES 4
 
 			float _CellAmount;
 			float3 _Period;

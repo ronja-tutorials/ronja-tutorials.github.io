@@ -5,13 +5,15 @@ image: /assets/images/posts/011/Result.png
 ---
 
 ## Summary
+
 For me, one of the most interresting things to do with shaders is procedural images. To get started with that, we’re going to create a simple Checkerboard pattern.
 
-This tutorial will build on the [simple shader with only properties]({{ site.baseurl }}{% post_url 2018-03-22-properties %}), but as always, you can also use the technique to generate colors in more complex shaders.
+This tutorial will build on the [simple shader with only properties](/basics.html), but as always, you can also use the technique to generate colors in more complex shaders.
 
 ![Result of the tutorial](/assets/images/posts/011/Result.png)
 
-## Stripes 
+## Stripes
+
 I will take the world position of the surface to generate the chessboard texture, that way we can later move and rotate the model around and the generated patterns will fit together. If you want to pattern to move and rotate with the model, you can also use the object space coordinates (the ones from appdata, not multiplied with anything).
 
 To use the worldposition in the fragment shader, we add the world position to the vertex to fragment struct and then generate the world position in the vertex shader and write it into the struct.
@@ -38,7 +40,7 @@ Then we find out wether our field is a even or a odd one. To do that, we divide 
 
 ```glsl
 fixed4 frag(v2f i) : SV_TARGET{
-    //add different dimensions 
+    //add different dimensions
     float chessboard = floor(i.worldPos.x);
     //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for odd numbers.
     chessboard = frac(chessboard * 0.5);
@@ -47,14 +49,16 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
+
 ![stripes on a material](/assets/images/posts/011/1d.png)
 
 ## Checkerboard in 2d and 3d
+
 Next, we make the pattern two dimensional. To do that we only have to add a additional axis to the value we’re evaluating. That’s because when we add one to our rows all of the even values become odd and the odd values become even. This is also the main reason why we floor our values. We easily could have made the pattern work in one dimension without flooring them, but this makes it easier to add more dimensions.
 
 ```glsl
 fixed4 frag(v2f i) : SV_TARGET{
-    //add different dimensions 
+    //add different dimensions
     float chessboard = floor(i.worldPos.x) + floor(i.worldPos.y);
     //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for odd numbers.
     chessboard = frac(chessboard * 0.5);
@@ -63,14 +67,16 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
+
 ![even and odd numbers on a 2d grid where the components are added](/assets/images/posts/011/OddEvenPattern.png)
 
 ![checkerboard pattern on a material](/assets/images/posts/011/2d.png)
 
 After that we can go even further and add the third dimension in the same way as we added the second.
+
 ```glsl
 fixed4 frag(v2f i) : SV_TARGET{
-    //add different dimensions 
+    //add different dimensions
     float chessboard = floor(i.worldPos.x) + floor(i.worldPos.y) + floor(i.worldPos.z);
     //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for odd numbers.
     chessboard = frac(chessboard * 0.5);
@@ -79,12 +85,15 @@ fixed4 frag(v2f i) : SV_TARGET{
     return chessboard;
 }
 ```
+
 ![checkerboard pattern on a sphere](/assets/images/posts/011/3d.png)
 
 ## Scaling
+
 Next I’d like to add the ability to make the pattern bigger or smaller. For that, we add a new property for the scale of the pattern. We divide the position by the scale before we do anything else with it, that way, if the scale is smaller than one, the pattern is generated as if the object is bigger than it is and as such it has more pattern density per surface area.
 
 Another small change I made is that we now use floor on the whole vector instead of the components separately. That doesn’t change anything, I just think it’s nicer to read.
+
 ```glsl
 //...
 
@@ -102,7 +111,7 @@ float _Scale;
 fixed4 frag(v2f i) : SV_TARGET{
     //scale the position to adjust for shader input and floor the values so we have whole numbers
     float3 adjustedWorldPos = floor(i.worldPos / _Scale);
-    //add different dimensions 
+    //add different dimensions
     float chessboard = adjustedWorldPos.x + adjustedWorldPos.y + adjustedWorldPos.z;
     //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for off numbers.
     chessboard = frac(chessboard * 0.5);
@@ -113,9 +122,11 @@ fixed4 frag(v2f i) : SV_TARGET{
 
 //...
 ```
+
 ![scaling checkerboard bigger and smaller](/assets/images/posts/011/Scaling.gif)
 
 ## Customizable Colors
+
 Finally I’d like to add the possibility to add Colors to the Pattern, One for the even areas, one for the odd. We add two new Properties and the matching values for those colors to the shader.
 
 Then at the end of our fragment shader, we do a linear interpolation between the two colors. Since we only have two different values (zero and one), we can expect the interpolation to return either the color it interpolates from(for a input of 0) or the color it interpolates towards(for a input of 1). (If you’re confused by the interpolation, I explain it more thouroghly in [another tutorial]({{ site.baseurl }}{% post_url 2018-05-03-interpolating-colors %}).
@@ -140,7 +151,7 @@ float4 _OddColor;
 fixed4 frag(v2f i) : SV_TARGET{
     //scale the position to adjust for shader input and floor the values so we have whole numbers
     float3 adjustedWorldPos = floor(i.worldPos / _Scale);
-    //add different dimensions 
+    //add different dimensions
     float chessboard = adjustedWorldPos.x + adjustedWorldPos.y + adjustedWorldPos.z;
     //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for off numbers.
     chessboard = frac(chessboard * 0.5);
@@ -172,7 +183,7 @@ Shader "Tutorial/011_Chessboard"
     SubShader{
         //the material is completely non-transparent and is rendered at the same time as the other opaque geometry
         Tags{ "RenderType"="Opaque" "Queue"="Geometry"}
-        
+
 
         Pass{
             CGPROGRAM
@@ -207,7 +218,7 @@ Shader "Tutorial/011_Chessboard"
             fixed4 frag(v2f i) : SV_TARGET{
                 //scale the position to adjust for shader input and floor the values so we have whole numbers
                 float3 adjustedWorldPos = floor(i.worldPos / _Scale);
-                //add different dimensions 
+                //add different dimensions
                 float chessboard = adjustedWorldPos.x + adjustedWorldPos.y + adjustedWorldPos.z;
                 //divide it by 2 and get the fractional part, resulting in a value of 0 for even and 0.5 for off numbers.
                 chessboard = frac(chessboard * 0.5);

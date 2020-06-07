@@ -3,10 +3,12 @@ layout: post
 title: "Basic Transparency"
 image: /assets/images/posts/006/SemitransparentCube.png
 ---
+
 ## Summary
+
 In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
 
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I'll start with the result of the [tutorial for implementing textures]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
+To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I'll start with the result of the [tutorial for implementing textures]({{ site.baseurl }}{% post_url 2018-03-23-basic %}).
 
 ![Result](/assets/images/posts/006/SemitransparentCube.png)
 
@@ -39,6 +41,7 @@ With those changes our shader can already be used for a transparent material. Be
 ![Change Tint](/assets/images/posts/006/AdjustTint.gif)
 
 Another small thing we want to do here is disable z writing. Usually when a object is rendered, it writes it’s distace from the camera into a texture to tell other objects that are behind it not to draw over it. This doesn’t work with transparent objects though, because transparent objects don’t fully occlude everything behind them (to accomodate for that, first the most object furthest away is rendered and then in order until the closest object is rendered last, but unity does that for us so we don’t have to worry about it). Wether to write into the Z buffer or not can be defined in the subshader or shader pass.
+
 ```glsl
 Blend SrcAlpha OneMinusSrcAlpha
 ZWrite Off
@@ -47,6 +50,7 @@ ZWrite Off
 When our texture does have a alpha channel, this shader will also use it and make the object more see-through where there are low alpha values on the texture.
 
 ![Result](/assets/images/posts/006/TextureTransparentCube.png)
+
 ```glsl
 Shader "Tutorial/006_Basic_Transparency"{
 	Properties{

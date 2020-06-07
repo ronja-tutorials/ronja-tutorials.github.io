@@ -13,7 +13,7 @@ On it's own the effect just looks kind of weird, which can also be used as a aes
 
 ## Screenspace Coordinates in Unlit Shaders
 
-If you're new to shader programming I recommend you to read [my tutorial on the basics of writing shaders](/basics.html) first. If you've written a few shaders you should be fine. As the base shader I'll iterate upon I'll use the result of the [tutorial about using textures in a shader]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
+If you're new to shader programming I recommend you to read [my tutorial on the basics of writing shaders](/basics.html) first. If you've written a few shaders you should be fine. As the base shader I'll iterate upon I'll use the result of the [tutorial about using textures in a shader]({{ site.baseurl }}{% post_url 2018-03-23-basic %}).
 
 The first changes we make is to expand the vertex to fragment struct. So far it held the position and the uv coordinates. The screen position is used similarly to the uv coordinates, but for the screen position we need a vector with 4 components instead of 2.
 

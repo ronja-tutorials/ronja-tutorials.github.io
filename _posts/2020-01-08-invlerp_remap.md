@@ -10,7 +10,7 @@ In a [previous tutorial]({{ site.baseurl }}{% post_url 2018-05-03-interpolating-
 
 ## Example Shader
 
-The base shader is pretty barebones, similar to the one in [the first few tutorials]({{ site.baseurl }}{% post_url 2018-03-22-properties %}). I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the "blending variable" I used the y component of the UV coordinates so it's immediately visible what the function does over a gradient from 0 to 1.
+The base shader is pretty barebones, a little more complex than [a completely unlit one](/basics.html). I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the "blending variable" I used the y component of the UV coordinates so it's immediately visible what the function does over a gradient from 0 to 1.
 
 A shader version for a regular linear interpolation looks like this:
 
@@ -102,7 +102,7 @@ float result = lerp(from, to, inverseLerped);
 
 In this example the `result` should always be the same value as the input `value`. Similarly first doing a lerp and then an inverse lerp with the arguments chained like this shouldn't change anything.
 
-I like the straightforward way we can deduce the function. We start by making sure that if the value is the same as the lower bound, the function returns a `0`, we do this by subtracting the `from` variable from the value. 
+I like the straightforward way we can deduce the function. We start by making sure that if the value is the same as the lower bound, the function returns a `0`, we do this by subtracting the `from` variable from the value.
 
 ```glsl
 float invLerp(float from, float to, float value){
@@ -118,7 +118,7 @@ float invLerp(float from, float to, float value){
 }
 ```
 
-With this you can can get gradients in a 0 to 1 range from any other gradient. You could replace all of the arguments with multidimensional vectors (`float2`, `float3`, `float4`), but it's far less useful than with `lerp` unless you want a component-wise inverse lerp. 
+With this you can can get gradients in a 0 to 1 range from any other gradient. You could replace all of the arguments with multidimensional vectors (`float2`, `float3`, `float4`), but it's far less useful than with `lerp` unless you want a component-wise inverse lerp.
 
 ![](/assets/images/posts/047/InvLerp.gif)
 

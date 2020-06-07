@@ -5,15 +5,17 @@ image: /assets/images/posts/020/Result.png
 ---
 
 ## Summary
+
 So far we only ever wrote a color to the screen once per shader (or let unity generate multiple passes for us via surface shaders). But we have the possibility to draw our mesh multiple times in a single shader. A great way to use this is to draw outlines. First we draw our object as usual and then we draw it again, but we change the vertices a bit so it’s only visible around the original object, drawing a outline.
 
 To understand this Tutorial it’s best if you [understood surface shaders]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}).
 
-The first version of this shader will be based on the [simple textured unlit shader]({{ site.baseurl }}{% post_url 2018-03-23-textures %}).
+The first version of this shader will be based on the [simple textured unlit shader]({{ site.baseurl }}{% post_url 2018-03-23-basic %}).
 
 ![Result](/assets/images/posts/020/Result.png)
 
 ## Outlines for Unlit Shaders
+
 We already have a shader pass in this shader, so we just duplicate that for now. Because we’re writing the same information twice, this doesn’t change how the shader looks though.
 
 ```glsl
@@ -79,6 +81,7 @@ Properties{
     _MainTex ("Texture", 2D) = "white" {}
 }
 ```
+
 ```glsl
 //color of the outline
 fixed4 _OutlineColor;
@@ -116,6 +119,7 @@ v2f vert(appdata v){
     return o;
 }
 ```
+
 ![](/assets/images/posts/020/DarkMonkey.png)
 
 With those changes, we can see in the editor that the objects now simply have the color the outlines should have. That’s because our second pass simply draws over everything the first pass has drawn. That’s a thing we’re going to fix later though.
@@ -129,6 +133,7 @@ struct appdata{
     float3 normal : NORMAL;
 };
 ```
+
 ```glsl
 //the vertex shader
 v2f vert(appdata v){
@@ -143,6 +148,7 @@ v2f vert(appdata v){
     return o;
 }
 ```
+
 ![](/assets/images/posts/020/PulsatingMonkey.gif)
 
 With this we can now adjust the thickness of our hull, but it’s still hiding the base objects. The fix for that is that we don’t draw the front of the hull. Usually when we render objects we only draw the front because of performance reasons (you might have looked inside a object before and were able to look outside, that’s why). For this we can now invert that and only draw the backside. That means we can still see the object because we can look into the hull and we can see the hull behinde the object because it’s bigger than the object itself.
@@ -154,10 +160,13 @@ To tell unity to not render the frontsides of objects we add the Cull Front attr
 Pass{
     Cull Front
 ```
+
 ![](/assets/images/posts/020/SimpleOutlines.png)
 
 And with this we have the outlines how we want them.
+
 ### Source
+
 ```glsl
 Shader "Tutorial/19_InvertedHull/Unlit"{
     //show values to edit in inspector
@@ -279,12 +288,15 @@ Shader "Tutorial/19_InvertedHull/Unlit"{
 ```
 
 ## Outlines with Surface Shaders
+
 It is pretty straightforward to also apply the outlines to a surface shader. Unity does generate the passes of the surface shader for us, but we can still use our own passes too which unity won’t touch so they operate as usual.
 
 This means we can simply copy the outline pass from our unlit shader into a surface shader and have it work just as we expect it to.
 
 ![](/assets/images/posts/020/Result.png)
+
 ### Source
+
 ```glsl
 Shader "Tutorial/020_InvertedHull/Surface" {
     Properties {
@@ -302,7 +314,7 @@ Shader "Tutorial/020_InvertedHull/Surface" {
         Tags{ "RenderType"="Opaque" "Queue"="Geometry"}
 
         CGPROGRAM
-        //the shader is a surface shader, meaning that it will be extended by unity in the background 
+        //the shader is a surface shader, meaning that it will be extended by unity in the background
         //to have fancy lighting and other features
         //our surface shader function is called surf and we use our custom lighting model
         //fullforwardshadows makes sure unity adds the shadow passes the shader might need

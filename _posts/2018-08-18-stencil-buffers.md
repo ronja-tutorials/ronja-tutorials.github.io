@@ -5,6 +5,7 @@ image: /assets/images/posts/022/Result.gif
 ---
 
 ## Summary
+
 The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for "stencil operations". This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
 
 The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply. For those limitations and other more indepth information on how to use the stencil buffer in unity you can read here: <https://docs.unity3d.com/Manual/SL-Stencil.html>.
@@ -14,6 +15,7 @@ This tutorial will go into some of the basics of the stencil buffer and show rea
 ![](/assets/images/posts/022/Result.gif)
 
 ## Reading from the Stencil Buffer
+
 The shader which will read from the stencil buffer will draw itself, but only where the buffer has a specific value, everywhere else it will be discarded.
 
 All stencil operations are done via a small stencil code block outside of our hlsl code. Like most shaderlab things we can write them in our subshader to use them for the whole subshader or in the shader pass to use them only in that one shader pass. Because in surface shaders our shader passes are generated automatically by unity, we'll write it in the subshader in this case.
@@ -39,6 +41,7 @@ Stencil{
     Comp Equal
 }
 ```
+
 ![](/assets/images/posts/022/NormalMaterial.png)
 
 With this our material looks just like before, that's because the value of the stencil buffer is 0 everywhere and that's the value we compare to. If we change the reference value to any other number our material will be completely invisible because the comparison fails.
@@ -49,6 +52,7 @@ Stencil{
     Comp Equal
 }
 ```
+
 ![](/assets/images/posts/022/Invisible.png)
 
 Before we start writing a new shader I'd like to add the possibility to change the reference value from the inspector. For that we first add a property with a range going from 0 to 255, that includes all values the stencil buffer can have. Then we add the `[IntRange]` attribute to the property to ensure we can only choose whole values.
@@ -75,9 +79,10 @@ Stencil{
 ```
 
 ## Writing to the Stencil Buffer
+
 To make real use from our shader which reads from the stencil buffer, we'll write a second one which reads from it. This second shader will not write to the screen itself and will render before the first shader, so we make sure the stencil buffer already has the correct values written to it when we read from it.
 
-For this shader we start with the shader from the [properties tutorial]({{ site.baseurl }}{% post_url 2018-03-22-properties %}) because it's so simple and we don't need much. For it to not render to the screen at all and just manipulate the stencil buffer we'll add a few other small detail to it though.
+For this shader we start with a basic unlit shader, like in [the basics](/basics.html) because it's so simple and we don't need much. For it to not render to the screen at all and just manipulate the stencil buffer we'll add a few other small detail to it though.
 
 First we let the fragment shader just return 0, because we don't care about the return value anyways. Then we set the blending to `Zero One`, which means that the the color that is returned by the shader will be completely ignored and the color that was rendered before will be preserved completely. Another change to make the shader not render is that we'll tell it to not write to the Z buffer. Otherwise it would occlude objects behind it and because we want to see other things though the surface we don't want that at all. And the last change is to ensure the material renders before the materials which might read from the stencil buffer: We change the queue from `geometry` to `geomety-1` which puts it earlier in the render queue.
 
@@ -88,19 +93,23 @@ fixed4 frag(v2f i) : SV_TARGET{
     return 0;
 }
 ```
+
 ```glsl
 Blend Zero One
 ZWrite Off
 ```
+
 ```glsl
 "Queue"="Geometry-1"
 ```
+
 ```glsl
 //show values to edit in inspector
 Properties{
-    
+
 }
 ```
+
 ![](/assets/images/posts/022/Invisible.png)
 
 With this we've made another completely invisible shader, but with the advantage that it stays invisble no matter what the stencil buffer value is and that it actually draws something so we can stick a stencil operation to it.
@@ -114,6 +123,7 @@ Stencil{
     Pass Replace
 }
 ```
+
 ![](/assets/images/posts/022/SphereAndQuad.png)
 
 Now you can see the first material when it is at the same pixel on the screen as the second and has the same reference value.
@@ -131,6 +141,7 @@ When trying things out I ran into the problem that when using multiple stencil v
 ![](/assets/images/posts/022/Result.gif)
 
 ## Source
+
 ```glsl
 Shader "Tutorial/022_stencil_buffer/read" {
 	Properties {
@@ -180,6 +191,7 @@ Shader "Tutorial/022_stencil_buffer/read" {
 	FallBack "Standard"
 }
 ```
+
 ```glsl
 Shader "Tutorial/022_stencil_buffer/write"{
 	//show values to edit in inspector
@@ -237,5 +249,6 @@ Shader "Tutorial/022_stencil_buffer/write"{
 I hope this tutorial helped you understand how to use the stencil buffer and how to archieve cool effects with it.
 
 You can also find the source here:
+
 - <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_read.shader>
 - <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_write.shader>

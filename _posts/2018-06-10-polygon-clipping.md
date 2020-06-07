@@ -5,13 +5,15 @@ image: /assets/images/posts/014/Result.gif
 ---
 
 ## Summary
+
 Of course everything we render so far is made of polygons, but someone asked me how to clip a polygon shape based on a list of points in a shader so I’ll explain how to do that now. I will explain how to do that with a single shader pass in a fragment shader, a different way would be to actually generate triangles based on your polygon and use stencil buffers to clip, but I won’t explain that in this tutorial.
 
-Because this tutorial explains a simple technique that doesn’t do that much with fancy graphics I will explain it in a unlit shader, but it will work the same way in surface shaders. The base for this tutorial will be my simple shader with properties, so you should know how to do that before starting [this tutorial]({{ site.baseurl }}{% post_url 2018-03-22-properties %})
+Because this tutorial explains a simple technique that doesn’t do that much with fancy graphics I will explain it in a unlit shader, but it will work the same way in surface shaders. The base for this tutorial will be my simple shader with properties, so you should know how to do that before starting [this tutorial](/basics.html)
 
 ![Result](/assets/images/posts/014/Result.gif)
 
 ## Draw Line
+
 The first thing we have to add to our shader is the world position. Like in the other shaders (planar, triplanar and chessboard) we do that by multiplying the object position with the object to world matrix and pass that value to the fragment shader.
 
 ```glsl
@@ -72,6 +74,7 @@ side = step(0, side);
 
 return side;
 ```
+
 ![a diagonal line](/assets/images/posts/014/Line.png)
 
 We continue by adding a new point and two new lines which should allow us to make a triangle. For that it’s best to put the calculations we made so far in a method to reuse them more easily. For that we move all of our calculations to a new method and take the information we use as arguments, so in this case we want to take the point we want to check, the first point of the line and the second point of the line as arguments.
@@ -102,6 +105,7 @@ fixed4 frag(v2f i) : SV_TARGET{
 ```
 
 ## Draw a Polygon of multiple lines
+
 When we want to combine the multiple results of the lines we can do that in different ways, we can either define the result to be true if it’s to the left of all lines and false otherwise or we can say the result is true if it’s left of one or more lines and only false if it’s to the right of all lines. The triangle I defined goes clockwise, that means the left of the lines is outside, that means to differentiate between inside and outside of the polygon we have to find the union of all “left side” fragments. We do that by adding the results of the lines, the outsides will add up and have values of 1 or higher, the inside of the polygon will have a value of 0 everywhere.
 
 ```glsl
@@ -118,6 +122,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return outsideTriangle;
 }
 ```
+
 ![a black triangle on a white plane](/assets/images/posts/014/Triangle.png)
 
 Now that we can display a polygon sucessfully, I’d like to expand it so we can edit it more easily without editing the shader code. For that we add two new variables, a array of positions and how much that array is filled. The first one will hold all of the points of our polygon, the second one is there because shaders don’t support dynamic arrays, so we have to choose a length for the array and then we fill it more or less.
@@ -129,6 +134,7 @@ uniform uint _cornerCount;
 ```
 
 ### Filling the Corner Array
+
 There are no properties for arrays, so we have to fill them via C# code. I added two attributes to the new class, execute in edit mode to make the script update our polygon without us starting the game and require component, to make sure the script is on the same gameobject as the renderer which has the material with the shader we’re writing.
 
 ```cs
@@ -139,7 +145,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 [RequireComponent(typeof(Renderer))]
 public class PolygonController : MonoBehaviour {
-	
+
 
 }
 ```
@@ -176,7 +182,7 @@ void UpdateMaterial(){
     //pass array to material
     _mat.SetVectorArray("_corners", vec4Corners);
     _mat.SetInt("_cornerCount", corners.Length);
-} 
+}
 ```
 
 The next step is to actually call this function, we do this in two methods, one which we call Start and one which we call OnValidate. The first one will automatically called by unity when the game starts and the second one will automatically be called by unity when a variable of the script changes in the inspector.
@@ -206,7 +212,7 @@ In the loop, we just add the return value of the side function of one line. As t
 fixed4 frag(v2f i) : SV_TARGET{
 
     float outsideTriangle = 0;
-    
+
     [loop]
     for(uint index;index<_cornerCount;index++){
         outsideTriangle += isLeftOfLine(i.worldPos.xy, _corners[index], _corners[(index+1) % _cornerCount]);
@@ -215,11 +221,13 @@ fixed4 frag(v2f i) : SV_TARGET{
     return outsideTriangle;
 }
 ```
+
 ![a black hexagon on a white plane](/assets/images/posts/014/Hexagon.png)
 
 And with that we have a polygon just based on a few points (if it doesn’t show for you, just nudge the values in the inspector a bit to call OnValidate).
 
 ## Clip and Color the Polygon
+
 The person who requested this tutorial asked how to clip a polygon, so that’s the last thing we’re going to add here. In hlsl there is a function to discard polygons called clip. We pass it a value and if that value is lower than 0 the fragment won’t be rendered, otherwise the function does nothing.
 
 We can pass the outsideTriangle variable into the clip function, but nothing will happen because all values of the value are 0 or higher. To actually clip everything outside of the polygon we can simply invert the value and the values inside of the polygon will stay 0 and all of the values outside will be negative and will be clipped.
@@ -231,6 +239,7 @@ Because we now use the outsideTriangle variable for it’s intended use, we can 
     return outsideTriangle;
 }
 ```
+
 ![super - hexagon](/assets/images/posts/014/SuperHexagon.png)
 
 ![the shape not being displayed properly when trying to make a concave shape](/assets/images/posts/014/ConcaveBreaking.gif)
@@ -304,7 +313,7 @@ Shader "Tutorial/014_Polygon"
             fixed4 frag(v2f i) : SV_TARGET{
 
                 float outsideTriangle = 0;
-                
+
                 [loop]
                 for(uint index;index<_cornerCount;index++){
                     outsideTriangle += isLeftOfLine(i.worldPos.xy, _corners[index], _corners[(index+1) % _cornerCount]);
@@ -319,6 +328,7 @@ Shader "Tutorial/014_Polygon"
     }
 }
 ```
+
 ```cs
 using System.Collections;
 using System.Collections.Generic;
@@ -339,12 +349,12 @@ public class PolygonController : MonoBehaviour {
 	void OnValidate(){
 		UpdateMaterial();
 	}
-	
+
 	void UpdateMaterial(){
 		//fetch material if we haven't already
 		if(_mat == null)
 			_mat = GetComponent<Renderer>().sharedMaterial;
-		
+
 		//allocate and fill array to pass
 		Vector4[] vec4Corners = new Vector4[1000];
 		for(int i=0;i<corners.Length;i++){
@@ -354,7 +364,7 @@ public class PolygonController : MonoBehaviour {
 		//pass array to material
 		_mat.SetVectorArray("_corners", vec4Corners);
 		_mat.SetInt("_cornerCount", corners.Length);
-	} 
+	}
 
 }
 ```

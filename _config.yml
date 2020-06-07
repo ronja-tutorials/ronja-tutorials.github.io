@@ -21,8 +21,7 @@ future: true
 author: "Ronja Böhringer"
 image: /thumbnail-jumbo.png
 disqus:
-  shortname:
-    ronja-tutorials
+  shortname: ronja-tutorials
 twitter:
   username: TotallyRonja
 ko-fi:
@@ -34,5 +33,6 @@ patreon:
 
 plugins:
   - jekyll-feed
+  - jekyll-redirect-from
 
 exclude: [/.idea, /.git]

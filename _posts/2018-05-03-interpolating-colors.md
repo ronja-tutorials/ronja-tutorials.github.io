@@ -5,12 +5,14 @@ image: /assets/images/posts/009/Result.png
 ---
 
 ## Summary
+
 Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
 
-This tutorial will build on the [simple textured shader]({{ site.baseurl }}{% post_url 2018-03-23-textures %}), but you can use this technique with any shader including surface shaders.
+This tutorial will build on the [simple textured shader]({{ site.baseurl }}{% post_url 2018-03-23-basic %}), but you can use this technique with any shader including surface shaders.
 ![Result](/assets/images/posts/009/Result.png)
 
 ## Interpolate Colors
+
 The first version of this shader we’re exploring will just interpolate between two plain colors based on a value. Because of that we don’t need the variables connected to uv coordinates or textures for now, instead we add a second color variable and a simple value which will determine if the material shows the first of the second color. We define that blending property as a “Range” so we get a nice slider in the inspector.
 
 ```glsl
@@ -42,11 +44,13 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
+
 ![Blend Between two colors in a wrong way](/assets/images/posts/009/BlendColorsAdd.gif)
 
 We can already see that the color changes, but it doesn’t change to the secondary color. That’s because while the secondary color gets factored in, the primary color is still there (it’s similar to pointing two lights of different colors at one spot).
 
 To fix this we can lessen the effect of the primary color as we increase the blend value. With a blend value of 0 we don’t see any of the secondary color and all of the primary one and with a blend value of 1 we want to see all of the secondary color and nothing of the primary color. To archive that, we multiply the primary color with one minus the blend value, turning 1 to 0 and 0 to 1.
+
 ```glsl
 //the fragment shader
 fixed4 frag(v2f i) : SV_TARGET{
@@ -54,6 +58,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
+
 ![Blend Between two colors correctly](/assets/images/posts/009/BlendColors.gif)
 
 This process is also called linear interpolation and theres a function built into hlsl that does this for us called lerp. It takes a value to interpolate from, a value to interpolate to and a interpolation value.
@@ -129,7 +134,9 @@ Shader "Tutorial/009_Color_Blending/Plain"{
 ```
 
 ## Interpolate Textures
+
 The next version of this shader will involve interpolating between colors we read from textures. For that we remove the color properties and variables to instead add properties and variables for two textures. We also introduce variables for uv coordinates again, but unlike in the texture tutorial we’re not applying the tiling and offset of the texture in the vertex shader. That’s because we have several textures that all use the same uv coodinates and we don’t want to interpolate all of them when we don’t have to.
+
 ```glsl
 //...
 
@@ -184,6 +191,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
+
 ![Blend Between two Textures](/assets/images/posts/009/BlendTextures.gif)
 
 The complete shader for interpolating between two textures looks like this:
@@ -264,9 +272,11 @@ Shader "Tutorial/009_Color_Blending/Texture"{
 ```
 
 ## Interpolation based on a Texture
+
 Lastly I’m going to show you a shader that doesn’t use one uniform variable to blend between the textures, but instead takes the blend value from a texture.
 
 For this we start by deleting the variable and property we used for blending and instead add another texture.
+
 ```glsl
 //...
 
@@ -294,6 +304,7 @@ float4 _SecondaryTex_ST;
 ```
 
 We then also generate the transformed uv coordinates for that texture. With them, we read the color value from the texture. We now have a full color with red, green, blue and alpha components, but we want a simple 0-1 scalar value. To convert the color into a float we assume the texture is greyscale and just take out the red value of it. We then use this value to interpolate between the other two textures like we did before.
+
 ```glsl
 //the fragment shader
 fixed4 frag(v2f i) : SV_TARGET{
@@ -315,6 +326,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     return col;
 }
 ```
+
 ![Blend Between two textures based on a texture](/assets/images/posts/009/BlendWithTexture.png)
 
 The complete shader for interpolating based on a texture looks like this:
@@ -403,6 +415,7 @@ Shader "Tutorial/009_Color_Blending/TextureBasedBlending"{
 I hope this tutorial helped you understand how to work with colors in shaders and interpolation in particular.
 
 You can find the source code to the shaders here:
-* <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Plain.shader>
-* <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Texture.shader>
-* <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_TextureBasedBlending.shader>
+
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Plain.shader>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Texture.shader>
+- <https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_TextureBasedBlending.shader>

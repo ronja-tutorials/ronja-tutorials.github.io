@@ -7,7 +7,7 @@ hidden: false
 
 Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we'll just trace the silouette of a sphere, but in future tutorials I'll give examples how to make more complex shapes and do lighting.
 
-As the base of the shader we'll use the result of the [properties]({{ site.baseurl }}{% post_url 2018-03-22-properties %}) tutorial, so you can do this tutorial when you're fairly new to shaders. If you do struggle with some of the concepts of signed distance fields though, have a look into [my tutorial about 2d signed distance fields]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics %}).
+As the base of the shader we'll use a [basic unlit shader](/basics.html), so you can do this tutorial when you're fairly new to shaders. If you do struggle with some of the concepts of signed distance fields though, have a look into [my tutorial about 2d signed distance fields]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics %}).
 
 ## The theory
 
@@ -90,7 +90,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     float3 pos = i.localPosition;
     float3 dir = normalize(i.viewDirection.xyz);
     float progress = 0;
-    
+
     //tracing loop
     for (uint iter = 0; iter < MAX_STEPS; iter++) {
         //get current location on ray
@@ -104,7 +104,7 @@ fixed4 frag(v2f i) : SV_TARGET{
         //go forwards
         progress = progress + STEP_SIZE;
     }
-    
+
     //return black pixel if no shape was hit
     return 0;
 }
@@ -133,7 +133,7 @@ fixed4 frag(v2f i) : SV_TARGET{
     float3 pos = i.localPosition;
     float3 dir = normalize(i.viewDirection.xyz);
     float progress = 0;
-    
+
     //tracing loop
     for (uint iter = 0; iter < MAX_STEPS; iter++) {
         //get current location on ray
@@ -147,7 +147,7 @@ fixed4 frag(v2f i) : SV_TARGET{
         //go forwards
         progress = progress + distance;
     }
-    
+
     //return black pixel if no shape was hit
     return 0;
 }
@@ -233,7 +233,7 @@ Shader "Tutorial/042_SphereTracingBasics"{
                 float3 pos = i.localPosition;
                 float3 dir = normalize(i.viewDirection.xyz);
                 float progress = 0;
-                
+
                 //tracing loop
                 for (uint iter = 0; iter < MAX_STEPS; iter++) {
                     //get current location on ray

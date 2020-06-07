@@ -44,6 +44,13 @@ $on-laptop: 54em !default;
 // Import partials.
 @import "blog/base", "blog/layout";
 
+.tutorial-list li {
+  background-color: lightgray;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 2px inset #c8c8c8;
+}
+
 .switch {
   position: relative;
   display: inline-block;

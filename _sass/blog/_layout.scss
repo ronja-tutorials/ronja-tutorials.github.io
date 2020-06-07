@@ -31,7 +31,7 @@
   line-height: $base-line-height * $base-font-size * 2.25;
 
   .nav-trigger {
-      display: none;
+    display: none;
   }
 
   .menu-icon {
@@ -103,7 +103,6 @@
       margin-right: 10px;
       margin-left: 10px;
     }
-
   }
 }
 
@@ -115,7 +114,7 @@
   list-style: none;
 
   > li {
-    margin-bottom: $spacing-unit * 1.5;
+    margin-bottom: 10px;
   }
 
   > li > h2 {

@@ -3,152 +3,161 @@ layout: default
 ---
 
 <div>
-
   {{ content }}
 
   <h2>Tutorials</h2>
-  <input id="SearchField" type="text" oninput="filterPosts(this.value)"/>
-  
+  <input id="SearchField" type="text" oninput="filterPosts(this.value)" />
+
   <div>
     Newest first
     <label class="switch">
-      <input id="Chronological" type="checkbox" oninput="setOrder(this.checked)"/>
+      <input
+        id="Chronological"
+        type="checkbox"
+        oninput="setOrder(this.checked)"
+      />
       <span class="slider round"></span>
     </label>
     Oldest first
   </div>
-  <div>
+  <!--<div>
     Small View
     <label class="switch">
       <input id="BigView" type="checkbox" checked oninput="minimize(!this.checked)"/>
       <span class="slider round"></span>
     </label>
     Big View
-  </div>
+  </div>-->
 
   <div>&nbsp;</div>
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      {% unless post.hidden %}
-        <li name="{{ post.title }}">
-
-          {% assign date_format = site.cayman-blog.date_format | default: "%b %-d, %Y" %}
-          <span class="post-meta">{{ post.date | date: date_format }}</span>
-
+  <ul class="post-list tutorial-list">
+    {% for post in site.posts %} {% unless post.hidden %}
+    <li name="{{ post.title }}" style="overflow: hidden;">
+      <!--{% assign date_format = site.cayman-blog.date_format | default: "%b %-d, %Y" %}
+          <span class="post-meta">{{ post.date | date: date_format }}</span>-->
+      
+        <div style="float:left; width: 70%;">
           <h2>
-            <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}
+            <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">{{ post.title | escape }}</a>
           </h2>
-          {% if post.image %}
-              <img src="{{ post.image }}" alt="{{ post.image }}" style="max-width: 50%" 
-                  name="preview" class="preview">
-            </a>
-          {% else %}
-            </a>
-            <span class="preview">{{ post.excerpt | markdownify | truncatewords: 30 }}</span>
-          {% endif %}
-
-        </li>
-      {% endunless %}
-    {% endfor %}
+        </div>
+        {% if post.image %}
+        <div style="float:right; width: 30%;">
+          <a class="post-link" href="{{ post.url | relative_url }}" title="{{ post.title }}">
+            <img
+              src="{{ post.image }}"
+              style="max-width: 100%; max-height: 100px; float:right;"
+              name="preview"
+              class="preview"
+            />
+          </a>
+        </div>
+        {% endif %}
+      </a>
+    </li>
+    {% endunless %} {% endfor %}
   </ul>
   <script>
-    root = document.getElementsByClassName("post-list")[0];
-    this.posts = root.getElementsByTagName("li");
+    root = document.getElementsByClassName("post-list")[0]
+    this.posts = root.getElementsByTagName("li")
 
-    this.flipped = false;
-    this.minimized = false;
-    this.filter = "";
-    
-    function filterPosts(searchTerm){
-      this.filter = searchTerm;
-      for(i=0;i<this.posts.length;i++){
-        post = this.posts[i];
-        var found = post.getAttribute("name").toLowerCase().includes(searchTerm.toLowerCase());
-        post.style.display = found?"block":"none";
+    this.flipped = false
+    this.minimized = false
+    this.filter = ""
+
+    function filterPosts(searchTerm) {
+      this.filter = searchTerm
+      for (i = 0; i < this.posts.length; i++) {
+        post = this.posts[i]
+        var found = post
+          .getAttribute("name")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+        post.style.display = found ? "block" : "none"
       }
-      updateUrl();
+      updateUrl()
     }
 
-    function setOrder(chrono){
-      if((this.flipped && !chrono) || (!this.flipped && chrono))
-        flipOrder();
+    function setOrder(chrono) {
+      if ((this.flipped && !chrono) || (!this.flipped && chrono)) flipOrder()
     }
 
-    function minimize(mini){
-      this.minimized = mini;
-      if(this.maginBottom == undefined){
-        this.maginBottom = this.posts[0].style.marginBottom;
+    function minimize(mini) {
+      this.minimized = mini
+      if (this.maginBottom == undefined) {
+        this.maginBottom = this.posts[0].style.marginBottom
       }
-      for(i=0;i<this.posts.length;i++){
-        post = this.posts[i];
-        post.getElementsByClassName("preview")[0].style.display = mini?"none":"block";
-        post.getElementsByClassName("post-meta")[0].style.display = mini?"none":"block";
-        post.style.marginBottom = mini?0:this.maginBottom;
+      for (i = 0; i < this.posts.length; i++) {
+        post = this.posts[i]
+        post.getElementsByClassName("preview")[0].style.display = mini
+          ? "none"
+          : "block"
+        post.getElementsByClassName("post-meta")[0].style.display = mini
+          ? "none"
+          : "block"
       }
-      updateUrl();
+      updateUrl()
     }
 
-    function flipOrder(){
-      var elements = document.createDocumentFragment();
-      var count = this.posts.length;
-      var flippedPosts = [];
-      for(i=1;i<=count;i++){
-        var newElement = this.posts[count-i].cloneNode(true);
-        elements.appendChild(newElement);
-        flippedPosts.push(newElement);
+    function flipOrder() {
+      var elements = document.createDocumentFragment()
+      var count = this.posts.length
+      var flippedPosts = []
+      for (i = 1; i <= count; i++) {
+        var newElement = this.posts[count - i].cloneNode(true)
+        elements.appendChild(newElement)
+        flippedPosts.push(newElement)
       }
       while (root.firstChild) {
-        root.removeChild(root.firstChild);
+        root.removeChild(root.firstChild)
       }
-      root.appendChild(elements);
-      this.posts = flippedPosts;
-      this.flipped = !this.flipped;
-      updateUrl();
+      root.appendChild(elements)
+      this.posts = flippedPosts
+      this.flipped = !this.flipped
+      updateUrl()
     }
 
-    function updateUrl(){
+    function updateUrl() {
       var urlParams = new URLSearchParams()
-      var any = 0;
-      if(this.filter){
-        urlParams.set("search", this.filter);
-        any = true;
+      var any = 0
+      if (this.filter) {
+        urlParams.set("search", this.filter)
+        any = true
       }
-      if(this.flipped){
-        urlParams.set("flipped", this.flipped);
-        any = true;
+      if (this.flipped) {
+        urlParams.set("flipped", this.flipped)
+        any = true
       }
-      if(this.minimized){
-        urlParams.set("minimized", this.minimized);
-        any = true;
+      if (this.minimized) {
+        urlParams.set("minimized", this.minimized)
+        any = true
       }
 
-      var loc = window.location;
-      var url = loc.protocol + "//" + loc.host + loc.pathname;
-      if(any)
-        url += "?" + urlParams.toString();
-      window.history.replaceState({path: url},"", url);
+      var loc = window.location
+      var url = loc.protocol + "//" + loc.host + loc.pathname
+      if (any) url += "?" + urlParams.toString()
+      window.history.replaceState({ path: url }, "", url)
     }
 
-    function init(){
-      var urlParams = new URLSearchParams(window.location.search);
-      if(urlParams.has('search')){
-        document.getElementById("SearchField").value = urlParams.get('search');
-        filterPosts(urlParams.get('search'));
+    function init() {
+      var urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.has("search")) {
+        document.getElementById("SearchField").value = urlParams.get("search")
+        filterPosts(urlParams.get("search"))
       }
-      if(urlParams.has('flipped')){
-        var value = urlParams.get('flipped') == "true";
-        document.getElementById("Chronological").checked = value;
-        setOrder(value);
+      if (urlParams.has("flipped")) {
+        var value = urlParams.get("flipped") == "true"
+        document.getElementById("Chronological").checked = value
+        setOrder(value)
       }
-      if(urlParams.has('minimized')){
-        var value = urlParams.get('minimized') == "true";
-        document.getElementById("BigView").checked = !value;
-        minimize(value);
+      if (urlParams.has("minimized")) {
+        var value = urlParams.get("minimized") == "true"
+        document.getElementById("BigView").checked = !value
+        minimize(value)
       }
     }
-    
-    init();
+
+    init()
   </script>
-
 </div>

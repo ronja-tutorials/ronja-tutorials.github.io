@@ -49,12 +49,13 @@ void Spheres (uint3 id : SV_DispatchThreadID)
 
 Unlike graphics shaders compute shaders can't just be assigned to a material and via that to a object. Instead we trigger the execution ourselves from c# code.
 
-In the C# component we create we reference our compute shader via a variable of the type `ComputeShader`. We also create a integer to store the identifier of our kernel after getting it once in the start method. To get the kernel identifier we call the `FindKernel(<kernelname>)` function on our compute shader.
+In the C# component we create we reference our compute shader via a variable of the type `ComputeShader`. We also create a integer to store the identifier of our kernel after getting it once in the start method. To get the kernel identifier we call the `FindKernel(<kernelname>)` function on our compute shader. And after getting the kernel identifier we can use it to get the size of each thread group (thats equal to our `numthreads` in the shader). We store the x size in a variable and discard the others by passing in `_` as a output variable.
 
 Lets also make the length of the buffer we're filling a public property so we can change that in the future. With that information available we can also create the gpu array we'll write to as a `ComputeBuffer`. Its constructor takes in the amount of elements as the first parameter and the size of its content as the second parameter. Since we're using float3 on the shader side, we can get the size(in bytes) of a float with the `sizeof` function and multiply the result by 3(getting the size of a Vector3 or a float3 of the new mathematics lib is also possible, but only in a unsafe context and that sounds scary(it isn't really, but whatever)). Paralell to the ComputeBuffer lets also create a regular Vector3 array of the same size, we'll use it later to copy the data back to the ram where we can use it. If we want to write clean code (we kinda do) we should also call `Dispose` on our buffer when the component is destroyed so unity can do garbage collection, so lets add that to the OnDestroy method.
 
 With all of that set up we can use the shader in the update method. First we declare set the buffer of the shader to be our buffer, this buffer is set per kernel so we also have to pass in our kernel identifier.
-After thats done we can dispatch the shader and tell it how many threads it should run, in our case thats the length of our array. And then we can already get the data out of the buffer into ram we can work with in C# with the aptly named `GetData` function.
+To dispatch the shader we first calculate how many threadgroups we need, in our case we want the amount of threads to be the length of the array, so the thread groups should be that amount divided by the thread size rounded up. When dealing with integers the easiest way of doing a division and getting the rounded up result is to add the divisor minus one before the division, that adds 1 to the result unless the dividend is a exact multiple of the divisor.
+After thats done we can dispatch the shader and tell it how many thread groups it should run (the amount we just calculated in `x`, and 1 in `y` and `z`). And then we can already get the data out of the buffer into ram we can work with in C# with the aptly named `GetData` function.
 
 ```cs
 public class BasicComputeSpheres : MonoBehaviour
@@ -64,12 +65,14 @@ public class BasicComputeSpheres : MonoBehaviour
 
     ComputeBuffer resultBuffer;
     int kernel;
+    uint threadGroupSize;
     Vector3[] output;
 
     void Start()
     {
         //program we're executing
         kernel = Shader.FindKernel("Spheres");
+        Shader.GetKernelThreadGroupSizes(kernel, out threadGroupSize, out _, out _);
 
         //buffer on the gpu in the ram
         resultBuffer = new ComputeBuffer(SphereAmount, sizeof(float) * 3);
@@ -79,7 +82,8 @@ public class BasicComputeSpheres : MonoBehaviour
     void Update()
     {
         Shader.SetBuffer(kernel, "Result", resultBuffer);
-        Shader.Dispatch(kernel, SphereAmount, 1, 1);
+        int threadGroups = (int) ((SphereAmount + (threadGroupSize - 1)) / threadGroupSize);
+        Shader.Dispatch(kernel, threadGroups, 1, 1);
         resultBuffer.GetData(output);
     }
 
@@ -201,6 +205,7 @@ public class BasicComputeSpheres : MonoBehaviour
 
     ComputeBuffer resultBuffer;
     int kernel;
+    uint threadGroupSize;
     Vector3[] output;
 
     Transform[] instances;
@@ -209,6 +214,7 @@ public class BasicComputeSpheres : MonoBehaviour
     {
         //program we're executing
         kernel = Shader.FindKernel("Spheres");
+        Shader.GetKernelThreadGroupSizes(kernel, out threadGroupSize, out _, out _);
 
         //buffer on the gpu in the ram
         resultBuffer = new ComputeBuffer(SphereAmount, sizeof(float) * 3);
@@ -226,7 +232,8 @@ public class BasicComputeSpheres : MonoBehaviour
     {
         Shader.SetFloat("Time", Time.time);
         Shader.SetBuffer(kernel, "Result", resultBuffer);
-        Shader.Dispatch(kernel, SphereAmount, 1, 1);
+        int threadGroups = (int) ((SphereAmount + (threadGroupSize - 1)) / threadGroupSize);
+        Shader.Dispatch(kernel, threadGroups, 1, 1);
         resultBuffer.GetData(output);
 
         for (int i = 0; i < instances.Length; i++)

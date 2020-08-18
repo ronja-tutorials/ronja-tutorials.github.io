@@ -5,6 +5,7 @@ image: /assets/images/posts/021/Result.gif
 ---
 
 ## Summary
+
 Another cool effect is to make the surface disappear when it’s beyond a certain plane.
 
 To follow this tutorial, it’s best to know how [surface shaders work]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}) - you can find a tutorial how they work [here]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}).
@@ -12,6 +13,7 @@ To follow this tutorial, it’s best to know how [surface shaders work]({{ site.
 ![Result](/assets/images/posts/021/Result.gif)
 
 ## Define Plane
+
 We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.
 
 In the Update Method we create a new variable of the type Plane which unity already has. We pass it the the normal of the plane and a point on the plane. We will use the up vector of the transform the script is on as the normal and the position of the transform as the point on the plane.
@@ -46,6 +48,7 @@ To set up this script we add it to a empty gameobject and apply our material to 
 ![](/assets/images/posts/021/PlaneInspector.png)
 
 ## Clip Plane
+
 Then we’ll write the shader. As a base for it we use the basic surface shader from this (tutorial]({{ site.baseurl }}{% post_url 2018-03-30-simple-surface %}).
 
 First we add the plane variable we just passed into the material. Because we won’t write to it from the inspector, we don’t need a property for it.
@@ -56,7 +59,7 @@ float4 _Plane;
 
 In the surface shader we can then calculate the distance of the surface point to the plane if it was in the origin of the world. We do this by calculating the dot product between the surface point and the plane normal. For all points on that plane the dot product will return 0 because the position vector is orthogonal to the normal. For points that are above the plane the values will be positive because the vectors point in the same direction and for the surface points below the plane the dot product will be negative because they point away from the normal.
 
-To do this comparison we need the world position, so we add it to our input struct. Then we get the dot product and just write it to the emission for now.
+To do this comparison we need the world position, so we add it to our input struct, just the exact name `worldPos` is enough for surface shaders to generate the world position for us, in [non-surface shaders we can do that ourselves with a small matrix multiplication]({{ site.baseurl }}{% post_url 2018-04-23-planar-mapping %}). Then we get the dot product and just write it to the emission for now.
 
 ```glsl
 //input struct which is automatically filled by unity
@@ -65,6 +68,7 @@ struct Input {
     float3 worldPos;
 };
 ```
+
 ```glsl
 //the surface shader function which sets parameters the lighting function then uses
 void surf (Input i, inout SurfaceOutputStandard o) {
@@ -73,6 +77,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
     o.Emission = distance;
 }
 ```
+
 ![](/assets/images/posts/021/OriginPlaneDistance.gif)
 
 When we now rotate our plane object we can see the distance being calculated correctly, but it completely ignores the position of the plane object because we act like it’s positioned in the center so far. This is where the distance we saved in the 4th component of the vector earlier comes in. Because it’s the distance from the center we can simply add it to the plane we constructed around the center and we get the plane at the correct position.
@@ -86,6 +91,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
     o.Emission = distance;
 }
 ```
+
 ![](/assets/images/posts/021/PlaneDistance.gif)
 
 You might notice that even though we call it the distance, the two sides of the plane don’t actually look the same, one has increasing values like we expect it from a distance, while the other side stays black. That’s because we actually have a signed distance, meaning the values on the dark side that are 1 unit far away from the plane have the value of -1.
@@ -104,10 +110,10 @@ void surf (Input i, inout SurfaceOutputStandard o) {
     o.Emission = distance;
 }
 ```
+
 ![](/assets/images/posts/021/ClipWithDistance.png)
 
 Now we can simply see through the upper part of the model. With this done, we don’t need the visualisation anymore and can use colors we use usually again.
-
 
 ```glsl
 //the surface shader function which sets parameters the lighting function then uses
@@ -126,9 +132,11 @@ void surf (Input i, inout SurfaceOutputStandard o) {
     o.Emission = _Emission;
 }
 ```
+
 ![](/assets/images/posts/021/UnCulledClip.gif)
 
 ## Show Inside
+
 With those changes we can now cut off the model based on a plane, but looking in the hole we created looks weird. Especially concave bodies look like they have small parts of them flying around sometimes. This is because by default we don’t draw the backfaces of models. It’s a optimisation we can make because we assume we won’t see inside the model anyways, but we can simply disable it.
 
 To draw all faces, no matter if they’re pointing towards the camera or away from it, we set the Cull parameter to off at the top of our subshader, outside of the hlsl code.
@@ -141,6 +149,7 @@ SubShader{
     // render faces regardless if they point towards the camera or away from it
     Cull Off
 ```
+
 ![](/assets/images/posts/021/SimpleClip.png)
 
 Now we can see inside the head, but the normals still point to the outside and we might not want to see the inside of the head. But can detect the difference between the inside surface and outside surface pretty easily so let’s do that.
@@ -157,10 +166,12 @@ struct Input {
     float facing : VFACE;
 };
 ```
+
 ```glsl
 float facing = i.facing * 0.5 + 0.5;
 o.Emission = facing;
 ```
+
 ![](/assets/images/posts/021/Facing.png)
 
 Now that we know the difference between the inside and outside faces, we can make the inside it’s own specific color. We lerp to the new color we expose via a property on the emissive channel because the emission is not affected by the wrong normals. We also multiply all other channels with the facing variable to make them black/matte/non-metallic to make the color we can see in the opening as neutral as possible.
@@ -177,12 +188,14 @@ Properties{
     [HDR]_CutoffColor("Cutoff Color", Color) = (1,0,0,0)
 }
 ```
+
 ```glsl
     float4 _CutoffColor;
 ```
+
 ```glsl
 float facing = i.facing * 0.5 + 0.5;
-			
+
 //normal color stuff
 fixed4 col = tex2D(_MainTex, i.uv_MainTex);
 col *= _Color;
@@ -191,11 +204,13 @@ o.Metallic = _Metallic * facing;
 o.Smoothness = _Smoothness * facing;
 o.Emission = lerp(_CutoffColor, _Emission, facing);
 ```
+
 ![](/assets/images/posts/021/Result.gif)
 
 There are still a few artefacts because of golbal illumination, but we can’t fix them without rewriting/removing global illumination and we won’t do that in this tutorial.
 
 ## Source
+
 ```glsl
 Shader "Tutorial/021_Clipping_Plane"{
     //show values to edit in inspector
@@ -217,7 +232,7 @@ Shader "Tutorial/021_Clipping_Plane"{
         Cull Off
 
         CGPROGRAM
-        //the shader is a surface shader, meaning that it will be extended by unity in the background 
+        //the shader is a surface shader, meaning that it will be extended by unity in the background
         //to have fancy lighting and other features
         //our surface shader function is called surf and we use our custom lighting model
         //fullforwardshadows makes sure unity adds the shadow passes the shader might need
@@ -252,7 +267,7 @@ Shader "Tutorial/021_Clipping_Plane"{
             clip(-distance);
 
             float facing = i.facing * 0.5 + 0.5;
-            
+
             //normal color stuff
             fixed4 col = tex2D(_MainTex, i.uv_MainTex);
             col *= _Color;

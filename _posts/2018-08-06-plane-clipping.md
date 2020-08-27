@@ -133,7 +133,7 @@ void surf (Input i, inout SurfaceOutputStandard o) {
 }
 ```
 
-![](/assets/images/posts/021/UnCulledClip.gif)
+![](/assets/images/posts/021/SimpleClip.gif)
 
 ## Show Inside
 
@@ -150,7 +150,7 @@ SubShader{
     Cull Off
 ```
 
-![](/assets/images/posts/021/SimpleClip.png)
+![](/assets/images/posts/021/UnCulledClip.png)
 
 Now we can see inside the head, but the normals still point to the outside and we might not want to see the inside of the head. But can detect the difference between the inside surface and outside surface pretty easily so let’s do that.
 

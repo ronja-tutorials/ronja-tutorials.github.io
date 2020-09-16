@@ -35,4 +35,4 @@ plugins:
   - jekyll-feed
   - jekyll-redirect-from
 
-exclude: [/.idea, /.git]
+exclude: [/.idea, /.git, /vendor]

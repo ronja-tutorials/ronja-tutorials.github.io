@@ -1,0 +1,137 @@
+have_library: checking for -lkernel32... -------------------- yes
+
+"x86_64-w64-mingw32-gcc -o conftest.exe -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe conftest.c  -L. -LC:/Ruby24-x64/lib -L. -pipe     -lx64-msvcrt-ruby240  -lgmp -lshell32 -lws2_32 -liphlpapi -limagehlp -lshlwapi  "
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <winsock2.h>
+4: #include <windows.h>
+5: int main(int argc, char **argv)
+6: {
+7:   return 0;
+8: }
+/* end */
+
+"x86_64-w64-mingw32-gcc -o conftest.exe -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe conftest.c  -L. -LC:/Ruby24-x64/lib -L. -pipe     -lx64-msvcrt-ruby240 -lkernel32  -lgmp -lshell32 -lws2_32 -liphlpapi -limagehlp -lshlwapi  "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <winsock2.h>
+ 4: #include <windows.h>
+ 5: 
+ 6: /*top*/
+ 7: extern int t(void);
+ 8: int main(int argc, char **argv)
+ 9: {
+10:   if (argc > 1000000) {
+11:     printf("%p", &t);
+12:   }
+13: 
+14:   return 0;
+15: }
+16: 
+17: int t(void) { ; return 0; }
+/* end */
+
+--------------------
+
+have_header: checking for windows.h... -------------------- yes
+
+"x86_64-w64-mingw32-gcc -E -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <winsock2.h>
+4: #include <windows.h>
+5: #include <windows.h>
+/* end */
+
+--------------------
+
+have_header: checking for ruby.h... -------------------- yes
+
+"x86_64-w64-mingw32-gcc -E -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe  conftest.c -o conftest.i"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <winsock2.h>
+4: #include <windows.h>
+5: #include <ruby.h>
+/* end */
+
+--------------------
+
+have_const: checking for HAVE_RUBY_ENCODING_H... -------------------- yes
+
+"x86_64-w64-mingw32-gcc -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe   -c conftest.c"
+checked program was:
+/* begin */
+1: #include "ruby.h"
+2: 
+3: #include <winsock2.h>
+4: #include <windows.h>
+5: 
+6: /*top*/
+7: typedef int conftest_type;
+8: conftest_type conftestval = (int)HAVE_RUBY_ENCODING_H;
+/* end */
+
+--------------------
+
+have_func: checking for rb_thread_call_without_gvl()... -------------------- yes
+
+"x86_64-w64-mingw32-gcc -o conftest.exe -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe conftest.c  -L. -LC:/Ruby24-x64/lib -L. -pipe    -lkernel32  -lx64-msvcrt-ruby240 -lkernel32  -lgmp -lshell32 -lws2_32 -liphlpapi -limagehlp -lshlwapi  "
+conftest.c: In function 't':
+conftest.c:16:57: error: 'rb_thread_call_without_gvl' undeclared (first use in this function); did you mean 'rb_thread_wait_for'?
+ int t(void) { void ((*volatile p)()); p = (void ((*)()))rb_thread_call_without_gvl; return !p; }
+                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+                                                         rb_thread_wait_for
+conftest.c:16:57: note: each undeclared identifier is reported only once for each function it appears in
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <winsock2.h>
+ 4: #include <windows.h>
+ 5: 
+ 6: /*top*/
+ 7: extern int t(void);
+ 8: int main(int argc, char **argv)
+ 9: {
+10:   if (argc > 1000000) {
+11:     printf("%p", &t);
+12:   }
+13: 
+14:   return 0;
+15: }
+16: int t(void) { void ((*volatile p)()); p = (void ((*)()))rb_thread_call_without_gvl; return !p; }
+/* end */
+
+"x86_64-w64-mingw32-gcc -o conftest.exe -IC:/Ruby24-x64/include/ruby-2.4.0/x64-mingw32 -IC:/Ruby24-x64/include/ruby-2.4.0/ruby/backward -IC:/Ruby24-x64/include/ruby-2.4.0 -I. -D_FORTIFY_SOURCE=2 -D__USE_MINGW_ANSI_STDIO=1 -DFD_SETSIZE=2048 -D_WIN32_WINNT=0x0501 -D__MINGW_USE_VC2005_COMPAT -D_FILE_OFFSET_BITS=64  -march=x86-64 -mtune=generic -O2 -pipe conftest.c  -L. -LC:/Ruby24-x64/lib -L. -pipe    -lkernel32  -lx64-msvcrt-ruby240 -lkernel32  -lgmp -lshell32 -lws2_32 -liphlpapi -limagehlp -lshlwapi  "
+checked program was:
+/* begin */
+ 1: #include "ruby.h"
+ 2: 
+ 3: #include <winsock2.h>
+ 4: #include <windows.h>
+ 5: 
+ 6: /*top*/
+ 7: extern int t(void);
+ 8: int main(int argc, char **argv)
+ 9: {
+10:   if (argc > 1000000) {
+11:     printf("%p", &t);
+12:   }
+13: 
+14:   return 0;
+15: }
+16: extern void rb_thread_call_without_gvl();
+17: int t(void) { rb_thread_call_without_gvl(); return 0; }
+/* end */
+
+--------------------
+

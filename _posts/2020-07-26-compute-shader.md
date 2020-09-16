@@ -5,11 +5,13 @@ image: /assets/images/posts/050/result.gif
 tags: shader, unity, compute
 ---
 
-So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they're also referred to as GPGPU for "general purpose graphics processing unit"). To do things that arent in the fix pipeline we're using so far we have to use compute shaders.
+So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they're also referred to as GPGPU for "general purpose graphics processing unit" because of that). To do things that arent in the fix pipeline we're using so far we have to use compute shaders.
 
 If you're asking yourself why we'd do that, the CPU is performant enough, especially once we use multithreading then I'm here to tell you that you're 100% correct. You don't need the GPU for you non graphics tasks. Using it will give you way more confusing error behaviour. The debugger wont give you as nice information and you can't have breakpoints. Optimizing is weirder since you always have to think about what data you're pushing around. The paralell nature of the GPU forces you to think way differently... If you don't need compute shaders, especially when you're not experienced, think about why you want to and if it's making your more work than its worth.
 
 If you're still here, lets get going. In Unity you can check whether your GPU supports compute shaders by checking [SystemInfo.supportsComputeShaders](https://docs.unity3d.com/ScriptReference/SystemInfo-supportsComputeShaders.html).
+
+![](/assets/images/posts/050/result.gif)
 
 ## Basic Compute Shader
 

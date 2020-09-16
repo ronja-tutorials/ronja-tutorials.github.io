@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Voronoi Noise</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the c..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Voronoi Noise">
+<meta itemprop="description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the c...">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/028/Result.gif">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Voronoi Noise">
+<meta name="twitter:description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the c...">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/028/Result.gif">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/028/Result.gif">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Voronoi Noise" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/028/Result.gif" />
+
+<meta property="og:description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the c..." />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2018-09-29T00:00:00+02:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2018/09/29/voronoi-noise.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Voronoi Noise</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2018-09-29T00:00:00+02:00" itemprop="datePublished">
+          
+          Sep 29, 2018
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Voronoi Noise</h1>
+    <p class="post-meta">
+      <time datetime="2018-09-29T00:00:00+02:00" itemprop="datePublished">
+        
+        Sep 29, 2018
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#get-cell-values">Get Cell Values</a></li>
+  <li><a href="#getting-the-distance-to-the-border">Getting the distance to the border</a></li>
+  <li><a href="#visualising-voronoi-noise">Visualising voronoi noise</a></li>
+  <li><a href="#3d-voronoi">3d Voronoi</a></li>
+  <li><a href="#scrolling-noise">Scrolling noise</a></li>
+  <li><a href="#source">Source</a>
+    <ul>
+      <li><a href="#2d-voronoi">2d Voronoi</a></li>
+      <li><a href="#3d-voronoi-1">3d Voronoi</a></li>
+      <li><a href="#scrolling-voronoi">Scrolling Voronoi</a></li>
+    </ul>
+  </li>
+</ul>
+
+  <div itemprop="articleBody">
+    <h2 id="summary">Summary</h2>
+<p>Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood <a href="/basics.html">the basics of shaders in unity</a> and how to <a href="/2018/09/02/white-noise.html">generate random values in shaders</a>.</p>
+
+<p><img src="/assets/images/posts/028/Result.gif" alt="" /></p>
+
+<p>Also possible trypophobia warning for this tutorial, visualising distances can look a bit messy.</p>
+
+<h2 id="get-cell-values">Get Cell Values</h2>
+<p>For our implementation of voronoi noise each of our cells will have one point. We start by implementing that in 2d. We start by simply dividing our space into cells by flooring the input value and generating random positions inside of the cells based on that. Then we calculate the distance to the input value based on that and return the distance. Just like in the previous noise tutorials we’ll base the noise on the world position so we don’t have to worry about scaling and uv mapping. We’ll also make the cell size adjustable by dividing the value by a cell size property before passing it to the noise function.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/028_voronoi_noise/2d"</span> <span class="p">{</span>
+	<span class="n">Properties</span> <span class="p">{</span>
+		<span class="n">_CellSize</span> <span class="p">(</span><span class="s">"Cell Size"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">2</span>
+	<span class="p">}</span>
+	<span class="n">SubShader</span> <span class="p">{</span>
+		<span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+		<span class="n">CGPROGRAM</span>
+
+		<span class="cp">#pragma surface surf Standard fullforwardshadows
+</span>		<span class="cp">#pragma target 3.0
+</span>
+		<span class="cp">#include "Random.cginc"
+</span>
+		<span class="kt">float</span> <span class="n">_CellSize</span><span class="p">;</span>
+
+		<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+		<span class="p">};</span>
+
+		<span class="kt">float</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">float2</span> <span class="n">value</span><span class="p">){</span>
+            <span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">distToCell</span><span class="p">;</span>
+		<span class="p">}</span>
+
+		<span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+			<span class="kt">float</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">noise</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">ENDCG</span>
+	<span class="p">}</span>
+	<span class="n">FallBack</span> <span class="s">"Standard"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/CellDistances.png" alt="" /></p>
+
+<p>But we need more than just the center of the cell we’re in ourselves. We also have to sample the neighboring cells to see which cell center is actually the closest. For that we use for loops which go from -1 to +1. In each iteration we check if the distance to the cell we’re checking is smaller than the previous closest cell position, if it is, we replace the distance. The variable we write the distance to has to be declared outside of the shader and has to have a default value that’s bigger than any distance between 2 points in the 3x3 grid we check. We tell the compiler to unroll the loops to get better performance in the shader.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="nf">voronoiNoise</span><span class="p">(</span><span class="n">float2</span> <span class="n">value</span><span class="p">){</span>
+    <span class="n">float2</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+                <span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">minDistToCell</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/MultiCellDistances.png" alt="" /></p>
+
+<p>But we usually don’t just want the distance to the nearest point, we also want to know which point that is. To get that we simply add a new value which we also write to in the if statement. In it we save the position of the nearest cell. After we have the nearest cell we can generate a identifier based on it with the random function and return it. We can return the distance to the cell position as well as the random value if we simply change the function to return a 2d vector. We then return the distance to the position as the x component and the random value as the y component. In the surface function we then simply use the y component of the return value.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="nf">voronoiNoise</span><span class="p">(</span><span class="n">float2</span> <span class="n">value</span><span class="p">){</span>
+    <span class="n">float2</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="n">float2</span> <span class="n">closestCell</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+                <span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+                <span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand2dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">float2</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">noise</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/GreyscaleCells.png" alt="" /></p>
+
+<p>Because it’s the same value in the same cell we can then use this identifier in the surface function to generate more colorful values if we want to. To do that we simply feed the return value into the 1dTo3d random function.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">y</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/ColorfulCells.png" alt="" /></p>
+
+<h2 id="getting-the-distance-to-the-border">Getting the distance to the border</h2>
+<p>We already have the distance to the center of the cell, but for many effects, like drawing edges between the cells, we also want the distance to the border. A common way to calculate that is to calculate both the nearest and the second nearest point and then subtract the distance to the nearest point from the distance to the second nearest point. This technique is fast, but doesn’t deliver very accurate results. The method we’re using instead will calculate the distance to every edge and take the shortest distance.</p>
+
+<p>To calculate the distance we iterate through the neighboring cells again, this time with the information which cell is the closest. We then calculate the distance to the border by first calculating the center between the two cell positions and then the vector from the sample point to this center. Once we have that, we also calculate the vector from the closest cell to the cell we’re calculating the distance to the border to. We then also normalize that difference vector so it has a length of one.</p>
+
+<p>After we calculated those vectors, we can then calculate the dot product between the cell difference and the vector to the center between the cells. The dot product tells us how far the vector to the center is in the direction and in relation to the vector between the cells. So because we normalized the difference vector it tells us the distance in units (not unity units though, because we changed the value size before passing it to the method by dividing the cell size).</p>
+
+<p><img src="/assets/images/posts/028/BorderDistanceExplanation.png" alt="" /></p>
+
+<p>For the implementation we also remember the vector to the closest cell in our first pass so we can use it for the calculation later. Then for the second pass we create a new variable to hold the distance to the closest edge. The iterations looks just like in the first pass, two loops from -1 to +1. We’ll change the names of the iteration variables in the first loops to x1 and y1 and in the second to x2 and y2, otherwise with unrolling the loops the shader compiler can get confused and give us warnings.</p>
+
+<p>Then in the inner loop we also calculate the cell, the position of the cell and the vector from the sample point to the cell just like in the first pass. Then the part where we actually calculate the distance to the border will be in a if statement. That’s because if we calculate the distance to the border between the nearest cell and itself, that will always tell us the border is 0 units away, which is closer than the borders we actually care about. To check if the cell is the closest cell, we subtract the closest cell from the cell we’re checking at the moment to get the difference to the closest cell. Then we take the absolute value of that and add the x and y components. Then we can check if that sum is lower than some threshold and if it is we know that we’re in the closest cell and just don’t do the comparison with the edge. The reason why we can’t just use <code class="language-plaintext highlighter-rouge">==</code> to check if the cells are equal is that we’re working with floating point numbers because shaders love floating point numbers, but they’re often not <em>exactly</em> the same.</p>
+
+<p>Then in the if statement which checks that we’re not in the closest cell, we do the distance calculation. First we calculate the vector from the sample point to the center between the cell points. Since we already have the vectors to the cell we’re checking and to the closest cell we can simply take their average by adding them together and dividing the sum by 2. The next variable we need is the normalised difference between the two cells, to get that we simply subtract the vector to the closest cell from the vector to the cell we’re checking and then normalise the result.</p>
+
+<p>The last step to get the distance to the edge is then simply take the dotproduct between the vector to the center and the vector between the cell positions. After getting that successfully we then set the minimum edge distance to the minimum of the distance so far and the distance to the new edge. We also could’ve use the minimum in the first loop to just get the distance to the closest cell and it would’ve been faster, but the if statement allows us to save more information.</p>
+
+<p>After calculating the distance to the closest edge we can then expand the output vector to a vector 3 and write the distance to the edge in the z component.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="nf">voronoiNoise</span><span class="p">(</span><span class="n">float2</span> <span class="n">value</span><span class="p">){</span>
+    <span class="n">float2</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="c1">//first pass to find the closest cell</span>
+    <span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="n">float2</span> <span class="n">toClosestCell</span><span class="p">;</span>
+    <span class="n">float2</span> <span class="n">closestCell</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+                <span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+                <span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+                <span class="n">toClosestCell</span> <span class="o">=</span> <span class="n">toCell</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">//second pass to find the distance to the closest edge</span>
+    <span class="kt">float</span> <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">++</span><span class="p">){</span>
+            <span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+            <span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+
+            <span class="n">float2</span> <span class="n">diffToClosestCell</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">closestCell</span> <span class="o">-</span> <span class="n">cell</span><span class="p">);</span>
+            <span class="kt">bool</span> <span class="n">isClosestCell</span> <span class="o">=</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+            <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isClosestCell</span><span class="p">){</span>
+                <span class="n">float2</span> <span class="n">toCenter</span> <span class="o">=</span> <span class="p">(</span><span class="n">toClosestCell</span> <span class="o">+</span> <span class="n">toCell</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">cellDifference</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">toCell</span> <span class="o">-</span> <span class="n">toClosestCell</span><span class="p">);</span>
+                <span class="kt">float</span> <span class="n">edgeDistance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">toCenter</span><span class="p">,</span> <span class="n">cellDifference</span><span class="p">);</span>
+                <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">minEdgeDistance</span><span class="p">,</span> <span class="n">edgeDistance</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand2dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">minEdgeDistance</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">implVoronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/EdgeDistances.png" alt="" /></p>
+
+<h2 id="visualising-voronoi-noise">Visualising voronoi noise</h2>
+
+<p>Now we have the 3 variables based on the points. The distance to the point, a random value generated based on the point and the distance to the border to the nearest cell. We already showed how to generate more interresting colors based on the random value. Another thing that’s often used is to draw the borders based on the distance to the nearest border. For that we first decide whats a border and what’s not. We can do that via the step function, we pass it two values and it’ll return 1 if the first argument is greater or equal than the second and 0 if the second one is greater. After we decided what’s a border and what isn’t, we can interpolate from the color of the cell to a borderColor based on that variable. We’ll add the border color as a property so we can change it from the inspector.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+    <span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="n">step</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/AliasedBorders.png" alt="" /></p>
+
+<p>One little issue of drawing the borders like this is that border or no border is a binary choice, it’s either one of the other. This leads to so aliasing artefacts where the pixels of the rendered image are very obvious. With a simple trick we can blur the line though. We simply get how much the border distance changes in the neighboring pixels and and then do a interpolation based on that, the cutoff value minus the change in value is 0, the cutoff value plus the change in distance is 1 and all values inbetween are interpolated inbetween.</p>
+
+<p>Because we defined the cell border distance to be in the same scale as the input value we can get the best results by evaluating how much the input changes in the neighboring pixels. We first get the change of the input by passing the variable to <code class="language-plaintext highlighter-rouge">fwidth</code>, that function will then return us the change over the neighboring pixels. But because the value is a 2d value, the return value is also 2d, to get the scalar length we need, we simply calculate the length of the difference. Because we use the change value both in the positive and negative direction, we then also half it, otherwise the result can look too blurry (I encourage you to change the multiplier of the change result here and how it looks at different distances).</p>
+
+<p>After we calculate the value change we can then use it to blur the edges. We replace the <code class="language-plaintext highlighter-rouge">step</code> function with the <code class="language-plaintext highlighter-rouge">smoothstep</code> function which will allow us to pass 2 values and it’ll return a value between 0 and 1 just like described earlier. It’s important for us to also calculate 1 minus the result afterwards, because the smoothstep will return 0 if it’s a a border and 1 when it isn’t and we want our varaiable to indicate if it’s a border.</p>
+
+<p>Because we used a linear interpolation to decide between the border and the cell color we don’t have to change anything else to make this work, the values between border and not border automatically correspond to the colors between the border color and the cell color.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+	<span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+	<span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+	<span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+	<span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+	<span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+	<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/BordersNoAliasing.png" alt="" /></p>
+
+<h2 id="3d-voronoi">3d Voronoi</h2>
+
+<p>To change the voronoi noise to more dimensions we change the input vector to a 3d vector. Then we also change all directions and cells that were previously 2d to 3d. Next we add another loop to both passes so we can check a 3x3x3 area of cells. We also factor the z component in when checking if the cell we’re modifying is the closest cell.</p>
+
+<p>In the surface shader we change the value to use all directional axes before we pass it into the noise function. Another whing we’ll change is that we won’t base the valueChange for smoothing the borders from the input value anymore, instead we use the distance from the border directly. That’s because now the value isn’t 2d like the surface anymore and the borders can run in many angles to the surface which makes the previous way of getting the value result in way too smooth edges sometimes.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="nf">voronoiNoise</span><span class="p">(</span><span class="n">float3</span> <span class="n">value</span><span class="p">){</span>
+    <span class="n">float3</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="c1">//first pass to find the closest cell</span>
+    <span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">toClosestCell</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">closestCell</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">++</span><span class="p">){</span>
+            <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">++</span><span class="p">){</span>
+                <span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+                <span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+                    <span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+                    <span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+                    <span class="n">toClosestCell</span> <span class="o">=</span> <span class="n">toCell</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">//second pass to find the distance to the closest edge</span>
+    <span class="kt">float</span> <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">++</span><span class="p">){</span>
+        <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">++</span><span class="p">){</span>
+            <span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">++</span><span class="p">){</span>
+                <span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+
+                <span class="n">float3</span> <span class="n">diffToClosestCell</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">closestCell</span> <span class="o">-</span> <span class="n">cell</span><span class="p">);</span>
+                <span class="kt">bool</span> <span class="n">isClosestCell</span> <span class="o">=</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isClosestCell</span><span class="p">){</span>
+                    <span class="n">float3</span> <span class="n">toCenter</span> <span class="o">=</span> <span class="p">(</span><span class="n">toClosestCell</span> <span class="o">+</span> <span class="n">toCell</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+                    <span class="n">float3</span> <span class="n">cellDifference</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">toCell</span> <span class="o">-</span> <span class="n">toClosestCell</span><span class="p">);</span>
+                    <span class="kt">float</span> <span class="n">edgeDistance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">toCenter</span><span class="p">,</span> <span class="n">cellDifference</span><span class="p">);</span>
+                    <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">minEdgeDistance</span><span class="p">,</span> <span class="n">edgeDistance</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand3dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">minEdgeDistance</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float3</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xyz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+    <span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/028/3dVoronoi.png" alt="" /></p>
+
+<h2 id="scrolling-noise">Scrolling noise</h2>
+<p>Just like the other kinds of noise we’re not limited to spacial dimensions here. We can use the the world dimensions for 2 axes and then animate the third based on the time. By going through the noise this way we can see the different cells begin and end.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">float3</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xyz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+    <span class="n">value</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">_Time</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">_TimeScale</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+    <span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+    <span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/028/Result.gif" alt="" /></p>
+
+<h2 id="source">Source</h2>
+<h3 id="2d-voronoi">2d Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader</a></p>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/028_voronoi_noise/2d"</span> <span class="p">{</span>
+	<span class="n">Properties</span> <span class="p">{</span>
+		<span class="n">_CellSize</span> <span class="p">(</span><span class="s">"Cell Size"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">2</span>
+		<span class="n">_BorderColor</span> <span class="p">(</span><span class="s">"Border Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="n">SubShader</span> <span class="p">{</span>
+		<span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+		<span class="n">CGPROGRAM</span>
+
+		<span class="cp">#pragma surface surf Standard fullforwardshadows
+</span>		<span class="cp">#pragma target 3.0
+</span>
+		<span class="cp">#include "Random.cginc"
+</span>
+		<span class="kt">float</span> <span class="n">_CellSize</span><span class="p">;</span>
+		<span class="n">float3</span> <span class="n">_BorderColor</span><span class="p">;</span>
+
+		<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+		<span class="p">};</span>
+
+		<span class="n">float3</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">float2</span> <span class="n">value</span><span class="p">){</span>
+			<span class="n">float2</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="c1">//first pass to find the closest cell</span>
+			<span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="n">float2</span> <span class="n">toClosestCell</span><span class="p">;</span>
+			<span class="n">float2</span> <span class="n">closestCell</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">++</span><span class="p">){</span>
+					<span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">);</span>
+					<span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+					<span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+					<span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+					<span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+						<span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+						<span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+						<span class="n">toClosestCell</span> <span class="o">=</span> <span class="n">toCell</span><span class="p">;</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="c1">//second pass to find the distance to the closest edge</span>
+			<span class="kt">float</span> <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">++</span><span class="p">){</span>
+					<span class="n">float2</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float2</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">);</span>
+					<span class="n">float2</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand2dTo2d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+					<span class="n">float2</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+
+					<span class="n">float2</span> <span class="n">diffToClosestCell</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">closestCell</span> <span class="o">-</span> <span class="n">cell</span><span class="p">);</span>
+					<span class="kt">bool</span> <span class="n">isClosestCell</span> <span class="o">=</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+					<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isClosestCell</span><span class="p">){</span>
+						<span class="n">float2</span> <span class="n">toCenter</span> <span class="o">=</span> <span class="p">(</span><span class="n">toClosestCell</span> <span class="o">+</span> <span class="n">toCell</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+						<span class="n">float2</span> <span class="n">cellDifference</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">toCell</span> <span class="o">-</span> <span class="n">toClosestCell</span><span class="p">);</span>
+						<span class="kt">float</span> <span class="n">edgeDistance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">toCenter</span><span class="p">,</span> <span class="n">cellDifference</span><span class="p">);</span>
+						<span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">minEdgeDistance</span><span class="p">,</span> <span class="n">edgeDistance</span><span class="p">);</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand2dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    		<span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">minEdgeDistance</span><span class="p">);</span>
+		<span class="p">}</span>
+
+		<span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">float2</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+			<span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+			<span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+			<span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+			<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">ENDCG</span>
+	<span class="p">}</span>
+	<span class="n">FallBack</span> <span class="s">"Standard"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="3d-voronoi-1">3d Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader</a></p>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/028_voronoi_noise/3d"</span> <span class="p">{</span>
+	<span class="n">Properties</span> <span class="p">{</span>
+		<span class="n">_CellSize</span> <span class="p">(</span><span class="s">"Cell Size"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">2</span>
+		<span class="n">_BorderColor</span> <span class="p">(</span><span class="s">"Border Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="n">SubShader</span> <span class="p">{</span>
+		<span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+		<span class="n">CGPROGRAM</span>
+
+		<span class="cp">#pragma surface surf Standard fullforwardshadows
+</span>		<span class="cp">#pragma target 3.0
+</span>
+		<span class="cp">#include "Random.cginc"
+</span>
+		<span class="kt">float</span> <span class="n">_CellSize</span><span class="p">;</span>
+		<span class="n">float3</span> <span class="n">_BorderColor</span><span class="p">;</span>
+
+		<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+		<span class="p">};</span>
+
+		<span class="n">float3</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">float3</span> <span class="n">value</span><span class="p">){</span>
+			<span class="n">float3</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="c1">//first pass to find the closest cell</span>
+			<span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">toClosestCell</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">closestCell</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">++</span><span class="p">){</span>
+					<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+					<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">++</span><span class="p">){</span>
+						<span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+						<span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+						<span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+							<span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+							<span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+							<span class="n">toClosestCell</span> <span class="o">=</span> <span class="n">toCell</span><span class="p">;</span>
+						<span class="p">}</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="c1">//second pass to find the distance to the closest edge</span>
+			<span class="kt">float</span> <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">++</span><span class="p">){</span>
+					<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+					<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">++</span><span class="p">){</span>
+						<span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+
+						<span class="n">float3</span> <span class="n">diffToClosestCell</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">closestCell</span> <span class="o">-</span> <span class="n">cell</span><span class="p">);</span>
+						<span class="kt">bool</span> <span class="n">isClosestCell</span> <span class="o">=</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+						<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isClosestCell</span><span class="p">){</span>
+							<span class="n">float3</span> <span class="n">toCenter</span> <span class="o">=</span> <span class="p">(</span><span class="n">toClosestCell</span> <span class="o">+</span> <span class="n">toCell</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+							<span class="n">float3</span> <span class="n">cellDifference</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">toCell</span> <span class="o">-</span> <span class="n">toClosestCell</span><span class="p">);</span>
+							<span class="kt">float</span> <span class="n">edgeDistance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">toCenter</span><span class="p">,</span> <span class="n">cellDifference</span><span class="p">);</span>
+							<span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">minEdgeDistance</span><span class="p">,</span> <span class="n">edgeDistance</span><span class="p">);</span>
+						<span class="p">}</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand3dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    		<span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">minEdgeDistance</span><span class="p">);</span>
+		<span class="p">}</span>
+
+		<span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xyz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+			<span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+			<span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+			<span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+			<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">ENDCG</span>
+	<span class="p">}</span>
+	<span class="n">FallBack</span> <span class="s">"Standard"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="scrolling-voronoi">Scrolling Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader</a></p>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/028_voronoi_noise/scrolling"</span> <span class="p">{</span>
+	<span class="n">Properties</span> <span class="p">{</span>
+		<span class="n">_CellSize</span> <span class="p">(</span><span class="s">"Cell Size"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">2</span>
+		<span class="n">_BorderColor</span> <span class="p">(</span><span class="s">"Border Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">_TimeScale</span> <span class="p">(</span><span class="s">"Scrolling Speed"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+	<span class="p">}</span>
+	<span class="n">SubShader</span> <span class="p">{</span>
+		<span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+		<span class="n">CGPROGRAM</span>
+
+		<span class="cp">#pragma surface surf Standard fullforwardshadows
+</span>		<span class="cp">#pragma target 3.0
+</span>
+		<span class="cp">#include "Random.cginc"
+</span>
+		<span class="kt">float</span> <span class="n">_CellSize</span><span class="p">;</span>
+		<span class="kt">float</span> <span class="n">_TimeScale</span><span class="p">;</span>
+		<span class="n">float3</span> <span class="n">_BorderColor</span><span class="p">;</span>
+
+		<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+		<span class="p">};</span>
+
+		<span class="n">float3</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">float3</span> <span class="n">value</span><span class="p">){</span>
+			<span class="n">float3</span> <span class="n">baseCell</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="c1">//first pass to find the closest cell</span>
+			<span class="kt">float</span> <span class="n">minDistToCell</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">toClosestCell</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">closestCell</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x1</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y1</span><span class="o">++</span><span class="p">){</span>
+					<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+					<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z1</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z1</span><span class="o">++</span><span class="p">){</span>
+						<span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+						<span class="kt">float</span> <span class="n">distToCell</span> <span class="o">=</span> <span class="n">length</span><span class="p">(</span><span class="n">toCell</span><span class="p">);</span>
+						<span class="k">if</span><span class="p">(</span><span class="n">distToCell</span> <span class="o">&lt;</span> <span class="n">minDistToCell</span><span class="p">){</span>
+							<span class="n">minDistToCell</span> <span class="o">=</span> <span class="n">distToCell</span><span class="p">;</span>
+							<span class="n">closestCell</span> <span class="o">=</span> <span class="n">cell</span><span class="p">;</span>
+							<span class="n">toClosestCell</span> <span class="o">=</span> <span class="n">toCell</span><span class="p">;</span>
+						<span class="p">}</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="c1">//second pass to find the distance to the closest edge</span>
+			<span class="kt">float</span> <span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+			<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+			<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">x2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">x2</span><span class="o">++</span><span class="p">){</span>
+				<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+				<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">y2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">y2</span><span class="o">++</span><span class="p">){</span>
+					<span class="p">[</span><span class="n">unroll</span><span class="p">]</span>
+					<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">z2</span><span class="o">=-</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">;</span> <span class="n">z2</span><span class="o">++</span><span class="p">){</span>
+						<span class="n">float3</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">baseCell</span> <span class="o">+</span> <span class="n">float3</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">cellPosition</span> <span class="o">=</span> <span class="n">cell</span> <span class="o">+</span> <span class="n">rand3dTo3d</span><span class="p">(</span><span class="n">cell</span><span class="p">);</span>
+						<span class="n">float3</span> <span class="n">toCell</span> <span class="o">=</span> <span class="n">cellPosition</span> <span class="o">-</span> <span class="n">value</span><span class="p">;</span>
+
+						<span class="n">float3</span> <span class="n">diffToClosestCell</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">closestCell</span> <span class="o">-</span> <span class="n">cell</span><span class="p">);</span>
+						<span class="kt">bool</span> <span class="n">isClosestCell</span> <span class="o">=</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">diffToClosestCell</span><span class="p">.</span><span class="n">z</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">;</span>
+						<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">isClosestCell</span><span class="p">){</span>
+							<span class="n">float3</span> <span class="n">toCenter</span> <span class="o">=</span> <span class="p">(</span><span class="n">toClosestCell</span> <span class="o">+</span> <span class="n">toCell</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+							<span class="n">float3</span> <span class="n">cellDifference</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">toCell</span> <span class="o">-</span> <span class="n">toClosestCell</span><span class="p">);</span>
+							<span class="kt">float</span> <span class="n">edgeDistance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">toCenter</span><span class="p">,</span> <span class="n">cellDifference</span><span class="p">);</span>
+							<span class="n">minEdgeDistance</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">minEdgeDistance</span><span class="p">,</span> <span class="n">edgeDistance</span><span class="p">);</span>
+						<span class="p">}</span>
+					<span class="p">}</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+
+			<span class="kt">float</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rand3dTo1d</span><span class="p">(</span><span class="n">closestCell</span><span class="p">);</span>
+    		<span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">minDistToCell</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">minEdgeDistance</span><span class="p">);</span>
+		<span class="p">}</span>
+
+		<span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">float3</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">.</span><span class="n">xyz</span> <span class="o">/</span> <span class="n">_CellSize</span><span class="p">;</span>
+			<span class="n">value</span><span class="p">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">_Time</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">_TimeScale</span><span class="p">;</span>
+			<span class="n">float3</span> <span class="n">noise</span> <span class="o">=</span> <span class="n">voronoiNoise</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+
+			<span class="n">float3</span> <span class="n">cellColor</span> <span class="o">=</span> <span class="n">rand1dTo3d</span><span class="p">(</span><span class="n">noise</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> 
+			<span class="kt">float</span> <span class="n">valueChange</span> <span class="o">=</span> <span class="n">fwidth</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+			<span class="kt">float</span> <span class="n">isBorder</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">smoothstep</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">-</span> <span class="n">valueChange</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mo">05</span> <span class="o">+</span> <span class="n">valueChange</span><span class="p">,</span> <span class="n">noise</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+			<span class="n">float3</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">cellColor</span><span class="p">,</span> <span class="n">_BorderColor</span><span class="p">,</span> <span class="n">isBorder</span><span class="p">);</span>
+			<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">color</span><span class="p">;</span>
+		<span class="p">}</span>
+		<span class="n">ENDCG</span>
+	<span class="p">}</span>
+	<span class="n">FallBack</span> <span class="s">"Standard"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>I hope that I was able to explain voronoi noise clearly and that you’ll be able to create cool stuff with it.✨</p>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

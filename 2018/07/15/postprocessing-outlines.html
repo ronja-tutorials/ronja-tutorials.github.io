@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Outlines via Postprocessing</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edge..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Outlines via Postprocessing">
+<meta itemprop="description" content="Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edge...">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/019/Result.gif">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Outlines via Postprocessing">
+<meta name="twitter:description" content="Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edge...">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/019/Result.gif">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/019/Result.gif">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2018/07/15/postprocessing-outlines.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Outlines via Postprocessing" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2018/07/15/postprocessing-outlines.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/019/Result.gif" />
+
+<meta property="og:description" content="Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edge..." />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2018-07-15T00:00:00+02:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2018/07/15/postprocessing-outlines.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Outlines via Postprocessing</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2018-07-15T00:00:00+02:00" itemprop="datePublished">
+          
+          Jul 15, 2018
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Outlines via Postprocessing</h1>
+    <p class="post-meta">
+      <time datetime="2018-07-15T00:00:00+02:00" itemprop="datePublished">
+        
+        Jul 15, 2018
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#depth-outlines">Depth Outlines</a></li>
+  <li><a href="#normal-outlines">Normal Outlines</a></li>
+  <li><a href="#customizable-outlines">Customizable Outlines</a></li>
+  <li><a href="#source">Source</a></li>
+</ul>
+
+  <div itemprop="articleBody">
+    <h2 id="summary">Summary</h2>
+<p>One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edges than the alternative (inverted hull outlines) and you don’t have to change all of your materials to give them the outline effect.</p>
+
+<p>To understand how to create outlines via postprocessing it’s best to have understood how to <a href="/2018/07/01/postprocessing-depth.html">get access to the depth and normals of the scene</a> first.</p>
+
+<p><img src="/assets/images/posts/019/Result.gif" alt="Result" /></p>
+
+<h2 id="depth-outlines">Depth Outlines</h2>
+<p>We start with the shader and C# script from the postprocessing with normals tutorial.</p>
+
+<p>The first changes we make is to remove properties and variables which were specific to the “color on top” shader. So the cutoff value and the color. We also remove the view to world matrix, because we our outlines don‘t have a specific rotation in the world so we can ignore it. Then we remove all of the code after the part where we calculate the depth and normals.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//show values to edit in inspector</span>
+<span class="n">Properties</span><span class="p">{</span>
+    <span class="p">[</span><span class="n">HideInInspector</span><span class="p">]</span><span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="nf">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+    <span class="c1">//read depthnormal</span>
+    <span class="n">float4</span> <span class="n">depthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+
+    <span class="c1">//decode depthnormal</span>
+    <span class="n">float3</span> <span class="n">normal</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">depth</span><span class="p">;</span>
+    <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">depthnormal</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">);</span>
+
+    <span class="c1">//get depth as distance from camera in units </span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p>Then we remove the part where we write the camera matrix to the shader from our C# script.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//method which is automatically called by unity after the camera is done rendering</span>
+<span class="n">private</span> <span class="kt">void</span> <span class="nf">OnRenderImage</span><span class="p">(</span><span class="n">RenderTexture</span> <span class="n">source</span><span class="p">,</span> <span class="n">RenderTexture</span> <span class="n">destination</span><span class="p">){</span>
+    <span class="c1">//draws the pixels from the source texture to the destination texture</span>
+    <span class="n">Graphics</span><span class="p">.</span><span class="n">Blit</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">postprocessMaterial</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The way we’re going to calculate the outlines is that we’re going to read from several pixels around the pixel we’re rendering and calculate the difference in depth and normals to the center pixel. The more different they are, the stronger the outline is.</p>
+
+<p>To calculate the position of the neighboring pixels we need to know how big one pixel is. Luckily we can simply add a variable with a specific name and unity tells us the size. Because technically we’re working with texture pixels, it’s called the texelsize.</p>
+
+<p>We can simply create a variable called texturename_TexelSize for any texture and get the size.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the depth normals texture</span>
+<span class="kt">sampler2D</span> <span class="n">_CameraDepthNormalsTexture</span><span class="p">;</span>
+<span class="c1">//texelsize of the depthnormals texture</span>
+<span class="n">float4</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Then we copy the code for accessing the depth and normals, but change the names and we access the texture slightly to the right.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//read neighbor pixel</span>
+<span class="n">float4</span> <span class="n">neighborDepthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> 
+        <span class="n">uv</span> <span class="o">+</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">.</span><span class="n">xy</span> <span class="o">*</span> <span class="n">offset</span><span class="p">);</span>
+<span class="n">float3</span> <span class="n">neighborNormal</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">neighborDepth</span><span class="p">;</span>
+<span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">neighborDepthnormal</span><span class="p">,</span> <span class="n">neighborDepth</span><span class="p">,</span> <span class="n">neighborNormal</span><span class="p">);</span>
+<span class="n">neighborDepth</span> <span class="o">=</span> <span class="n">neighborDepth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Now that we have two samples we can calculate the difference and draw it to the screen.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">difference</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">-</span> <span class="n">neightborDepth</span><span class="p">;</span>
+<span class="k">return</span> <span class="n">difference</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/019/LeftWhite.png" alt="" /></p>
+
+<p>With this we can already see the outlines on the left side of the objects. Before we proceed with the next sample, I’d like to put the code for reading the sample and comparing it to the center values into a separate function so we don’t have to write it 4 times. This function needs the depth of the center pixel, the uv coordinates of the center pixel and the offset as arguments. We will define the offset in pixels because that’s the easiest for us to read.</p>
+
+<p>So we simply copy the code from our fragment function to the new method and replace the depth and uv names with the names of the fitting arguments. To use the offset, we multiply it with the x and y coordinates of the texel size and then add the result to the uv coordinates just like previously.</p>
+
+<p>After we set up the new method we call it in the fragment method and draw the result to the screen.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">Compare</span><span class="p">(</span><span class="kt">float</span> <span class="n">baseDepth</span><span class="p">,</span> <span class="n">float2</span> <span class="n">uv</span><span class="p">,</span> <span class="n">float2</span> <span class="n">offset</span><span class="p">){</span>
+    <span class="c1">//read neighbor pixel</span>
+    <span class="n">float4</span> <span class="n">neighborDepthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> 
+            <span class="n">uv</span> <span class="o">+</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">.</span><span class="n">xy</span> <span class="o">*</span> <span class="n">offset</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">neighborNormal</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">neighborDepth</span><span class="p">;</span>
+    <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">neighborDepthnormal</span><span class="p">,</span> <span class="n">neighborDepth</span><span class="p">,</span> <span class="n">neighborNormal</span><span class="p">);</span>
+    <span class="n">neighborDepth</span> <span class="o">=</span> <span class="n">neighborDepth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">baseDepth</span> <span class="o">-</span> <span class="n">neighborDepth</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">Compare</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="n">depthDifference</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p>The result should look exactly like previously, but now it’s way easier to expand the shader to read samples in multiple directions. So we sample the pixels up, right and down too and add the results of all samples together.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="nf">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+    <span class="c1">//read depthnormal</span>
+    <span class="n">float4</span> <span class="n">depthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+
+    <span class="c1">//decode depthnormal</span>
+    <span class="n">float3</span> <span class="n">normal</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">depth</span><span class="p">;</span>
+    <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">depthnormal</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">);</span>
+
+    <span class="c1">//get depth as distance from camera in units </span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+    <span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">Compare</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+    <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">depthDifference</span> <span class="o">+</span> <span class="n">Compare</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+    <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">depthDifference</span> <span class="o">+</span> <span class="n">Compare</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+    <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">depthDifference</span> <span class="o">+</span> <span class="n">Compare</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="k">return</span> <span class="n">depthDifference</span><span class="p">;</span>
+<span class="err">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/019/DepthOutlines.png" alt="" /></p>
+
+<h2 id="normal-outlines">Normal Outlines</h2>
+<p>Using the depth already gives us pretty good outlines, but we can go further by also using the normals provided to us. We will also sample the normals in our compare function, but function can only return one value in hlsl so we can’t use the return value here. Instead of using the return value, we can add two new arguments with the inout keyword. With this keyword the value we pass into the function can be written to and the changes apply to the version of the variable pass in, not only the version in the function. Another thing we need to generate outlines from the normal is the outline of the center pixel, so we add that too to the list of our arguments.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">Compare</span><span class="p">(</span><span class="k">inout</span> <span class="kt">float</span> <span class="n">depthOutline</span><span class="p">,</span> <span class="k">inout</span> <span class="kt">float</span> <span class="n">normalOutline</span><span class="p">,</span> 
+    <span class="kt">float</span> <span class="n">baseDepth</span><span class="p">,</span> <span class="n">float3</span> <span class="n">baseNormal</span><span class="p">,</span> <span class="n">float2</span> <span class="n">uv</span><span class="p">,</span> <span class="n">float2</span> <span class="n">offset</span><span class="p">){</span>
+</code></pre></div></div>
+
+<p>Because we now have complete control over the outline variable we can now also do the adding to the existing outline in the method. After we changed that we go back to the fragment method, create a new variable for the difference of the normals and change the way we call the compare method to fit our new arguments.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">Compare</span><span class="p">(</span><span class="k">inout</span> <span class="kt">float</span> <span class="n">depthOutline</span><span class="p">,</span> <span class="k">inout</span> <span class="kt">float</span> <span class="n">normalOutline</span><span class="p">,</span> 
+        <span class="kt">float</span> <span class="n">baseDepth</span><span class="p">,</span> <span class="n">float3</span> <span class="n">baseNormal</span><span class="p">,</span> <span class="n">float2</span> <span class="n">uv</span><span class="p">,</span> <span class="n">float2</span> <span class="n">offset</span><span class="p">){</span>
+    <span class="c1">//read neighbor pixel</span>
+    <span class="n">float4</span> <span class="n">neighborDepthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> 
+            <span class="n">uv</span> <span class="o">+</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">.</span><span class="n">xy</span> <span class="o">*</span> <span class="n">offset</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">neighborNormal</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">neighborDepth</span><span class="p">;</span>
+    <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">neighborDepthnormal</span><span class="p">,</span> <span class="n">neighborDepth</span><span class="p">,</span> <span class="n">neighborNormal</span><span class="p">);</span>
+    <span class="n">neighborDepth</span> <span class="o">=</span> <span class="n">neighborDepth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+    <span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">baseDepth</span> <span class="o">-</span> <span class="n">neighborDepth</span><span class="p">;</span>
+    <span class="n">depthOutline</span> <span class="o">=</span> <span class="n">depthOutline</span> <span class="o">+</span> <span class="n">depthDifference</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">normalDifference</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+<span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+<span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+<span class="k">return</span> <span class="n">depthDifference</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>This again shouldn’t change the output of the method, but the new architecture allows us to also change the difference of the normal too. A easy and fast way to compare two normalised vectors is to take the dot product. The problem about the dot product is that when the vectors point in the same direction, the dot product is 1 and when the vectors move away from each other the dot product becomes lower, the opposite of what we want. The way to fixing that is to subtract the dot product from 1. Then, when the result of the dot product is 1 the overall result is 0 and when the result of the dot product becomes lower, the overall result increases. After we calculate the normal difference, we add it to the overall difference and we change the output to show the normal difference for now.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">baseNormal</span> <span class="o">-</span> <span class="n">neighborNormal</span><span class="p">;</span>
+<span class="n">normalDifference</span> <span class="o">=</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">r</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">g</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">b</span><span class="p">;</span>
+<span class="n">normalOutline</span> <span class="o">=</span> <span class="n">normalOutline</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">;</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="n">normalDifference</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/019/NormalOutlines.png" alt="" /></p>
+
+<p>With those changes we can see outlines, but they’re different outlines than before because they’re generated from the normals instead of the depth. We can then combine the two outlines to generatecombined outline.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">return</span> <span class="n">depthDifference</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/019/CombinedOutlines.png" alt="" /></p>
+
+<h2 id="customizable-outlines">Customizable Outlines</h2>
+<p>The next step is to make the outlines more customisable. To archieve that we add two variables for each depth and normal outlines. A multiplier to make the outlines appear stronger or weaker and a bias that can make the greyish parts of the outlines we might not want vanish.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//show values to edit in inspector</span>
+<span class="n">Properties</span><span class="p">{</span>
+    <span class="p">[</span><span class="n">HideInInspector</span><span class="p">]</span><span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="n">_NormalMult</span> <span class="p">(</span><span class="s">"Normal Outline Multiplier"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_NormalBias</span> <span class="p">(</span><span class="s">"Normal Outline Bias"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_DepthMult</span> <span class="p">(</span><span class="s">"Depth Outline Multiplier"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">_DepthBias</span> <span class="p">(</span><span class="s">"Depth Outline Bias"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//variables for customising the effect</span>
+<span class="kt">float</span> <span class="n">_NormalMult</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">_NormalBias</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">_DepthMult</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">_DepthBias</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>To use the variables, after adding all of the sample differences, we simply multiply the difference variables with the multipliers, then we clamp them between 0 and 1 and get the difference to the power of the bias. The clamping between 0 and 1 is important because otherwise getting the exponent of a negative number can lead to invalid results. HLSL has it’s own function for clamping a variable between 0 and 1 called “saturate”.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">depthDifference</span> <span class="o">=</span> <span class="n">depthDifference</span> <span class="o">*</span> <span class="n">_DepthMult</span><span class="p">;</span>
+<span class="n">depthDifference</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">);</span>
+<span class="n">depthDifference</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">_DepthBias</span><span class="p">);</span>
+
+<span class="n">normalDifference</span> <span class="o">=</span> <span class="n">normalDifference</span> <span class="o">*</span> <span class="n">_NormalMult</span><span class="p">;</span>
+<span class="n">normalDifference</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">normalDifference</span><span class="p">);</span>
+<span class="n">normalDifference</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">normalDifference</span><span class="p">,</span> <span class="n">_NormalBias</span><span class="p">);</span>
+
+<span class="k">return</span> <span class="n">depthDifference</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>With this you can now adjust your outlines a bit in the inspector - I boosted both normal and depth outlines a bit and reduced the noise by also increasing the bias, but it’s best to play around with the settings and see what fits your scene best.</p>
+
+<p><img src="/assets/images/posts/019/Inspector.png" alt="" /></p>
+
+<p><img src="/assets/images/posts/019/TweakedOutlines.png" alt="" /></p>
+
+<p>Lastly we want to add our outlines to the scene, not just have them as a separate thing. For that we first declare a outline color as a property and shader variable.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_OutlineColor</span> <span class="p">(</span><span class="s">"Outline Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float4</span> <span class="n">_OutlineColor</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>To apply the outlines, at the end of  the fragment function, we read from the source texture and do a linear interpolation from the source color to our outline color via the combined outline, that way the pixels that were previously black are now the source color and the white ones have the outline color.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">outline</span> <span class="o">=</span> <span class="n">normalDifference</span> <span class="o">+</span> <span class="n">depthDifference</span><span class="p">;</span>
+<span class="n">float4</span> <span class="n">sourceColor</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+<span class="n">float4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">sourceColor</span><span class="p">,</span> <span class="n">_OutlineColor</span><span class="p">,</span> <span class="n">outline</span><span class="p">);</span>
+<span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/019/Result.png" alt="Result" /></p>
+
+<p>The main disadvantages of postprocessed outlines are that you have to apply them to all object in the scene, The way the system decides what’s a outline and what isn’t might not fit the style your have in mind and you get aliasing (visible stairsteps) artefacts pretty quickly.</p>
+
+<p>While there aren’t any easy fixes for the first two problems, you can mitigate the last one by using antialiasing in your postprocessing like FXAA or TXAA (the unity postprocessing stack provides those to you, but if you use v2 you have to redo the effect as a effect in the stack).</p>
+
+<p>Another important point to keep in mind is that you have to use models that fit this way of doing outlines - if you put too much detail in your geometry the effect will paint most of your objects black, which is probably not the intended behaviour.</p>
+
+<h2 id="source">Source</h2>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/019_OutlinesPostprocessed"</span>
+<span class="p">{</span>
+    <span class="c1">//show values to edit in inspector</span>
+    <span class="n">Properties</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">HideInInspector</span><span class="p">]</span><span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+        <span class="n">_OutlineColor</span> <span class="p">(</span><span class="s">"Outline Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_NormalMult</span> <span class="p">(</span><span class="s">"Normal Outline Multiplier"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">_NormalBias</span> <span class="p">(</span><span class="s">"Normal Outline Bias"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">_DepthMult</span> <span class="p">(</span><span class="s">"Depth Outline Multiplier"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">_DepthBias</span> <span class="p">(</span><span class="s">"Depth Outline Bias"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="p">}</span>
+
+    <span class="n">SubShader</span><span class="p">{</span>
+        <span class="c1">// markers that specify that we don't need culling </span>
+        <span class="c1">// or comparing/writing to the depth buffer</span>
+        <span class="n">Cull</span> <span class="n">Off</span>
+        <span class="n">ZWrite</span> <span class="n">Off</span> 
+        <span class="n">ZTest</span> <span class="n">Always</span>
+
+        <span class="n">Pass</span><span class="p">{</span>
+            <span class="n">CGPROGRAM</span>
+            <span class="c1">//include useful shader functions</span>
+            <span class="cp">#include "UnityCG.cginc"
+</span>
+            <span class="c1">//define vertex and fragment shader</span>
+            <span class="cp">#pragma vertex vert
+</span>            <span class="cp">#pragma fragment frag
+</span>
+            <span class="c1">//the rendered screen so far</span>
+            <span class="kt">sampler2D</span> <span class="n">_MainTex</span><span class="p">;</span>
+            <span class="c1">//the depth normals texture</span>
+            <span class="kt">sampler2D</span> <span class="n">_CameraDepthNormalsTexture</span><span class="p">;</span>
+            <span class="c1">//texelsize of the depthnormals texture</span>
+            <span class="n">float4</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">;</span>
+
+            <span class="c1">//variables for customising the effect</span>
+            <span class="n">float4</span> <span class="n">_OutlineColor</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_NormalMult</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_NormalBias</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_DepthMult</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_DepthBias</span><span class="p">;</span>
+
+            <span class="c1">//the object data that's put into the vertex shader</span>
+            <span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the data that's used to generate fragments and can be read by the fragment shader</span>
+            <span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the vertex shader</span>
+            <span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+                <span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+                <span class="c1">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">uv</span><span class="p">;</span>
+                <span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="kt">void</span> <span class="n">Compare</span><span class="p">(</span><span class="k">inout</span> <span class="kt">float</span> <span class="n">depthOutline</span><span class="p">,</span> <span class="k">inout</span> <span class="kt">float</span> <span class="n">normalOutline</span><span class="p">,</span> 
+                    <span class="kt">float</span> <span class="n">baseDepth</span><span class="p">,</span> <span class="n">float3</span> <span class="n">baseNormal</span><span class="p">,</span> <span class="n">float2</span> <span class="n">uv</span><span class="p">,</span> <span class="n">float2</span> <span class="n">offset</span><span class="p">){</span>
+                <span class="c1">//read neighbor pixel</span>
+                <span class="n">float4</span> <span class="n">neighborDepthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> 
+                        <span class="n">uv</span> <span class="o">+</span> <span class="n">_CameraDepthNormalsTexture_TexelSize</span><span class="p">.</span><span class="n">xy</span> <span class="o">*</span> <span class="n">offset</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">neighborNormal</span><span class="p">;</span>
+                <span class="kt">float</span> <span class="n">neighborDepth</span><span class="p">;</span>
+                <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">neighborDepthnormal</span><span class="p">,</span> <span class="n">neighborDepth</span><span class="p">,</span> <span class="n">neighborNormal</span><span class="p">);</span>
+                <span class="n">neighborDepth</span> <span class="o">=</span> <span class="n">neighborDepth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+                <span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">baseDepth</span> <span class="o">-</span> <span class="n">neighborDepth</span><span class="p">;</span>
+                <span class="n">depthOutline</span> <span class="o">=</span> <span class="n">depthOutline</span> <span class="o">+</span> <span class="n">depthDifference</span><span class="p">;</span>
+
+                <span class="n">float3</span> <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">baseNormal</span> <span class="o">-</span> <span class="n">neighborNormal</span><span class="p">;</span>
+                <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">r</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">g</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">.</span><span class="n">b</span><span class="p">;</span>
+                <span class="n">normalOutline</span> <span class="o">=</span> <span class="n">normalOutline</span> <span class="o">+</span> <span class="n">normalDifference</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c1">//the fragment shader</span>
+            <span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+                <span class="c1">//read depthnormal</span>
+                <span class="n">float4</span> <span class="n">depthnormal</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_CameraDepthNormalsTexture</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+
+                <span class="c1">//decode depthnormal</span>
+                <span class="n">float3</span> <span class="n">normal</span><span class="p">;</span>
+                <span class="kt">float</span> <span class="n">depth</span><span class="p">;</span>
+                <span class="n">DecodeDepthNormal</span><span class="p">(</span><span class="n">depthnormal</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">);</span>
+
+                <span class="c1">//get depth as distance from camera in units </span>
+                <span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">*</span> <span class="n">_ProjectionParams</span><span class="p">.</span><span class="n">z</span><span class="p">;</span>
+
+                <span class="kt">float</span> <span class="n">depthDifference</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="kt">float</span> <span class="n">normalDifference</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+                <span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+                <span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+                <span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+                <span class="n">Compare</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">normalDifference</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">normal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">,</span> <span class="n">float2</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+                <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">depthDifference</span> <span class="o">*</span> <span class="n">_DepthMult</span><span class="p">;</span>
+                <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">);</span>
+                <span class="n">depthDifference</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">depthDifference</span><span class="p">,</span> <span class="n">_DepthBias</span><span class="p">);</span>
+
+                <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">normalDifference</span> <span class="o">*</span> <span class="n">_NormalMult</span><span class="p">;</span>
+                <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">normalDifference</span><span class="p">);</span>
+                <span class="n">normalDifference</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">normalDifference</span><span class="p">,</span> <span class="n">_NormalBias</span><span class="p">);</span>
+
+                <span class="kt">float</span> <span class="n">outline</span> <span class="o">=</span> <span class="n">normalDifference</span> <span class="o">+</span> <span class="n">depthDifference</span><span class="p">;</span>
+                <span class="n">float4</span> <span class="n">sourceColor</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+                <span class="n">float4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">sourceColor</span><span class="p">,</span> <span class="n">_OutlineColor</span><span class="p">,</span> <span class="n">outline</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">ENDCG</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System</span><span class="p">;</span>
+
+<span class="c1">//behaviour which should lie on the same gameobject as the main camera</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">OutlinesPostprocessed</span> <span class="p">:</span> <span class="n">MonoBehaviour</span> <span class="p">{</span>
+    <span class="c1">//material that's applied when doing postprocessing</span>
+    <span class="p">[</span><span class="n">SerializeField</span><span class="p">]</span>
+    <span class="k">private</span> <span class="n">Material</span> <span class="n">postprocessMaterial</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="n">Camera</span> <span class="n">cam</span><span class="p">;</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Start</span><span class="p">(){</span>
+        <span class="c1">//get the camera and tell it to render a depthnormals texture</span>
+        <span class="n">cam</span> <span class="p">=</span> <span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">Camera</span><span class="p">&gt;();</span>
+        <span class="n">cam</span><span class="p">.</span><span class="n">depthTextureMode</span> <span class="p">=</span> <span class="n">cam</span><span class="p">.</span><span class="n">depthTextureMode</span> <span class="p">|</span> <span class="n">DepthTextureMode</span><span class="p">.</span><span class="n">DepthNormals</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">//method which is automatically called by unity after the camera is done rendering</span>
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnRenderImage</span><span class="p">(</span><span class="n">RenderTexture</span> <span class="n">source</span><span class="p">,</span> <span class="n">RenderTexture</span> <span class="n">destination</span><span class="p">){</span>
+        <span class="c1">//draws the pixels from the source texture to the destination texture</span>
+        <span class="n">Graphics</span><span class="p">.</span><span class="nf">Blit</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">postprocessMaterial</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can also find the source here:<br />
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.shader</a><br />
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.cs</a></p>
+
+<p>I hope I was able to show you how to add nice outlines to your game and how it works.</p>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

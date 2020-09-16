@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Custom Lighting</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometime..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Custom Lighting">
+<meta itemprop="description" content="Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometime...">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/013/Result.png">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Custom Lighting">
+<meta name="twitter:description" content="Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometime...">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/013/Result.png">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/013/Result.png">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2018/06/02/custom-lighting.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Custom Lighting" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2018/06/02/custom-lighting.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/013/Result.png" />
+
+<meta property="og:description" content="Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometime..." />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2018-06-02T00:00:00+02:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2018/06/02/custom-lighting.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Custom Lighting</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2018-06-02T00:00:00+02:00" itemprop="datePublished">
+          
+          Jun 2, 2018
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Custom Lighting</h1>
+    <p class="post-meta">
+      <time datetime="2018-06-02T00:00:00+02:00" itemprop="datePublished">
+        
+        Jun 2, 2018
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#use-custom-lighting-function">Use Custom Lighting Function</a></li>
+  <li><a href="#implement-lighting-ramp">Implement Lighting Ramp</a></li>
+</ul>
+
+  <div itemprop="articleBody">
+    <h2 id="summary">Summary</h2>
+<p>Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometimes we want to change the way we treat lighting to get a different, often more cartoonish, look. Custom lighting functions allow us to do exactly that.</p>
+
+<p>This tutorial is about a surface shader specific feature, while the basics of lighting are the same in all shaders, you need a lot more code to archieve the same result from a non-surface shader and I won’t explain it in this tutorial.</p>
+
+<p>This tutorial will build on the result of the <a href="/2018/03/30/simple-surface.html">surface shader basics tutorial</a> and I recommend you to have understood it first.</p>
+
+<p><img src="/assets/images/posts/013/Result.png" alt="Result" /></p>
+
+<h2 id="use-custom-lighting-function">Use Custom Lighting Function</h2>
+<p>We start by changing the lighting function to a custom lighting function we’ll write ourselves.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the shader is a surface shader, meaning that it will be extended by unity in the background to have fancy lighting and other features</span>
+<span class="c1">//our surface shader function is called surf and we use our custom lighting model</span>
+<span class="c1">//fullforwardshadows makes sure unity adds the shadow passes the shader might need</span>
+<span class="cp">#pragma surface surf Custom fullforwardShadows
+</span></code></pre></div></div>
+
+<p>Then we add a method to our shader which will be our lighting function. The name of this function has to be LightingX where X is the name of our lighting method we reference in the surface definition. In this definition of the method we’re using here, we get the surfaceoutput we return from the surface shader, as well as the direction the light is hitting the surface point from and the attenuation (I’ll explain later what that does).</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//our lighting function. Will be called once per light</span>
+<span class="n">float4</span> <span class="nf">LightingCustom</span><span class="p">(</span><span class="n">SurfaceOutput</span> <span class="n">s</span><span class="p">,</span> <span class="n">float3</span> <span class="n">lightDir</span><span class="p">,</span> <span class="kt">float</span> <span class="n">atten</span><span class="p">){</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You might notice that I use the SurfaceOutput struct here instead of SurfaceOutputStandart struct. That’s because our custom lighting model won’t use metalness and softness, so we can use the struct meant for non-PBR materials (you can use SurfaceOutputStandard for your custom lighting functions if you want to, but you’ll have to import UnityPBSLighting.cginc). To use the SurfaceOutput struct, we also have to return it in our surface shader function and remove the parts where we set the metal and smoothness values.</p>
+
+<p>I also removed metalness and smoothness from the shader variables and properties because we don’t use them anymore, but it’s not critical that you do this.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+<span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutput</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//sample and tint albedo texture</span>
+    <span class="n">fixed4</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv_MainTex</span><span class="p">);</span>
+    <span class="n">col</span> <span class="o">*=</span> <span class="n">_Color</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">col</span><span class="p">.</span><span class="n">rgb</span><span class="p">;</span>
+
+    <span class="c1">//o.Emission = _Emission;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>After doing this, we should have a lighting function that unity uses, but it returns 0 (black), so we can’t see any lights.</p>
+
+<p><img src="/assets/images/posts/013/Dark.png" alt="A model with only global illumination" /></p>
+
+<p>The reason we can still make out shapes and it’s not solid black is that unity does global illumination and tries to approximate environment lighing by looking at the skybox, if we change environment lighting to black in the lighting tab, we will see our shape solid black, but our lighting will work anyways, so you can try out what you think makes your game look most like you want it to (I’ll keep it at the default settings).</p>
+
+<h2 id="implement-lighting-ramp">Implement Lighting Ramp</h2>
+<p>Next we’ll implement a simple lighting model. The first step is to get the dot product between the vector from the surface to the light and the normal. Luckily unity provides both to us, and both are already in worldspace as well as normalized(they have the length of 1), so we don’t have to convert them.</p>
+
+<p>The dot product then tells us how much the surface points towards the light. It has a value of 0 where the surface is paralell to the direction to the light, is has a value of 1 where the light points towards the light and a value of -1 where the surface points away.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//our lighting function. Will be called once per light</span>
+<span class="n">float4</span> <span class="nf">LightingCustom</span><span class="p">(</span><span class="n">SurfaceOutput</span> <span class="n">s</span><span class="p">,</span> <span class="n">float3</span> <span class="n">lightDir</span><span class="p">,</span> <span class="kt">float</span> <span class="n">atten</span><span class="p">){</span>
+    <span class="c1">//how much does the normal point towards the light?</span>
+    <span class="kt">float</span> <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">towardsLight</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/013/DotLight.png" alt="Simple lighting" /></p>
+
+<p>The lighting method we’re going to implement is pretty simple, but also very versatile. We’re going to use the amount the surface points towards the light to look up a value of a texture and use that as our brightness.</p>
+
+<p>For that we have to change the variable from values that go from -1 to 1 to values between 0 and 1 (because UV variables go from 0 to 1), we do that by multiplying it by 0.5 (then it has a range from -0.5 to 0.5) and then adding 0.5 (shifting the range to 0 to 1 where we want it).</p>
+
+<p>Next we add a new texture to our shader as a shader variable as well as a property. I’ll name it ramp, because the lighting technique is usually called toon ramp. Then we read from that texture in the lighting function and return the value we read from that. I’ll use a function that’s half black and half white so we should see a clear cut on the model.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//show values to edit in inspector</span>
+<span class="n">Properties</span> <span class="p">{</span>
+    <span class="n">_Color</span> <span class="p">(</span><span class="s">"Tint"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="p">[</span><span class="n">HDR</span><span class="p">]</span> <span class="n">_Emission</span> <span class="p">(</span><span class="s">"Emission"</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">_Ramp</span> <span class="p">(</span><span class="s">"Toon Ramp"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="c1">//...</span>
+
+<span class="kt">sampler2D</span> <span class="n">_Ramp</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>This is the texture I use in this example:</p>
+
+<p><img src="/assets/images/posts/013/HardRamp.png" alt="A image thats black on the right and black on the left side" /></p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//our lighting function. Will be called once per light</span>
+<span class="n">float4</span> <span class="nf">LightingCustom</span><span class="p">(</span><span class="n">SurfaceOutput</span> <span class="n">s</span><span class="p">,</span> <span class="n">float3</span> <span class="n">lightDir</span><span class="p">,</span> <span class="kt">float</span> <span class="n">atten</span><span class="p">){</span>
+    <span class="c1">//how much does the normal point towards the light?</span>
+    <span class="kt">float</span> <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">);</span>
+    <span class="c1">//remap the value from -1 to 1 to between 0 and 1</span>
+    <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">towardsLight</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+    <span class="c1">//read from toon ramp</span>
+    <span class="n">float3</span> <span class="n">lightIntensity</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_Ramp</span><span class="p">,</span> <span class="n">towardsLight</span><span class="p">).</span><span class="n">rgb</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">float4</span><span class="p">(</span><span class="n">lightIntensity</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/013/DrawRamp.png" alt="surface thats completely white towards the light source" /></p>
+
+<p>You can see that we can already see the albedo in the shadows here, that’s again because of the environment lighting calculations unity adds in the background, but it will look better soon.</p>
+
+<p>Namely, to make it look better, we’re going to multiply the light intensity with the albedo of the material so we see our colors correctly as well as the attenuation, which includes casted shadows as well as the light falloff, so the light gets darker in the distance and the light color, so the object gets tinted in the color it gets illuminated in.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//our lighting function. Will be called once per light</span>
+<span class="n">float4</span> <span class="nf">LightingCustom</span><span class="p">(</span><span class="n">SurfaceOutput</span> <span class="n">s</span><span class="p">,</span> <span class="n">float3</span> <span class="n">lightDir</span><span class="p">,</span> <span class="kt">float</span> <span class="n">atten</span><span class="p">){</span>
+    <span class="c1">//how much does the normal point towards the light?</span>
+    <span class="kt">float</span> <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">);</span>
+    <span class="c1">//remap the value from -1 to 1 to between 0 and 1</span>
+    <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">towardsLight</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+    <span class="c1">//read from toon ramp</span>
+    <span class="n">float3</span> <span class="n">lightIntensity</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_Ramp</span><span class="p">,</span> <span class="n">towardsLight</span><span class="p">).</span><span class="n">rgb</span><span class="p">;</span>
+
+    <span class="c1">//combine the color</span>
+    <span class="n">float4</span> <span class="n">col</span><span class="p">;</span>
+    <span class="c1">//intensity we calculated previously, diffuse color, light falloff and shadowcasting, color of the light</span>
+    <span class="n">col</span><span class="p">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">lightIntensity</span> <span class="o">*</span> <span class="n">s</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">*</span> <span class="n">atten</span> <span class="o">*</span> <span class="n">_LightColor0</span><span class="p">.</span><span class="n">rgb</span><span class="p">;</span>
+    <span class="c1">//in case we want to make the shader transparent in the future - irrelevant right now</span>
+    <span class="n">col</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">Alpha</span><span class="p">;</span> 
+
+    <span class="k">return</span> <span class="n">col</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p><img src="/assets/images/posts/013/CorrectRampLighting.png" alt="A surface with a hard light cutoff" /></p>
+
+<p>That’s the whole shader. The advantage of it is that we can now add all kinds of different toon ramps, including ramps with colors. For example this ramp which has a warm front side and a blueish cold backside with a exaggerated transition I got from the unity examples <a href="https://docs.unity3d.com/Manual/SL-SurfaceShaderLightingExamples.html">https://docs.unity3d.com/Manual/SL-SurfaceShaderLightingExamples.html</a>.</p>
+
+<p><img src="/assets/images/posts/013/HotColdRamp.png" alt="A lighting ramp with blue values on the left and red ones on the right" /></p>
+
+<p><img src="/assets/images/posts/013/HotColdRampModel.png" alt="the red/blue ramp applied, the surface has cold shadows" /></p>
+
+<p>One thing we didn’t write for our shader, which still works though is emission. Because emission is the light the object itself emits it’s independent from other lights and not calculated in the lighting function.</p>
+
+<p>This toon shader is wonderful and flexible and I’ve seen it used in many places.</p>
+
+<p>Lighting functions in general are very useful and powerful. One thing to keep in mind though is that they only work in forward rendering. When you switch your render mode to deferred you can still see the objects like you’re used to, but they can’t take advantage of deferred rendering (don’t worry about it and stick to forward rendering if you don’t know the difference).</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/013_CustomSurfaceLighting"</span> <span class="p">{</span>
+    <span class="c1">//show values to edit in inspector</span>
+    <span class="n">Properties</span> <span class="p">{</span>
+        <span class="n">_Color</span> <span class="p">(</span><span class="s">"Tint"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+        <span class="p">[</span><span class="n">HDR</span><span class="p">]</span> <span class="n">_Emission</span> <span class="p">(</span><span class="s">"Emission"</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">_Ramp</span> <span class="p">(</span><span class="s">"Toon Ramp"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="p">}</span>
+    <span class="n">SubShader</span> <span class="p">{</span>
+        <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+        <span class="n">CGPROGRAM</span>
+
+        <span class="c1">//the shader is a surface shader, meaning that it will be extended by unity in the background to have fancy lighting and other features</span>
+        <span class="c1">//our surface shader function is called surf and we use our custom lighting model</span>
+        <span class="c1">//fullforwardshadows makes sure unity adds the shadow passes the shader might need</span>
+        <span class="cp">#pragma surface surf Custom fullforwardshadows
+</span>        <span class="cp">#pragma target 3.0
+</span>
+        <span class="kt">sampler2D</span> <span class="n">_MainTex</span><span class="p">;</span>
+        <span class="n">fixed4</span> <span class="n">_Color</span><span class="p">;</span>
+        <span class="n">half3</span> <span class="n">_Emission</span><span class="p">;</span>
+
+        <span class="kt">sampler2D</span> <span class="n">_Ramp</span><span class="p">;</span>
+
+        <span class="c1">//our lighting function. Will be called once per light</span>
+        <span class="n">float4</span> <span class="n">LightingCustom</span><span class="p">(</span><span class="n">SurfaceOutput</span> <span class="n">s</span><span class="p">,</span> <span class="n">float3</span> <span class="n">lightDir</span><span class="p">,</span> <span class="kt">float</span> <span class="n">atten</span><span class="p">){</span>
+            <span class="c1">//how much does the normal point towards the light?</span>
+            <span class="kt">float</span> <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">);</span>
+            <span class="c1">//remap the value from -1 to 1 to between 0 and 1</span>
+            <span class="n">towardsLight</span> <span class="o">=</span> <span class="n">towardsLight</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+            <span class="c1">//read from toon ramp</span>
+            <span class="n">float3</span> <span class="n">lightIntensity</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_Ramp</span><span class="p">,</span> <span class="n">towardsLight</span><span class="p">).</span><span class="n">rgb</span><span class="p">;</span>
+
+            <span class="c1">//combine the color</span>
+            <span class="n">float4</span> <span class="n">col</span><span class="p">;</span>
+            <span class="c1">//intensity we calculated previously, diffuse color, light falloff and shadowcasting, color of the light</span>
+            <span class="n">col</span><span class="p">.</span><span class="n">rgb</span> <span class="o">=</span> <span class="n">lightIntensity</span> <span class="o">*</span> <span class="n">s</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">*</span> <span class="n">atten</span> <span class="o">*</span> <span class="n">_LightColor0</span><span class="p">.</span><span class="n">rgb</span><span class="p">;</span>
+            <span class="c1">//in case we want to make the shader transparent in the future - irrelevant right now</span>
+            <span class="n">col</span><span class="p">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">Alpha</span><span class="p">;</span> 
+
+            <span class="k">return</span> <span class="n">col</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">//input struct which is automatically filled by unity</span>
+        <span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+            <span class="n">float2</span> <span class="n">uv_MainTex</span><span class="p">;</span>
+        <span class="p">};</span>
+
+        <span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+        <span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutput</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//sample and tint albedo texture</span>
+            <span class="n">fixed4</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv_MainTex</span><span class="p">);</span>
+            <span class="n">col</span> <span class="o">*=</span> <span class="n">_Color</span><span class="p">;</span>
+            <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">col</span><span class="p">.</span><span class="n">rgb</span><span class="p">;</span>
+
+            <span class="c1">//o.Emission = _Emission;</span>
+        <span class="p">}</span>
+        <span class="n">ENDCG</span>
+    <span class="p">}</span>
+    <span class="n">FallBack</span> <span class="s">"Standard"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>I hope I could explain how to implement custom lighting functions into surface shaders.</p>
+
+<p>You can also find the source code for this shader here: <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/013_CustomSurfaceLighting/CustomLighting.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/013_CustomSurfaceLighting/CustomLighting.shader</a></p>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Signed Distance Fields and Raytracing</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="I&#39;m making shader tutorials for Unity aimed at beginners." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Signed Distance Fields and Raytracing">
+<meta itemprop="description" content="I&#39;m making shader tutorials for Unity aimed at beginners.">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Signed Distance Fields and Raytracing">
+<meta name="twitter:description" content="I&#39;m making shader tutorials for Unity aimed at beginners.">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/SDF_Raytracing.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Signed Distance Fields and Raytracing" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/SDF_Raytracing.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png" />
+
+<meta property="og:description" content="I&#39;m making shader tutorials for Unity aimed at beginners." />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/SDF_Raytracing.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Signed Distance Fields and Raytracing</h1>
+      <h2 class="project-tagline">A Series about 2d and 3d Signed distance fields and Raytracing</h2>
+      
+      <!-- Post tagline -->
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article>
+
+  <div>
+    <h1 id="2d-signed-distance-fields">2d signed distance fields</h1>
+
+<style>
+    img {
+        max-height: 300px;
+    }
+</style>
+
+<h2 id="basic-shapes-and-transforming-them"><a href="/2018/11/10/2d-sdf-basics.html">basic shapes and transforming them</a></h2>
+
+<p><a href="/2018/11/10/2d-sdf-basics.html"><img src="/assets/images/posts/034/Result.gif" alt="basic shapes and transforming them" /></a></p>
+
+<h2 id="combining-shapes"><a href="/2018/11/17/2d-sdf-combination.html">combining shapes</a></h2>
+
+<p><a href="/2018/11/17/2d-sdf-combination.html"><img src="/assets/images/posts/035/Result.gif" alt="combining shapes" /></a></p>
+
+<h2 id="manipulating-the-space-of-signed-distance-fields"><a href="/2018/11/24/sdf-space-manipulation.html">manipulating the space of signed distance fields</a></h2>
+
+<p><a href="/2018/11/24/sdf-space-manipulation.html"><img src="/assets/images/posts/036/Result.gif" alt="manipulating the space of signed distance fields" /></a></p>
+
+<h2 id="soft-shadows"><a href="/2018/12/01/2d-shadows.html">Soft Shadows</a></h2>
+
+<p><a href="/2018/12/01/2d-shadows.html"><img src="/assets/images/posts/037/Result.gif" alt="Soft Shadows" /></a></p>
+
+  </div>
+
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

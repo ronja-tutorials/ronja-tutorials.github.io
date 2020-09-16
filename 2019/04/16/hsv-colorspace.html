@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>HSV Color Space</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the co..." />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="HSV Color Space">
+<meta itemprop="description" content="So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the co...">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/041/Result.gif">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="HSV Color Space">
+<meta name="twitter:description" content="So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the co...">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/041/Result.gif">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/041/Result.gif">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2019/04/16/hsv-colorspace.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="HSV Color Space" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2019/04/16/hsv-colorspace.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/041/Result.gif" />
+
+<meta property="og:description" content="So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the co..." />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2019-04-16T00:00:00+02:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2019/04/16/hsv-colorspace.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">HSV Color Space</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2019-04-16T00:00:00+02:00" itemprop="datePublished">
+          
+          Apr 16, 2019
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">HSV Color Space</h1>
+    <p class="post-meta">
+      <time datetime="2019-04-16T00:00:00+02:00" itemprop="datePublished">
+        
+        Apr 16, 2019
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#how-does-it-work">How does it work?</a></li>
+  <li><a href="#generating-a-rgb-color-from-hue">Generating a RGB Color from Hue</a></li>
+  <li><a href="#full-hsv-to-rgb-conversion">Full HSV to RGB conversion</a></li>
+  <li><a href="#rgb-to-hsv-conversion">RGB to HSV conversion</a></li>
+  <li><a href="#source">Source</a>
+    <ul>
+      <li><a href="#function-library">Function Library</a></li>
+      <li><a href="#hsv-to-rgb-test">HSV to RGB Test</a></li>
+      <li><a href="#hue-cycle">Hue Cycle</a></li>
+      <li><a href="#hsv-adjustment">HSV Adjustment</a></li>
+    </ul>
+  </li>
+</ul>
+
+  <div itemprop="articleBody">
+    <p>So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the color. This is great if we want to render the color or tint it, but adjusting the hue or saturation becomes very bothersome. For those kinds of operations we can use the HSV color space. In addition to the HSV color space there are also other similar color spaces, like the HSL or CIE color models. Some of them are very similar to the HSL model while others get way closer to the visible spectrum at the cost of higher cost of calculating them. For simplicities sake I’m only going to explain the HSV model here.</p>
+
+<p><img src="/assets/images/posts/041/Result.gif" alt="" /></p>
+
+<h2 id="how-does-it-work">How does it work?</h2>
+
+<p>When using the HSV model we also have 3 components which define our color, but in this case they map to the hue, saturation and value of the color. Because the maximum and minimum value of the hue map to the same value (red), we can view it as a circle. This concept can be taken a step further to imagine the color space as a cylinder where the hue is the rotation around the center, the saturation is the proximity to the center and the value is represented by the relative height of the point in the cylinder.</p>
+
+<p><img src="/assets/images/posts/041/hsvCylinder.png" alt="" /></p>
+
+<h2 id="generating-a-rgb-color-from-hue">Generating a RGB Color from Hue</h2>
+
+<p>The most critical step in converting colors from HSV to RGB is to convert the hue of a HSV color to a RGB color, that’s why we’re writing a function to do only this. In our implementation the hue will be between 0 and 1. Other implementations define it to be between 0 and 360, similar to degree numbers in a circle, but I personally prefer 0 to 1 scaling since it makes it easier to work with functions like <code class="language-plaintext highlighter-rouge">saturate</code> or <code class="language-plaintext highlighter-rouge">frac</code> which assume we’re working in those dimensions.</p>
+
+<p>In the range from 0 to 1 each of the 3 components has one third where it has a value of 1, one third where it has a value of 0 and two sixths where it’s linearly growing from 0 to 1 or decreasing from 1 to 0 accordingly. Those changes in values are offset in a way that each hue generates a different color.</p>
+
+<p><img src="/assets/images/posts/041/rgbHueValues.png" alt="" /></p>
+
+<p>In code we can most efficiently represent this by taking the absolute value of a value that’s first multiplied by 6(because it has to reach a value of 1 over the change of a sixth) and shifted to the side. The green and blue values both go up and then down again in the range, that’s why they are subtracted from 2, flipping them. The red value instead first decreases and then later increases again. To archieve this, 1 is subtracted from it.</p>
+
+<p>After the increase and decrease of the values is set up the values are combined and the saturate function is called on it. The saturate function ensures that no value is below 0 or above 1.</p>
+
+<p>If we want to make sure that hue values above 1 or below 0 don’t result in a red hue and instead wrap around the color spectrum like expected we can just take the fractional part of the hue and ignore the decimal part. In hlsl, the <code class="language-plaintext highlighter-rouge">frac</code> function does exactly that.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="nf">hue2rgb</span><span class="p">(</span><span class="kt">float</span> <span class="n">hue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">hue</span> <span class="o">=</span> <span class="n">frac</span><span class="p">(</span><span class="n">hue</span><span class="p">);</span> <span class="c1">//only use fractional part of hue, making it loop</span>
+    <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">//red</span>
+    <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">//green</span>
+    <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">4</span><span class="p">);</span> <span class="c1">//blue</span>
+    <span class="n">float3</span> <span class="n">rgb</span> <span class="o">=</span> <span class="n">float3</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">);</span> <span class="c1">//combine components</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">rgb</span><span class="p">);</span> <span class="c1">//clamp between 0 and 1</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>After setting up this method you can simply use it in any other method to generate a rgb color with a specific hue.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="nf">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+	<span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">hue2rgb</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+	<span class="k">return</span> <span class="nf">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/041/SimpleRainbow.png" alt="" /></p>
+
+<h2 id="full-hsv-to-rgb-conversion">Full HSV to RGB conversion</h2>
+
+<p>After being able to convert the hue into a rgb color that looks correct we next also have to make the output color respect the saturation and value. To apply the saturation to the already generated color, we do a linear interpolation from 1 to the color and use the saturation component of the vector as the argument. Since 1 stands for full white in thic context, this makes the hue vanish for low saturation color while preserving it for high saturation ones.</p>
+
+<p>The last step to take is to appy the value. Since the value stands for the brightness of the color the operation to apply it is to simply multiply the color so far by the value component.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="nf">hsv2rgb</span><span class="p">(</span><span class="n">float3</span> <span class="n">hsv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">float3</span> <span class="n">rgb</span> <span class="o">=</span> <span class="n">hue2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">x</span><span class="p">);</span> <span class="c1">//apply hue</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rgb</span><span class="p">,</span> <span class="n">hsv</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> <span class="c1">//apply saturation</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">rgb</span> <span class="o">*</span> <span class="n">hsv</span><span class="p">.</span><span class="n">z</span><span class="p">;</span> <span class="c1">//apply value</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To test this we can make a new example shader. In this one I used the x uv coordinate as the saturation, the y coordinate as the value and generated the hue by taking a value that increases diagonally by subtracting the y from the x UV component.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span>
+<span class="p">{</span>
+	<span class="kt">float</span> <span class="n">diagonal</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+	<span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">float3</span><span class="p">(</span><span class="n">diagonal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span><span class="p">));</span>
+	<span class="k">return</span> <span class="n">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/041/FullHsvTest.png" alt="" /></p>
+
+<h2 id="rgb-to-hsv-conversion">RGB to HSV conversion</h2>
+
+<p>Unlike the conversion from rgb to hsv, the data we’re using to generate the hsv color is a bit more entangled between the different components of the output vector so we won’t split this into several functions.</p>
+
+<p>Which variables we’re using to get the hue depends on which component of the rgb color has the highest value, additionally we also need the difference between the highest and lowest component to calculate it. So after calculating the highest and lowest components of the input color via the builtin <code class="language-plaintext highlighter-rouge">min</code> and <code class="language-plaintext highlighter-rouge">max</code> functions and using them to get the difference between them we first create the hue and then check which of the components is equal to the highest value. We then subtract the two values that are not the highest value from each other, divide them by the difference between minimum and maximum value and then add 0, 2 or 4 depending on the color that’s the highest. Afterwards we divide the resulting hue by 6 and only use the fractional part.</p>
+
+<p>By getting the biggest component we ensure that the other 2 components are the minimum component and the component that’s changing in the third we’re in right now (see graph further up the article). For example when red is the most intense color, either blue has the lowest value and the difference between green to blue is calculated or green has the lowest value, in that case the resulting difference has a negative value. One thing that distorts this value is that because the value and saturation are also part of the input value, the hue might be way off from the “completely red/green/blue” points, but since max and min values are super close the difference we just calculated is still very small. This is luckily easy to fix by dividing the difference by the difference between the biggest and smallest component of the input color we calculated earlier. With those modifications we get a value of 0 if the colors that aren’t the biggest color are the same, a.k.a. the hue is red/green/blue or a value of -1/1 if it’s yellow/magenta/cyan and a value inbetween for the other hues. By adding a value based on the hue of the most intense input component we’re remapping the colors to -1 to 1 for the redish colors, 1 to 3 for the greenish colors and 3 to 5 for the blueish colors. The division afterwards pulls this into the range of -1/6 to 5/6 and taking the fractional part of that makes the negative values wrap around so it’s in the range of 0 to 1 as expected.</p>
+
+<p>Getting the saturation and value is easier. The saturation is the difference between the biggest and smallest component, divided by the biggest component. The division factors out the multiplication by the value we do in the hsv to rgb conversion. To get the value we can just take the biggest component of the input value, since neither applying the hue nor the saturation can make the highest value drop below 1, so everything that goes into it is dependent on the value of the color.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float3</span> <span class="nf">rgb2hsv</span><span class="p">(</span><span class="n">float3</span> <span class="n">rgb</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">maxComponent</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">max</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">,</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">));</span>
+    <span class="kt">float</span> <span class="n">minComponent</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">min</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">,</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">));</span>
+    <span class="kt">float</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">maxComponent</span> <span class="o">-</span> <span class="n">minComponent</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">hue</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">0</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">hue</span> <span class="o">=</span> <span class="n">frac</span><span class="p">(</span><span class="n">hue</span> <span class="o">/</span> <span class="mi">6</span><span class="p">);</span>
+    <span class="kt">float</span> <span class="n">saturation</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">maxComponent</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">value</span> <span class="o">=</span> <span class="n">maxComponent</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span> <span class="n">saturation</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With this done, you can now convert a color into hsv, adjust it and move it back into rgb to render the color. The easiest one is to add some value to the hue to make it shift in a rainbow effect.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="nf">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+    <span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">hsv</span> <span class="o">=</span> <span class="n">rgb2hsv</span><span class="p">(</span><span class="n">col</span><span class="p">);</span>
+    <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">_Time</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">_CycleSpeed</span><span class="p">;</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nf">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/041/MonaCycle.gif" alt="" /></p>
+
+<p>While with the hue you can just add values where a change of 1 results in the same hue again, 0.5 is the opposite hue etc, the saturation and value should usually be kept between 0 and 1. To adjust them we can use power operator. Taking the <code class="language-plaintext highlighter-rouge">N</code>th power of the saturation or value where <code class="language-plaintext highlighter-rouge">N</code> is above 1 makes the color less saturated/darker. Taking the <code class="language-plaintext highlighter-rouge">N</code>th power with <code class="language-plaintext highlighter-rouge">N</code> between 0 and 1 makes the color more saturated/brighter. With this knowledge we can make a shader that adjusts those properties in the shader. It’s important to keep in mind that you shouldn’t do that just to statically adjust a image though, since the conversions as well as taking the power of a number are pretty expensive operations, instead consider to change the image in a image manipulation program or if you want to use shaders, via <a href="https://www.arteryengine.com/shadron/">shadron</a> or <a href="/2018/10/13/baking_shaders.html">the texture baking tool I wrote a tutorial on</a>.</p>
+
+<p>The fragment function of a shader adjusting all components of the HSV color could look like this.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the fragment shader</span>
+<span class="n">fixed4</span> <span class="nf">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+    <span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+    <span class="n">float3</span> <span class="n">hsv</span> <span class="o">=</span> <span class="n">rgb2hsv</span><span class="p">(</span><span class="n">col</span><span class="p">);</span>
+    <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">_HueShift</span><span class="p">;</span>
+    <span class="n">hsv</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">_SaturationPower</span><span class="p">);</span>
+    <span class="n">hsv</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="n">_ValuePower</span><span class="p">);</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nf">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+<span class="err">}</span>
+</code></pre></div></div>
+
+<h2 id="source">Source</h2>
+
+<p>I used include files in the building of those examples, I explain how to use them more extensively in <a href="/2018/09/02/white-noise.html">the tutorial about random number generation</a>.</p>
+
+<h3 id="function-library">Function Library</h3>
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVLibrary.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVLibrary.cginc</a></li>
+</ul>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#ifndef HSV_LIB
+#define HSV_LIB
+</span>
+<span class="n">float3</span> <span class="nf">hue2rgb</span><span class="p">(</span><span class="kt">float</span> <span class="n">hue</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">hue</span> <span class="o">=</span> <span class="n">frac</span><span class="p">(</span><span class="n">hue</span><span class="p">);</span> <span class="c1">//only use fractional part</span>
+    <span class="kt">float</span> <span class="n">r</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">//red</span>
+    <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">//green</span>
+    <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">abs</span><span class="p">(</span><span class="n">hue</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">-</span> <span class="mi">4</span><span class="p">);</span> <span class="c1">//blue</span>
+    <span class="n">float3</span> <span class="n">rgb</span> <span class="o">=</span> <span class="n">float3</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="n">g</span><span class="p">,</span><span class="n">b</span><span class="p">);</span> <span class="c1">//combine components</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">saturate</span><span class="p">(</span><span class="n">rgb</span><span class="p">);</span> <span class="c1">//clamp between 0 and 1</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">float3</span> <span class="nf">hsv2rgb</span><span class="p">(</span><span class="n">float3</span> <span class="n">hsv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">float3</span> <span class="n">rgb</span> <span class="o">=</span> <span class="n">hue2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">x</span><span class="p">);</span> <span class="c1">//apply hue</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rgb</span><span class="p">,</span> <span class="n">hsv</span><span class="p">.</span><span class="n">y</span><span class="p">);</span> <span class="c1">//apply saturation</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">rgb</span> <span class="o">*</span> <span class="n">hsv</span><span class="p">.</span><span class="n">z</span><span class="p">;</span> <span class="c1">//apply value</span>
+    <span class="k">return</span> <span class="n">rgb</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">float3</span> <span class="nf">rgb2hsv</span><span class="p">(</span><span class="n">float3</span> <span class="n">rgb</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">maxComponent</span> <span class="o">=</span> <span class="n">max</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">max</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">,</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">));</span>
+    <span class="kt">float</span> <span class="n">minComponent</span> <span class="o">=</span> <span class="n">min</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">,</span> <span class="n">min</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">,</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">));</span>
+    <span class="kt">float</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">maxComponent</span> <span class="o">-</span> <span class="n">minComponent</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">hue</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">0</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">maxComponent</span> <span class="o">==</span> <span class="n">rgb</span><span class="p">.</span><span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">hue</span> <span class="o">=</span> <span class="mi">4</span><span class="o">+</span><span class="p">(</span><span class="n">rgb</span><span class="p">.</span><span class="n">r</span><span class="o">-</span><span class="n">rgb</span><span class="p">.</span><span class="n">g</span><span class="p">)</span><span class="o">/</span><span class="n">diff</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">hue</span> <span class="o">=</span> <span class="n">frac</span><span class="p">(</span><span class="n">hue</span> <span class="o">/</span> <span class="mi">6</span><span class="p">);</span>
+    <span class="kt">float</span> <span class="n">saturation</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">maxComponent</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">value</span> <span class="o">=</span> <span class="n">maxComponent</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">float3</span><span class="p">(</span><span class="n">hue</span><span class="p">,</span> <span class="n">saturation</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cp">#endif
+</span></code></pre></div></div>
+
+<h3 id="hsv-to-rgb-test">HSV to RGB Test</h3>
+
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueTest.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueTest.shader</a></li>
+</ul>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/041_HSV/HueTest"</span><span class="p">{</span>
+    <span class="n">SubShader</span><span class="p">{</span>
+        <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+        <span class="n">Pass</span><span class="p">{</span>
+            <span class="n">CGPROGRAM</span>
+
+            <span class="c1">//include useful shader functions</span>
+            <span class="cp">#include "UnityCG.cginc"
+</span>            <span class="cp">#include "HSVLibrary.cginc"
+</span>
+            <span class="c1">//define vertex and fragment shader</span>
+            <span class="cp">#pragma vertex vert
+</span>            <span class="cp">#pragma fragment frag
+</span>            
+            <span class="c1">//the object data that's put into the vertex shader</span>
+            <span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the data that's used to generate fragments and can be read by the fragment shader</span>
+            <span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the vertex shader</span>
+            <span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+                <span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+                <span class="c1">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">uv</span><span class="p">;</span>
+                <span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c1">//the fragment shader</span>
+            <span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+                <span class="kt">float</span> <span class="n">diagonal</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+                <span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">float3</span><span class="p">(</span><span class="n">diagonal</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span><span class="p">));</span>
+                <span class="k">return</span> <span class="n">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="n">ENDCG</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="hue-cycle">Hue Cycle</h3>
+
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueCycle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueCycle.shader</a></li>
+</ul>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/041_HSV/HueCycle"</span><span class="p">{</span>
+    <span class="c1">//show values to edit in inspector</span>
+    <span class="n">Properties</span><span class="p">{</span>
+        <span class="n">_CycleSpeed</span> <span class="p">(</span><span class="s">"Hue Cycle Speed"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="p">}</span>
+
+    <span class="n">SubShader</span><span class="p">{</span>
+        <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+        <span class="n">Pass</span><span class="p">{</span>
+            <span class="n">CGPROGRAM</span>
+
+            <span class="c1">//include useful shader functions</span>
+            <span class="cp">#include "UnityCG.cginc"
+</span>            <span class="cp">#include "HSVLibrary.cginc"
+</span>
+            <span class="c1">//define vertex and fragment shader</span>
+            <span class="cp">#pragma vertex vert
+</span>            <span class="cp">#pragma fragment frag
+</span>
+            <span class="c1">//Hue cycle speed</span>
+            <span class="kt">float</span> <span class="n">_CycleSpeed</span><span class="p">;</span>
+
+            <span class="kt">sampler2D</span> <span class="n">_MainTex</span><span class="p">;</span>
+            <span class="n">float4</span> <span class="n">_MainTex_ST</span><span class="p">;</span>
+
+            <span class="c1">//the object data that's put into the vertex shader</span>
+            <span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the data that's used to generate fragments and can be read by the fragment shader</span>
+            <span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the vertex shader</span>
+            <span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+                <span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+                <span class="c1">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">uv</span><span class="p">;</span>
+                <span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c1">//the fragment shader</span>
+            <span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+                <span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">hsv</span> <span class="o">=</span> <span class="n">rgb2hsv</span><span class="p">(</span><span class="n">col</span><span class="p">);</span>
+                <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">_Time</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">_CycleSpeed</span><span class="p">;</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="n">ENDCG</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="hsv-adjustment">HSV Adjustment</h3>
+
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVAdjust.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVAdjust.shader</a></li>
+</ul>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/041_HSV/Adjust"</span><span class="p">{</span>
+    <span class="c1">//show values to edit in inspector</span>
+    <span class="n">Properties</span><span class="p">{</span>
+        <span class="n">_HueShift</span><span class="p">(</span><span class="s">"Hue Shift"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">[</span><span class="n">PowerSlider</span><span class="p">(</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">)]</span><span class="n">_SaturationPower</span><span class="p">(</span><span class="s">"Saturation Adjustment"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="p">[</span><span class="n">PowerSlider</span><span class="p">(</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">)]</span><span class="n">_ValuePower</span><span class="p">(</span><span class="s">"Value Adjustment"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">10</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="p">}</span>
+
+    <span class="n">SubShader</span><span class="p">{</span>
+        <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+        <span class="n">Pass</span><span class="p">{</span>
+            <span class="n">CGPROGRAM</span>
+
+            <span class="c1">//include useful shader functions</span>
+            <span class="cp">#include "UnityCG.cginc"
+</span>            <span class="cp">#include "HSVLibrary.cginc"
+</span>
+            <span class="c1">//define vertex and fragment shader</span>
+            <span class="cp">#pragma vertex vert
+</span>            <span class="cp">#pragma fragment frag
+</span>
+            <span class="c1">//HSV modification variables</span>
+            <span class="kt">float</span> <span class="n">_HueShift</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_SaturationPower</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">_ValuePower</span><span class="p">;</span>
+
+            <span class="kt">sampler2D</span> <span class="n">_MainTex</span><span class="p">;</span>
+            <span class="n">float4</span> <span class="n">_MainTex_ST</span><span class="p">;</span>
+
+            <span class="c1">//the object data that's put into the vertex shader</span>
+            <span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the data that's used to generate fragments and can be read by the fragment shader</span>
+            <span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+                <span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+                <span class="n">float2</span> <span class="n">uv</span> <span class="o">:</span> <span class="n">TEXCOORD0</span><span class="p">;</span>
+            <span class="p">};</span>
+
+            <span class="c1">//the vertex shader</span>
+            <span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+                <span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+                <span class="c1">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+                <span class="n">o</span><span class="p">.</span><span class="n">uv</span> <span class="o">=</span> <span class="n">v</span><span class="p">.</span><span class="n">uv</span><span class="p">;</span>
+                <span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c1">//the fragment shader</span>
+            <span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+                <span class="n">float3</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv</span><span class="p">);</span>
+                <span class="n">float3</span> <span class="n">hsv</span> <span class="o">=</span> <span class="n">rgb2hsv</span><span class="p">(</span><span class="n">col</span><span class="p">);</span>
+                <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">hsv</span><span class="p">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">_HueShift</span><span class="p">;</span>
+                <span class="n">hsv</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">_SaturationPower</span><span class="p">);</span>
+                <span class="n">hsv</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">pow</span><span class="p">(</span><span class="n">hsv</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="n">_ValuePower</span><span class="p">);</span>
+                <span class="n">col</span> <span class="o">=</span> <span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">);</span>
+                <span class="k">return</span> <span class="n">float4</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="n">ENDCG</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As always thank you so much for reading and supporting me, your messages of support mean the world to me 💖.</p>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

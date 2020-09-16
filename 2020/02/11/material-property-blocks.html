@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Instancing and Material Property Blocks</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="Current State" />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Instancing and Material Property Blocks">
+<meta itemprop="description" content="Current State">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/048/BallPit.png">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Instancing and Material Property Blocks">
+<meta name="twitter:description" content="Current State">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/048/BallPit.png">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/048/BallPit.png">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2020/02/11/material-property-blocks.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Instancing and Material Property Blocks" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2020/02/11/material-property-blocks.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/048/BallPit.png" />
+
+<meta property="og:description" content="Current State" />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2020-02-11T00:00:00+01:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <meta property="article:tag" content="shader,">
+  
+    <meta property="article:tag" content="unity,">
+  
+    <meta property="article:tag" content="basics">
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2020/02/11/material-property-blocks.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Instancing and Material Property Blocks</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2020-02-11T00:00:00+01:00" itemprop="datePublished">
+          
+          Feb 11, 2020
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Instancing and Material Property Blocks</h1>
+    <p class="post-meta">
+      <time datetime="2020-02-11T00:00:00+01:00" itemprop="datePublished">
+        
+        Feb 11, 2020
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#current-state">Current State</a></li>
+  <li><a href="#changing-properties-via-script">Changing Properties via Script</a></li>
+  <li><a href="#setting-material-property-blocks">Setting Material Property Blocks</a></li>
+  <li><a href="#making-your-shader-support-instancing">Making your Shader support Instancing</a></li>
+  <li><a href="#profiling">Profiling</a></li>
+  <li><a href="#sources">Sources</a></li>
+</ul>
+
+  <div itemprop="articleBody">
+    <h2 id="current-state">Current State</h2>
+
+<p>I’m going to go off a <a href="/basics.html">basic unlit shader</a> in this tutorial. In all tutorials since that one we always set the properties at a “per material” basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without</p>
+
+<p>Important to mention here is that if you’re using one of Unity’s new scriptable render pipelines the performance slowdown might be way less and you can even make the performance worse by using property blocks. That’s because of the new SRP batcher which is able to batch models with different materials, but doesn’t support property block as far as I know (it’s better to read yourself into the current state of tech yourself and trying out what works better).</p>
+
+<p><img src="/assets/images/posts/048/SimpleMaterials.png" alt="" /></p>
+
+<h2 id="changing-properties-via-script">Changing Properties via Script</h2>
+
+<p>If we want to decouple some properties from the materials, we sadly can’t set them from the material inspector as that would modify all objects with that material. Instead we create a new C# script which will allow us to set our materials from there. In this instance we just add a public color field and set the <code class="language-plaintext highlighter-rouge">_Color</code> property of the shader every time any field is changed in the inspector, which is when the <code class="language-plaintext highlighter-rouge">OnValidate</code> method is called automatically.</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ColorPropertySetter</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">Color</span> <span class="n">MaterialColor</span><span class="p">;</span>
+
+    <span class="c1">// OnValidate is called in the editor after the component is edited</span>
+    <span class="k">void</span> <span class="nf">OnValidate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//Get a renderer component either of the own gameobject or of a child</span>
+        <span class="n">Renderer</span> <span class="n">renderer</span> <span class="p">=</span> <span class="n">GetComponentInChildren</span><span class="p">&lt;</span><span class="n">Renderer</span><span class="p">&gt;();</span>
+        <span class="c1">//get the material of the renderer</span>
+        <span class="n">Material</span> <span class="n">mat</span> <span class="p">=</span> <span class="n">renderer</span><span class="p">.</span><span class="n">material</span><span class="p">;</span>
+        <span class="c1">//set the color property</span>
+        <span class="n">mat</span><span class="p">.</span><span class="nf">SetColor</span><span class="p">(</span><span class="s">"_Color"</span><span class="p">,</span> <span class="n">MaterialColor</span><span class="p">);</span>
+        <span class="c1">//reassign the material to the renderer</span>
+        <span class="n">renderer</span><span class="p">.</span><span class="n">material</span> <span class="p">=</span> <span class="n">mat</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/048/PropertySetter.png" alt="" /></p>
+
+<p>With this setup we can change the properties via a script on a per object basis. What unity hides from us and what makes this very bad is that by using the <code class="language-plaintext highlighter-rouge">.material</code> field of the renderer like this, we create a new Material every time we want to modify it. Unity even gives us a little warning to nevr do this in editor code. To get the material without cloning the existing one, we have to use the <code class="language-plaintext highlighter-rouge">.sharedMaterial</code> property instead. When we use this property, we also don’t have to reassign the material in the last line of the function because we’re getting a real reference instead of just a copy.</p>
+
+<p>If you used the previous version of the script, be sure to apply the same material to all copies again since the renderers are using the clone materials we don’t want now.</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// OnValidate is called in the editor after the component is edited</span>
+<span class="k">void</span> <span class="nf">OnValidate</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">//Get a renderer component either of the own gameobject or of a child</span>
+    <span class="n">Renderer</span> <span class="n">renderer</span> <span class="p">=</span> <span class="n">GetComponentInChildren</span><span class="p">&lt;</span><span class="n">Renderer</span><span class="p">&gt;();</span>
+    <span class="c1">//get the material of the renderer</span>
+    <span class="n">Material</span> <span class="n">mat</span> <span class="p">=</span> <span class="n">renderer</span><span class="p">.</span><span class="n">sharedMaterial</span><span class="p">;</span>
+    <span class="c1">//set the color property</span>
+    <span class="n">mat</span><span class="p">.</span><span class="nf">SetColor</span><span class="p">(</span><span class="s">"_Color"</span><span class="p">,</span> <span class="n">MaterialColor</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/048/ChangeSharedMaterial.gif" alt="" /></p>
+
+<p>Now editing the material via the script is the same as editing it via the material inspector, with the same disadvantages. You can use this knowledge to change materials whenever you want, you can clone a material by passing a new material a old one to clone like <code class="language-plaintext highlighter-rouge">Material clone = new Material(oldMaterial);</code>. You can do this in runtime, at awake and if you want a complex system without needing the performance benefits (for example when using the SRP batcher) this should be a good place to start. But to change materials on a per object basis without cloning them, we still need material property blocks.</p>
+
+<h2 id="setting-material-property-blocks">Setting Material Property Blocks</h2>
+
+<p>To pass MPBs to shaders, we first have to create a representation of them in C#. It’s generally recommended to create them once and reuse it every frame. I check whether a property block already exists at the start of the function and create a new one if it doesn’t, if you’re only changing the propertyblock in the game and not in the editor creating it during the <code class="language-plaintext highlighter-rouge">Awake</code> function is probably more reasonable.
+With the MPB created we can use the same functions as we did on the material on the propertyblock, after setting the properties we apply it to the renderer via the <code class="language-plaintext highlighter-rouge">SetPropertyBlock</code> function.</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ColorPropertySetter</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="c1">//The color of the object</span>
+    <span class="k">public</span> <span class="n">Color</span> <span class="n">MaterialColor</span><span class="p">;</span>
+
+    <span class="c1">//The material property block we pass to the GPU</span>
+    <span class="k">private</span> <span class="n">MaterialPropertyBlock</span> <span class="n">propertyBlock</span><span class="p">;</span>
+
+    <span class="c1">// OnValidate is called in the editor after the component is edited</span>
+    <span class="k">void</span> <span class="nf">OnValidate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//create propertyblock only if none exists</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">propertyBlock</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">propertyBlock</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">MaterialPropertyBlock</span><span class="p">();</span>
+        <span class="c1">//Get a renderer component either of the own gameobject or of a child</span>
+        <span class="n">Renderer</span> <span class="n">renderer</span> <span class="p">=</span> <span class="n">GetComponentInChildren</span><span class="p">&lt;</span><span class="n">Renderer</span><span class="p">&gt;();</span>
+        <span class="c1">//set the color property</span>
+        <span class="n">propertyBlock</span><span class="p">.</span><span class="nf">SetColor</span><span class="p">(</span><span class="s">"_Color"</span><span class="p">,</span> <span class="n">MaterialColor</span><span class="p">);</span>
+        <span class="c1">//apply propertyBlock to renderer</span>
+        <span class="n">renderer</span><span class="p">.</span><span class="nf">SetPropertyBlock</span><span class="p">(</span><span class="n">propertyBlock</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/048/CorrectPropertyBlocks.png" alt="" /></p>
+
+<p>With this we are setting the MPBs correctly and we can see 3 models with the same material, but different colors. Sadly our material doesn’t support instancing yet, so we don’t get the performance benefits of using material property blocks and still have to pay with one drawcall per unique MPB.</p>
+
+<h2 id="making-your-shader-support-instancing">Making your Shader support Instancing</h2>
+
+<p>First we have to tell Unity that the shader is able to be instanced, to do this we add the line <code class="language-plaintext highlighter-rouge">#pragma multi_compile_instancing</code> next to the <code class="language-plaintext highlighter-rouge">#pragma</code> declarations for the shader functions, this makes the material inspector show the “Enable GPU Instancing” option which we want to enable. In the case of surface shaders this shouldn’t be needed.</p>
+
+<p><img src="/assets/images/posts/048/InstancingOption.png" alt="" /></p>
+
+<p>If you don’t use MaterialPropertyBlocks this is all you need to do to enable instancing, and if you’re using hundreds of thousands of instances of the same model, it can save you a good bit of performance. If we look into the frame debugger we can see that using MaterialPropertyBlocks currently breaks our instancing though because the properties aren’t setup for instancing yet. (You can find the frame debugger under <code class="language-plaintext highlighter-rouge">Window &gt; Analysis &gt; Frame Debugger</code>)</p>
+
+<p><img src="/assets/images/posts/048/CantInstanceDebugger.png" alt="" /></p>
+
+<p>First we have to set up the instance id. In Unity theres macros for that, so we’ll use those. We add <code class="language-plaintext highlighter-rouge">UNITY_VERTEX_INPUT_INSTANCE_ID</code> to both the appdata struct as well as the v2f struct. Then in the vertex function we use <code class="language-plaintext highlighter-rouge">UNITY_SETUP_INSTANCE_ID(input_stuct)</code> to do the setup in the appdata input stuct and then pass the ID to the vertex to fragment struct for use in the fragment shader via the <code class="language-plaintext highlighter-rouge">UNITY_TRANSFER_INSTANCE_ID(input_stuct, output_stuct)</code> macro. In the fragment shader we add another <code class="language-plaintext highlighter-rouge">UNITY_SETUP_INSTANCE_ID</code> to also do the setup there.</p>
+
+<p>With this work done, we can actually look at the properties to convert. For this we have to add a code block in our hlsl area, but outside of any functions thats framed by the two macros <code class="language-plaintext highlighter-rouge">UNITY_INSTANCING_BUFFER_START(name)</code> and <code class="language-plaintext highlighter-rouge">UNITY_INSTANCING_BUFFER_END(name)</code>. Inside this block we can then define variables via the <code class="language-plaintext highlighter-rouge">UNITY_DEFINE_INSTANCED_PROP(datatype, variable_name)</code> macro. After that is also done, we can finally access the properties of the MPB via the <code class="language-plaintext highlighter-rouge">UNITY_ACCESS_INSTANCED_PROP(buffer_name, variable_name)</code> macro.</p>
+
+<p>I also added the <code class="language-plaintext highlighter-rouge">[PerRendererData]</code> attribute to the <code class="language-plaintext highlighter-rouge">_Color</code> property in the property definitions at the top, though this should only make it so the property isn’t shown in the regular material inspector where it doesn’t have any effect anymore when a MPB is used.</p>
+
+<p>With all of this done, the shader looks like this:</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/048_Instancing"</span> <span class="p">{</span>
+  <span class="c1">//show values to edit in inspector</span>
+  <span class="n">Properties</span><span class="p">{</span>
+    <span class="p">[</span><span class="n">PerRendererData</span><span class="p">]</span> <span class="n">_Color</span> <span class="p">(</span><span class="s">"Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="n">SubShader</span><span class="p">{</span>
+    <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+    <span class="n">Pass</span><span class="p">{</span>
+      <span class="n">CGPROGRAM</span>
+      <span class="c1">//allow instancing</span>
+      <span class="cp">#pragma multi_compile_instancing
+</span>
+      <span class="c1">//shader functions</span>
+      <span class="cp">#pragma vertex vert
+</span>      <span class="cp">#pragma fragment frag
+</span>
+      <span class="c1">//use unity shader library</span>
+      <span class="cp">#include "UnityCG.cginc"
+</span>
+      <span class="c1">//per vertex data that comes from the model/parameters</span>
+      <span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+        <span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+        <span class="n">UNITY_VERTEX_INPUT_INSTANCE_ID</span>
+      <span class="p">};</span>
+
+      <span class="c1">//per vertex data that gets passed from the vertex to the fragment function</span>
+      <span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+        <span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+        <span class="n">UNITY_VERTEX_INPUT_INSTANCE_ID</span>
+      <span class="p">};</span>
+
+      <span class="n">UNITY_INSTANCING_BUFFER_START</span><span class="p">(</span><span class="n">Props</span><span class="p">)</span>
+        <span class="n">UNITY_DEFINE_INSTANCED_PROP</span><span class="p">(</span><span class="n">float4</span><span class="p">,</span> <span class="n">_Color</span><span class="p">)</span>
+      <span class="n">UNITY_INSTANCING_BUFFER_END</span><span class="p">(</span><span class="n">Props</span><span class="p">)</span>
+
+      <span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+        <span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+
+        <span class="c1">//setup instance id</span>
+        <span class="n">UNITY_SETUP_INSTANCE_ID</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+        <span class="n">UNITY_TRANSFER_INSTANCE_ID</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">o</span><span class="p">);</span>
+
+        <span class="c1">//calculate the position in clip space to render the object</span>
+        <span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+          <span class="c1">//setup instance id</span>
+          <span class="n">UNITY_SETUP_INSTANCE_ID</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+          <span class="c1">//get _Color Property from buffer</span>
+          <span class="n">fixed4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">UNITY_ACCESS_INSTANCED_PROP</span><span class="p">(</span><span class="n">Props</span><span class="p">,</span> <span class="n">_Color</span><span class="p">);</span>
+        <span class="c1">//Return the color the Object is rendered in</span>
+        <span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+      <span class="p">}</span>
+
+      <span class="n">ENDCG</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And when checking the frame debugger we can actually see that all of our objects are drawn in a single drawcall.</p>
+
+<p><img src="/assets/images/posts/048/CanInstanceDebugger.png" alt="" /></p>
+
+<h2 id="profiling">Profiling</h2>
+
+<p>If you’re asking yourself what the use of all of this was apart from some abstract concept of “drawcalls” I made a little test. Lots of small meshes with small different changes like color are a best case szenario for instancing, but it can show you what instancing is capable of in theory.</p>
+
+<p><img src="/assets/images/posts/048/BallPit.png" alt="" /></p>
+
+<p>For profiling I used a new script which assigns a random color instead of a authored one:</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">RandomColorPropertySetter</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="c1">//The material property block we pass to the GPU</span>
+    <span class="n">MaterialPropertyBlock</span> <span class="n">propertyBlock</span><span class="p">;</span>
+
+    <span class="c1">// OnValidate is called in the editor after the component is edited</span>
+    <span class="k">void</span> <span class="nf">OnValidate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//create propertyblock only if none exists</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">propertyBlock</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">propertyBlock</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">MaterialPropertyBlock</span><span class="p">();</span>
+        <span class="c1">//Get a renderer component either of the own gameobject or of a child</span>
+        <span class="n">Renderer</span> <span class="n">renderer</span> <span class="p">=</span> <span class="n">GetComponentInChildren</span><span class="p">&lt;</span><span class="n">Renderer</span><span class="p">&gt;();</span>
+        <span class="c1">//set the color property</span>
+        <span class="n">propertyBlock</span><span class="p">.</span><span class="nf">SetColor</span><span class="p">(</span><span class="s">"_Color"</span><span class="p">,</span> <span class="nf">GetRandomColor</span><span class="p">());</span>
+        <span class="c1">//apply propertyBlock to renderer</span>
+        <span class="n">renderer</span><span class="p">.</span><span class="nf">SetPropertyBlock</span><span class="p">(</span><span class="n">propertyBlock</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">static</span> <span class="n">Color</span> <span class="nf">GetRandomColor</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Color</span><span class="p">.</span><span class="nf">HSVToRGB</span><span class="p">(</span><span class="n">Random</span><span class="p">.</span><span class="k">value</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="p">.</span><span class="m">9f</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With 4800 Spheres with our newly written shader plus this random color script the whole screen renders with 13 batches and takes about 7-8ms on the CPU while taking 1.1ms on the GPU (That means the frame takes 7-8ms and the program is “CPU bound” meaning optimisations should focon on how to lessen the CPU load). Taking the CPU into consideration is fair here because the CPU has to figure out which meshes can be batches each frame and dispatch the data. When disabling instancing the batches jump up to 4803 taking around 14-15ms on the CPU and 11ms on the GPU, what I consider a clear improvement. As always if you have performance critical things in your own application theres no magic bullet, the best thing you can have is being aware of the possibilities and trying all of them and seeing the advantages and disadvantages for your use case.</p>
+
+<p><img src="/assets/images/posts/048/StatsComparison.png" alt="" /></p>
+
+<h2 id="sources">Sources</h2>
+
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs</a></li>
+</ul>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ColorPropertySetter</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="c1">//The color of the object</span>
+    <span class="k">public</span> <span class="n">Color</span> <span class="n">MaterialColor</span><span class="p">;</span>
+
+    <span class="c1">//The material property block we pass to the GPU</span>
+    <span class="k">private</span> <span class="n">MaterialPropertyBlock</span> <span class="n">propertyBlock</span><span class="p">;</span>
+
+    <span class="c1">// OnValidate is called in the editor after the component is edited</span>
+    <span class="k">void</span> <span class="nf">OnValidate</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">//create propertyblock only if none exists</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">propertyBlock</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">propertyBlock</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">MaterialPropertyBlock</span><span class="p">();</span>
+        <span class="c1">//Get a renderer component either of the own gameobject or of a child</span>
+        <span class="n">Renderer</span> <span class="n">renderer</span> <span class="p">=</span> <span class="n">GetComponentInChildren</span><span class="p">&lt;</span><span class="n">Renderer</span><span class="p">&gt;();</span>
+        <span class="c1">//set the color property</span>
+        <span class="n">propertyBlock</span><span class="p">.</span><span class="nf">SetColor</span><span class="p">(</span><span class="s">"_Color"</span><span class="p">,</span> <span class="n">MaterialColor</span><span class="p">);</span>
+        <span class="c1">//apply propertyBlock to renderer</span>
+        <span class="n">renderer</span><span class="p">.</span><span class="nf">SetPropertyBlock</span><span class="p">(</span><span class="n">propertyBlock</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ul>
+  <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/MPBShader.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/MPBShader.shader</a></li>
+</ul>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/048_Instancing"</span> <span class="p">{</span>
+	<span class="c1">//show values to edit in inspector</span>
+	<span class="n">Properties</span><span class="p">{</span>
+		<span class="p">[</span><span class="n">PerRendererData</span><span class="p">]</span> <span class="n">_Color</span> <span class="p">(</span><span class="s">"Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="n">SubShader</span><span class="p">{</span>
+		<span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		<span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+		<span class="n">Pass</span><span class="p">{</span>
+			<span class="n">CGPROGRAM</span>
+			<span class="c1">//allow instancing</span>
+			<span class="cp">#pragma multi_compile_instancing
+</span>
+            <span class="c1">//shader functions</span>
+			<span class="cp">#pragma vertex vert
+</span>			<span class="cp">#pragma fragment frag
+</span>
+			<span class="c1">//use unity shader library</span>
+			<span class="cp">#include "UnityCG.cginc"
+</span>
+            <span class="c1">//per vertex data that comes from the model/parameters</span>
+			<span class="k">struct</span> <span class="n">appdata</span><span class="p">{</span>
+				<span class="n">float4</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">POSITION</span><span class="p">;</span>
+				<span class="n">UNITY_VERTEX_INPUT_INSTANCE_ID</span>
+			<span class="p">};</span>
+
+            <span class="c1">//per vertex data that gets passed from the vertex to the fragment function</span>
+			<span class="k">struct</span> <span class="n">v2f</span><span class="p">{</span>
+				<span class="n">float4</span> <span class="n">position</span> <span class="o">:</span> <span class="n">SV_POSITION</span><span class="p">;</span>
+				<span class="n">UNITY_VERTEX_INPUT_INSTANCE_ID</span>
+			<span class="p">};</span>
+
+			<span class="n">UNITY_INSTANCING_BUFFER_START</span><span class="p">(</span><span class="n">Props</span><span class="p">)</span>
+                <span class="n">UNITY_DEFINE_INSTANCED_PROP</span><span class="p">(</span><span class="n">float4</span><span class="p">,</span> <span class="n">_Color</span><span class="p">)</span>
+            <span class="n">UNITY_INSTANCING_BUFFER_END</span><span class="p">(</span><span class="n">Props</span><span class="p">)</span>
+
+			<span class="n">v2f</span> <span class="n">vert</span><span class="p">(</span><span class="n">appdata</span> <span class="n">v</span><span class="p">){</span>
+				<span class="n">v2f</span> <span class="n">o</span><span class="p">;</span>
+
+				<span class="c1">//setup instance id</span>
+                <span class="n">UNITY_SETUP_INSTANCE_ID</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+                <span class="n">UNITY_TRANSFER_INSTANCE_ID</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">o</span><span class="p">);</span>
+
+				<span class="c1">//calculate the position in clip space to render the object</span>
+				<span class="n">o</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">UnityObjectToClipPos</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">vertex</span><span class="p">);</span>
+				<span class="k">return</span> <span class="n">o</span><span class="p">;</span>
+			<span class="p">}</span>
+
+			<span class="n">fixed4</span> <span class="n">frag</span><span class="p">(</span><span class="n">v2f</span> <span class="n">i</span><span class="p">)</span> <span class="o">:</span> <span class="n">SV_TARGET</span><span class="p">{</span>
+			    <span class="c1">//setup instance id</span>
+                <span class="n">UNITY_SETUP_INSTANCE_ID</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+			    <span class="c1">//get _Color Property from buffer</span>
+			    <span class="n">fixed4</span> <span class="n">color</span> <span class="o">=</span> <span class="n">UNITY_ACCESS_INSTANCED_PROP</span><span class="p">(</span><span class="n">Props</span><span class="p">,</span> <span class="n">_Color</span><span class="p">);</span>
+				<span class="c1">//Return the color the Object is rendered in</span>
+				<span class="k">return</span> <span class="n">color</span><span class="p">;</span>
+			<span class="p">}</span>
+
+			<span class="n">ENDCG</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

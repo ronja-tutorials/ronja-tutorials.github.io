@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <!-- Non social metatags -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#157878">
+
+    
+
+    <title>Clipping a Model with a Plane</title>
+
+    
+      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
+<html itemscope itemtype="http://schema.org/Article">
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Place this data between the <head> tags of your website -->
+
+  <meta name="author" content="Ronja Böhringer">
+
+<meta name="description" content="Summary" />
+
+
+
+
+
+<!-- Schema.org markup for Google+ -->
+<meta itemprop="name" content="Clipping a Model with a Plane">
+<meta itemprop="description" content="Summary">
+
+  <meta itemprop="image" content="https://www.ronja-tutorials.com/assets/images/posts/021/Result.gif">
+
+
+<!-- Twitter Card data -->
+<meta name="twitter:card" content="summary_large_image">
+
+
+
+<meta name="twitter:title" content="Clipping a Model with a Plane">
+<meta name="twitter:description" content="Summary">
+
+
+  <meta name="twitter:creator" content="@TotallyRonja">
+
+
+<!-- Twitter summary card with large image must be at least 280x150px -->
+
+  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/assets/images/posts/021/Result.gif">
+  <meta property="twitter:image" content="https://www.ronja-tutorials.com/assets/images/posts/021/Result.gif">
+
+<meta property="twitter:url" content="https://www.ronja-tutorials.com/2018/08/06/plane-clipping.html">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Clipping a Model with a Plane" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/2018/08/06/plane-clipping.html" />
+
+  <meta property="og:image" content="https://www.ronja-tutorials.com/assets/images/posts/021/Result.gif" />
+
+<meta property="og:description" content="Summary" />
+<meta property="og:site_name" content="Ronja's Shader Tutorials" />
+
+  <meta property="article:published_time" content="2018-08-06T00:00:00+02:00" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+    
+
+    <link rel="canonical" href="https://www.ronja-tutorials.com/2018/08/06/plane-clipping.html">
+
+    
+
+    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
+    <meta name="robots" content="noarchive">
+
+    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
+    <link rel="alternate" media="handheld" href=""> -->
+
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+    <link rel="stylesheet" href="/assets/css/style.css?v=">
+  </head>
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+
+    
+      <a class="site-title" href="/">Ronja&#39;s Shader Tutorials</a>
+    
+    <!-- SVG icons from https://iconmonstr.com -->
+
+    <!-- Twitter icon -->
+    <span class="my-span-icon">
+        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+        </a>
+      </span>
+
+      <!-- RSS icon -->
+      
+        <span class="my-span-icon">
+          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+          </a>
+        </span>
+      
+      <!-- Contact icon -->
+      
+      
+        <span class="my-span-icon">
+          <a href="/about.html" aria-label="Contact" title="Contact ">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+          </a>
+        </span>
+      
+
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+              
+              
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/about.html">About</a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+              
+                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
+              
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    
+    
+    
+
+    <section class="page-header">
+      <h1 class="project-name">Clipping a Model with a Plane</h1>
+      <h2 class="project-tagline"></h2>
+      
+      <!-- Post tagline -->
+      
+        <h2 class="project-date">
+        <time datetime="2018-08-06T00:00:00+02:00" itemprop="datePublished">
+          
+          Aug 6, 2018
+        </time>
+        
+        
+          • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span itemprop="name">Ronja Böhringer</span></span>
+        
+        </h2>
+      
+      <!-- End: Post tagline -->
+    </section>
+
+    <section class="main-content">
+
+      <article itemscope itemtype="http://schema.org/BlogPosting">
+
+  <!-- <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Clipping a Model with a Plane</h1>
+    <p class="post-meta">
+      <time datetime="2018-08-06T00:00:00+02:00" itemprop="datePublished">
+        
+        Aug 6, 2018
+      </time>
+      </p>
+  </header> -->
+
+  
+<ul>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#define-plane">Define Plane</a></li>
+  <li><a href="#clip-plane">Clip Plane</a></li>
+  <li><a href="#show-inside">Show Inside</a></li>
+  <li><a href="#source">Source</a></li>
+</ul>
+
+  <div itemprop="articleBody">
+    <h2 id="summary">Summary</h2>
+
+<p>Another cool effect is to make the surface disappear when it’s beyond a certain plane.</p>
+
+<p>To follow this tutorial, it’s best to know how <a href="/2018/03/30/simple-surface.html">surface shaders work</a> - you can find a tutorial how they work <a href="/2018/03/30/simple-surface.html">here</a>.</p>
+
+<p><img src="/assets/images/posts/021/Result.gif" alt="Result" /></p>
+
+<h2 id="define-plane">Define Plane</h2>
+
+<p>We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.</p>
+
+<p>In the Update Method we create a new variable of the type Plane which unity already has. We pass it the the normal of the plane and a point on the plane. We will use the up vector of the transform the script is on as the normal and the position of the transform as the point on the plane.</p>
+
+<p>Then we create a new 4d vector and put the normal of the new plane in the first three components and the distance from the origin in the 4th component. I’ll explain later how we’ll use those values.</p>
+
+<p>Then we pass this new vector to the shader so we can use it there.</p>
+
+<div class="language-cs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">using</span> <span class="nn">System.Collections</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">ClippingPlane</span> <span class="p">:</span> <span class="n">MonoBehaviour</span> <span class="p">{</span>
+    <span class="c1">//material we pass the values to</span>
+    <span class="k">public</span> <span class="n">Material</span> <span class="n">mat</span><span class="p">;</span>
+
+    <span class="c1">//execute every frame</span>
+    <span class="k">void</span> <span class="nf">Update</span> <span class="p">()</span> <span class="p">{</span>
+        <span class="c1">//create plane</span>
+        <span class="n">Plane</span> <span class="n">plane</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Plane</span><span class="p">(</span><span class="n">transform</span><span class="p">.</span><span class="n">up</span><span class="p">,</span> <span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">);</span>
+        <span class="c1">//transfer values from plane to vector4</span>
+        <span class="n">Vector4</span> <span class="n">planeRepresentation</span> <span class="p">=</span> <span class="k">new</span> <span class="nf">Vector4</span><span class="p">(</span><span class="n">plane</span><span class="p">.</span><span class="n">normal</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">plane</span><span class="p">.</span><span class="n">normal</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">plane</span><span class="p">.</span><span class="n">normal</span><span class="p">.</span><span class="n">z</span><span class="p">,</span> <span class="n">plane</span><span class="p">.</span><span class="n">distance</span><span class="p">);</span>
+        <span class="c1">//pass vector to shader</span>
+        <span class="n">mat</span><span class="p">.</span><span class="nf">SetVector</span><span class="p">(</span><span class="s">"_Plane"</span><span class="p">,</span> <span class="n">planeRepresentation</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To set up this script we add it to a empty gameobject and apply our material to the corresponding variable.</p>
+
+<p><img src="/assets/images/posts/021/PlaneInspector.png" alt="" /></p>
+
+<h2 id="clip-plane">Clip Plane</h2>
+
+<p>Then we’ll write the shader. As a base for it we use the basic surface shader from this (tutorial](/2018/03/30/simple-surface.html).</p>
+
+<p>First we add the plane variable we just passed into the material. Because we won’t write to it from the inspector, we don’t need a property for it.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float4</span> <span class="n">_Plane</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In the surface shader we can then calculate the distance of the surface point to the plane if it was in the origin of the world. We do this by calculating the dot product between the surface point and the plane normal. For all points on that plane the dot product will return 0 because the position vector is orthogonal to the normal. For points that are above the plane the values will be positive because the vectors point in the same direction and for the surface points below the plane the dot product will be negative because they point away from the normal.</p>
+
+<p>To do this comparison we need the world position, so we add it to our input struct, just the exact name <code class="language-plaintext highlighter-rouge">worldPos</code> is enough for surface shaders to generate the world position for us, in <a href="/2018/04/23/planar-mapping.html">non-surface shaders we can do that ourselves with a small matrix multiplication</a>. Then we get the dot product and just write it to the emission for now.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//input struct which is automatically filled by unity</span>
+<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">uv_MainTex</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+<span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//calculate signed distance to plane</span>
+    <span class="kt">float</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">,</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">xyz</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/OriginPlaneDistance.gif" alt="" /></p>
+
+<p>When we now rotate our plane object we can see the distance being calculated correctly, but it completely ignores the position of the plane object because we act like it’s positioned in the center so far. This is where the distance we saved in the 4th component of the vector earlier comes in. Because it’s the distance from the center we can simply add it to the plane we constructed around the center and we get the plane at the correct position.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+<span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//calculate signed distance to plane</span>
+    <span class="kt">float</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">,</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">xyz</span><span class="p">);</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">+</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/PlaneDistance.gif" alt="" /></p>
+
+<p>You might notice that even though we call it the distance, the two sides of the plane don’t actually look the same, one has increasing values like we expect it from a distance, while the other side stays black. That’s because we actually have a signed distance, meaning the values on the dark side that are 1 unit far away from the plane have the value of -1.</p>
+
+<p>We can use this fact by simply cutting off all values above one, that means everything above the plane will not be rendered while the parts that are currently black will be.</p>
+
+<p>We can cut off pixels in hlsl by feeding a variable to the clip function, if the variable is less than zero it will be discarded, otherwise it will be rendered like usual. So in this case we invert our distance and feed it to the clip function, that way the surface in front of the plane has negative values and the surface behind the plane positive ones.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+<span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//calculate signed distance to plane</span>
+    <span class="kt">float</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">,</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">xyz</span><span class="p">);</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">+</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+    <span class="n">clip</span><span class="p">(</span><span class="o">-</span><span class="n">distance</span><span class="p">);</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/ClipWithDistance.png" alt="" /></p>
+
+<p>Now we can simply see through the upper part of the model. With this done, we don’t need the visualisation anymore and can use colors we use usually again.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+<span class="kt">void</span> <span class="nf">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">//calculate signed distance to plane</span>
+    <span class="kt">float</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">,</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">xyz</span><span class="p">);</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">+</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+
+    <span class="c1">//normal color stuff</span>
+    <span class="n">fixed4</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv_MainTex</span><span class="p">);</span>
+    <span class="n">col</span> <span class="o">*=</span> <span class="n">_Color</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">col</span><span class="p">.</span><span class="n">rgb</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Metallic</span> <span class="o">=</span> <span class="n">_Metallic</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Smoothness</span> <span class="o">=</span> <span class="n">_Smoothness</span><span class="p">;</span>
+    <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">_Emission</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/SimpleClip.gif" alt="" /></p>
+
+<h2 id="show-inside">Show Inside</h2>
+
+<p>With those changes we can now cut off the model based on a plane, but looking in the hole we created looks weird. Especially concave bodies look like they have small parts of them flying around sometimes. This is because by default we don’t draw the backfaces of models. It’s a optimisation we can make because we assume we won’t see inside the model anyways, but we can simply disable it.</p>
+
+<p>To draw all faces, no matter if they’re pointing towards the camera or away from it, we set the Cull parameter to off at the top of our subshader, outside of the hlsl code.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">SubShader</span><span class="p">{</span>
+    <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+    <span class="c1">// render faces regardless if they point towards the camera or away from it</span>
+    <span class="n">Cull</span> <span class="n">Off</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/UnCulledClip.png" alt="" /></p>
+
+<p>Now we can see inside the head, but the normals still point to the outside and we might not want to see the inside of the head. But can detect the difference between the inside surface and outside surface pretty easily so let’s do that.</p>
+
+<p>To get wether we’re rendering a inside or a outside surface we make a new parameter in our input struct and give it the vface attribute. This variable will have a value of 1 one the outside and a value of -1 on the inside.</p>
+
+<p>To use the value for things like linear interpolation I prefer to have it in a 0 to 1 range so I halved it and added 0.5 to it to convert it.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//input struct which is automatically filled by unity</span>
+<span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+    <span class="n">float2</span> <span class="n">uv_MainTex</span><span class="p">;</span>
+    <span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">facing</span> <span class="o">:</span> <span class="n">VFACE</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">facing</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">facing</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+<span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">facing</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/Facing.png" alt="" /></p>
+
+<p>Now that we know the difference between the inside and outside faces, we can make the inside it’s own specific color. We lerp to the new color we expose via a property on the emissive channel because the emission is not affected by the wrong normals. We also multiply all other channels with the facing variable to make them black/matte/non-metallic to make the color we can see in the opening as neutral as possible.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//show values to edit in inspector</span>
+<span class="n">Properties</span><span class="p">{</span>
+    <span class="n">_Color</span> <span class="p">(</span><span class="s">"Tint"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+    <span class="n">_Smoothness</span> <span class="p">(</span><span class="s">"Smoothness"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_Metallic</span> <span class="p">(</span><span class="s">"Metalness"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">[</span><span class="n">HDR</span><span class="p">]</span><span class="n">_Emission</span> <span class="p">(</span><span class="s">"Emission"</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="p">[</span><span class="n">HDR</span><span class="p">]</span><span class="n">_CutoffColor</span><span class="p">(</span><span class="s">"Cutoff Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="n">float4</span> <span class="n">_CutoffColor</span><span class="p">;</span>
+</code></pre></div></div>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">float</span> <span class="n">facing</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">facing</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+<span class="c1">//normal color stuff</span>
+<span class="n">fixed4</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv_MainTex</span><span class="p">);</span>
+<span class="n">col</span> <span class="o">*=</span> <span class="n">_Color</span><span class="p">;</span>
+<span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">col</span><span class="p">.</span><span class="n">rgb</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+<span class="n">o</span><span class="p">.</span><span class="n">Metallic</span> <span class="o">=</span> <span class="n">_Metallic</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+<span class="n">o</span><span class="p">.</span><span class="n">Smoothness</span> <span class="o">=</span> <span class="n">_Smoothness</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+<span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">_CutoffColor</span><span class="p">,</span> <span class="n">_Emission</span><span class="p">,</span> <span class="n">facing</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/posts/021/Result.gif" alt="" /></p>
+
+<p>There are still a few artefacts because of golbal illumination, but we can’t fix them without rewriting/removing global illumination and we won’t do that in this tutorial.</p>
+
+<h2 id="source">Source</h2>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Shader</span> <span class="s">"Tutorial/021_Clipping_Plane"</span><span class="p">{</span>
+    <span class="c1">//show values to edit in inspector</span>
+    <span class="n">Properties</span><span class="p">{</span>
+        <span class="n">_Color</span> <span class="p">(</span><span class="s">"Tint"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_MainTex</span> <span class="p">(</span><span class="s">"Texture"</span><span class="p">,</span> <span class="mi">2</span><span class="n">D</span><span class="p">)</span> <span class="o">=</span> <span class="s">"white"</span> <span class="p">{}</span>
+        <span class="n">_Smoothness</span> <span class="p">(</span><span class="s">"Smoothness"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">_Metallic</span> <span class="p">(</span><span class="s">"Metalness"</span><span class="p">,</span> <span class="n">Range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="p">[</span><span class="n">HDR</span><span class="p">]</span><span class="n">_Emission</span> <span class="p">(</span><span class="s">"Emission"</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="p">[</span><span class="n">HDR</span><span class="p">]</span><span class="n">_CutoffColor</span><span class="p">(</span><span class="s">"Cutoff Color"</span><span class="p">,</span> <span class="n">Color</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">SubShader</span><span class="p">{</span>
+        <span class="c1">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        <span class="n">Tags</span><span class="p">{</span> <span class="s">"RenderType"</span><span class="o">=</span><span class="s">"Opaque"</span> <span class="s">"Queue"</span><span class="o">=</span><span class="s">"Geometry"</span><span class="p">}</span>
+
+        <span class="c1">// render faces regardless if they point towards the camera or away from it</span>
+        <span class="n">Cull</span> <span class="n">Off</span>
+
+        <span class="n">CGPROGRAM</span>
+        <span class="c1">//the shader is a surface shader, meaning that it will be extended by unity in the background</span>
+        <span class="c1">//to have fancy lighting and other features</span>
+        <span class="c1">//our surface shader function is called surf and we use our custom lighting model</span>
+        <span class="c1">//fullforwardshadows makes sure unity adds the shadow passes the shader might need</span>
+        <span class="c1">//vertex:vert makes the shader use vert as a vertex shader function</span>
+        <span class="cp">#pragma surface surf Standard fullforwardshadows
+</span>        <span class="cp">#pragma target 3.0
+</span>
+        <span class="kt">sampler2D</span> <span class="n">_MainTex</span><span class="p">;</span>
+        <span class="n">fixed4</span> <span class="n">_Color</span><span class="p">;</span>
+
+        <span class="kr">half</span> <span class="n">_Smoothness</span><span class="p">;</span>
+        <span class="kr">half</span> <span class="n">_Metallic</span><span class="p">;</span>
+        <span class="n">half3</span> <span class="n">_Emission</span><span class="p">;</span>
+
+        <span class="n">float4</span> <span class="n">_Plane</span><span class="p">;</span>
+
+        <span class="n">float4</span> <span class="n">_CutoffColor</span><span class="p">;</span>
+
+        <span class="c1">//input struct which is automatically filled by unity</span>
+        <span class="k">struct</span> <span class="n">Input</span> <span class="p">{</span>
+            <span class="n">float2</span> <span class="n">uv_MainTex</span><span class="p">;</span>
+            <span class="n">float3</span> <span class="n">worldPos</span><span class="p">;</span>
+            <span class="kt">float</span> <span class="n">facing</span> <span class="o">:</span> <span class="n">VFACE</span><span class="p">;</span>
+        <span class="p">};</span>
+
+        <span class="c1">//the surface shader function which sets parameters the lighting function then uses</span>
+        <span class="kt">void</span> <span class="n">surf</span> <span class="p">(</span><span class="n">Input</span> <span class="n">i</span><span class="p">,</span> <span class="k">inout</span> <span class="n">SurfaceOutputStandard</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">//calculate signed distance to plane</span>
+            <span class="kt">float</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">worldPos</span><span class="p">,</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">xyz</span><span class="p">);</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">+</span> <span class="n">_Plane</span><span class="p">.</span><span class="n">w</span><span class="p">;</span>
+            <span class="c1">//discard surface above plane</span>
+            <span class="n">clip</span><span class="p">(</span><span class="o">-</span><span class="n">distance</span><span class="p">);</span>
+
+            <span class="kt">float</span> <span class="n">facing</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="n">facing</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">;</span>
+
+            <span class="c1">//normal color stuff</span>
+            <span class="n">fixed4</span> <span class="n">col</span> <span class="o">=</span> <span class="n">tex2D</span><span class="p">(</span><span class="n">_MainTex</span><span class="p">,</span> <span class="n">i</span><span class="p">.</span><span class="n">uv_MainTex</span><span class="p">);</span>
+            <span class="n">col</span> <span class="o">*=</span> <span class="n">_Color</span><span class="p">;</span>
+            <span class="n">o</span><span class="p">.</span><span class="n">Albedo</span> <span class="o">=</span> <span class="n">col</span><span class="p">.</span><span class="n">rgb</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+            <span class="n">o</span><span class="p">.</span><span class="n">Metallic</span> <span class="o">=</span> <span class="n">_Metallic</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+            <span class="n">o</span><span class="p">.</span><span class="n">Smoothness</span> <span class="o">=</span> <span class="n">_Smoothness</span> <span class="o">*</span> <span class="n">facing</span><span class="p">;</span>
+            <span class="n">o</span><span class="p">.</span><span class="n">Emission</span> <span class="o">=</span> <span class="n">lerp</span><span class="p">(</span><span class="n">_CutoffColor</span><span class="p">,</span> <span class="n">_Emission</span><span class="p">,</span> <span class="n">facing</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">ENDCG</span>
+    <span class="p">}</span>
+    <span class="n">FallBack</span> <span class="s">"Standard"</span> <span class="c1">//fallback adds a shadow pass so we get shadows on other objects</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This technique is great to make things disappear into nothing or make simple dynamic water in a vessel. I hope it’ll help you archieve cool effects yourself.</p>
+
+<p>You can find the code for the tutorial here:<br />
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/021_Clipping_Plane/ClippingPlane.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/021_Clipping_Plane/ClippingPlane.cs</a><br />
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/021_Clipping_Plane/ClippingPlane.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/021_Clipping_Plane/ClippingPlane.shader</a></p>
+
+
+    <p>
+        You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you liked my tutorial and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">ko-fi.com/RonjaTutorials</a>).
+    </p>
+  </div>
+
+  
+    <div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://ronja-tutorials.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                            
+  
+</article>
+
+
+      <!-- SVG icons from https://iconmonstr.com -->
+
+      <!-- Twitter icon -->
+      <span class="my-span-icon">
+          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
+            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
+          </a>
+        </span>
+
+        <!-- RSS icon -->
+        
+          <span class="my-span-icon">
+            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
+            </a>
+          </span>
+        
+        <!-- Contact icon -->
+        
+        
+          <span class="my-span-icon">
+            <a href="/about.html" aria-label="Contact" title="Contact ">
+              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
+            </a>
+          </span>
+        
+    </section>
+
+    
+      <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-124040112-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+    
+  </body>
+</html>

@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Graphics.DrawProcedural"
-video: /assets/images/posts/051/result.png
+image: /assets/images/posts/051/result.png
 tags: shader, unity, compute
 ---
 

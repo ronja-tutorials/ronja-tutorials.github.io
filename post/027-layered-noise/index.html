@@ -30,7 +30,7 @@
     <meta property="og:title" content="Layered Noise" />
 <meta property="og:description" content="Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/027-layered-noise/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/027-layered-noise/" />
 <meta property="article:published_time" content="2018-09-22T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-09-22T00:00:00+00:00" />
 <meta itemprop="name" content="Layered Noise">
@@ -109,7 +109,7 @@
       
     </header>
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="layered-noise">Layered Noise</h2>
-<p>So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for <a href="https://ronja-tutorials.com/post/025-value-noise/">value noise</a> as well as <a href="https://ronja-tutorials.com/post/026-perlin-noise/">perlin noise</a>. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.</p>
+<p>So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for <a href="https://www.ronja-tutorials.com/post/025-value-noise/">value noise</a> as well as <a href="https://www.ronja-tutorials.com/post/026-perlin-noise/">perlin noise</a>. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.</p>
 <p><img src="/assets/images/posts/027/Result.gif" alt=""></p>
 <h2 id="layered-1d-noise">Layered 1d Noise</h2>
 <p>We can already change the frequency, and by that change the roughness of the noise. We do that by changing the noise size variable.</p>
@@ -193,7 +193,7 @@
 }
 </code></pre></div><p><img src="/assets/images/posts/027/NormalLayeredComparison.png" alt=""></p>
 <h2 id="special-use-case">Special Use Case</h2>
-<p>Another thing noise is used for frequently is as a heightmap. For that we simply read the noise in the vertex shader instead of the fragment shader and add it to our vertex. In this part I will reference an <a href="https://ronja-tutorials.com/post/015-wobble-displacement/">earlier tutorial about displacement</a>, so if you have problems with this part I recommend reading this one first.</p>
+<p>Another thing noise is used for frequently is as a heightmap. For that we simply read the noise in the vertex shader instead of the fragment shader and add it to our vertex. In this part I will reference an <a href="https://www.ronja-tutorials.com/post/015-wobble-displacement/">earlier tutorial about displacement</a>, so if you have problems with this part I recommend reading this one first.</p>
 <p>We first change our surface definition to include a vertex function as well as generate a custom shadow pass based on that <code>#pragma surface surf Standard fullforwardshadows vertex:vert addshadow</code>. Then we fill that new vertex function. Unity doesn&rsquo;t pass us a world position automatically if we write a custom vertex function, but we can calculate it ourselved my simply multiplying the object to world matrix with the local vertex position. After sampling the noise like we&rsquo;re used to we add it to the vertex position in the up(Y) axis. Because we&rsquo;re not dealing with colors anymore I&rsquo;m also going to add a amplitude variable which will allow us to set the strength of the noise. We&rsquo;ll simply multiply the noise with the amplitude before applying it.</p>
 <p>Now that we&rsquo;re displaying the noise as hight, we&rsquo;ll stop writing it in the fragment shader and instead just set the albedo color to white.</p>
 <p>If we want to see all of the detail, we have to use a high resolution mesh in this case, otherwise there wouldn&rsquo;t be that many polygons for the shader to translate.</p>
@@ -707,7 +707,7 @@ float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWor
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

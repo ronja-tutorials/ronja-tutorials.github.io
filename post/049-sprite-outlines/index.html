@@ -32,7 +32,7 @@ Basic Implementation The idea is that we sample the texture at multiple spots ar
 <meta property="og:description" content="I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
 Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/049-sprite-outlines/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/049-sprite-outlines/" />
 <meta property="article:published_time" content="2020-07-23T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-07-23T00:00:00+00:00" />
 <meta itemprop="name" content="Sprite Outlines">
@@ -112,11 +112,11 @@ Basic Implementation The idea is that we sample the texture at multiple spots ar
       
       
     </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I already talked about 2 ways of generating outlines in your programs, <a href="https://ronja-tutorials.com/post/019-postprocessing-outlines/">by analyzing the depth and normals of your scene</a> or <a href="https://ronja-tutorials.com/post/020-hull-outline/">by rendering the model twice with a hull</a>. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works.
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I already talked about 2 ways of generating outlines in your programs, <a href="https://www.ronja-tutorials.com/post/019-postprocessing-outlines/">by analyzing the depth and normals of your scene</a> or <a href="https://www.ronja-tutorials.com/post/020-hull-outline/">by rendering the model twice with a hull</a>. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works.
 The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.</p>
 <h2 id="basic-implementation">Basic Implementation</h2>
 <p>The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find. When a Pixel is not visible for the original texture sample, but we can find a higher alpha value when looking at the neighboring pixels, then we color in the outline.</p>
-<p>The base for our code is from <a href="https://ronja-tutorials.com/post/007-sprite-shaders/">my sprite shader tutorial</a>. In the fragment function we start by making an array of directions we want to sample in. You could sacrifice some speed for more flexibility and get the directions via <code>sin</code> and <code>cos</code>, but thats your choice. I chose to sample in 8 directions, the for cardinal directions as well as diagonals. Important here is that the diagonal directions should also have a length of 1, if we just use <code>(1, 1)</code> they&rsquo;d have a length of <code>sqrt(2)</code> (you can easily get that via the pythogoras (<code>sqrt(1² + 1²)</code>)), instead we divide each component by <code>sqrt(2)</code>, so use <code>1 / sqrt(2)</code> and all is fine.</p>
+<p>The base for our code is from <a href="https://www.ronja-tutorials.com/post/007-sprite-shaders/">my sprite shader tutorial</a>. In the fragment function we start by making an array of directions we want to sample in. You could sacrifice some speed for more flexibility and get the directions via <code>sin</code> and <code>cos</code>, but thats your choice. I chose to sample in 8 directions, the for cardinal directions as well as diagonals. Important here is that the diagonal directions should also have a length of 1, if we just use <code>(1, 1)</code> they&rsquo;d have a length of <code>sqrt(2)</code> (you can easily get that via the pythogoras (<code>sqrt(1² + 1²)</code>)), instead we divide each component by <code>sqrt(2)</code>, so use <code>1 / sqrt(2)</code> and all is fine.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#define DIV_SQRT_2 0.70710678118</span>
 float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
   float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
@@ -184,7 +184,7 @@ col.rgb <span style="color:#333">=</span> lerp(_OutlineColor.rgb, col.rgb, col.a
 </code></pre></div><p><img src="%5Cassets%5Cimages%5Cposts%5C049%5CProperties.gif" alt=""></p>
 <h2 id="world-distance-outline">World Distance Outline</h2>
 <p>You might not always want to have your outline scale in texture pixels though. You might want a outline width in screen pixels, in screen percent, in world distance. I&rsquo;m not gonna go through all of those possibilities there, but I am going to show the most complex of those, world space width.</p>
-<p>We just need the uv distance per world distance and then we can multiply that with our outline width like we&rsquo;re doing so far with the texel size, so lets write a function for that. Calculating that is possible via <a href="https://ronja-tutorials.com/post/046-fwidth/">screenspace partial derivatives, better known as ddx, ddy and fwidth</a>.</p>
+<p>We just need the uv distance per world distance and then we can multiply that with our outline width like we&rsquo;re doing so far with the texel size, so lets write a function for that. Calculating that is possible via <a href="https://www.ronja-tutorials.com/post/046-fwidth/">screenspace partial derivatives, better known as ddx, ddy and fwidth</a>.</p>
 <p>The derivatives allow us to get the change in uv per screen pixel as well as the change in worldspace position per screen pixel. We have to get the absolute value of the uv change to not accidentally get negative values as well as get the length of the change in world position to get correct distances in case our camera is rotated.</p>
 <p>With those values we can get the uv per unit in both x and y axis by dividing the uv per pixel by the units per pixel. After getting that for x and y we simply add the two values and return it.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 uvPerWorldUnit(float2 uv, float2 space){
@@ -196,7 +196,7 @@ col.rgb <span style="color:#333">=</span> lerp(_OutlineColor.rgb, col.rgb, col.a
   float2 uvPerUnitY <span style="color:#333">=</span> uvPerPixelY <span style="color:#333">/</span> unitsPerPixelY;
   <span style="color:#080;font-weight:bold">return</span> (uvPerUnitX <span style="color:#333">+</span> uvPerUnitY);
 }
-</code></pre></div><p>You might have notives that I was talking about using the world position even though we don&rsquo;t have access to that yet, so lets quickly add that, I havent made a tutorial specifically about that, but <a href="https://ronja-tutorials.com/post/008-planar-mapping/">the planar mapping one</a> uses the world pos and not much else.</p>
+</code></pre></div><p>You might have notives that I was talking about using the world position even though we don&rsquo;t have access to that yet, so lets quickly add that, I havent made a tutorial specifically about that, but <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">the planar mapping one</a> uses the world pos and not much else.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> v2f{
   float4 position <span style="color:#333">:</span> SV_POSITION;
   float2 uv <span style="color:#333">:</span> TEXCOORD0;
@@ -356,7 +356,7 @@ float2 sampleDistance <span style="color:#333">=</span> uvPerWorldUnit(i.uv, i.w
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

@@ -32,7 +32,7 @@ We&rsquo;re going to start by generating signed distance fields with functions i
 <meta property="og:description" content="So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
 We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/034-2d-sdf-basics/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/034-2d-sdf-basics/" />
 <meta property="article:published_time" content="2018-11-10T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-11-10T00:00:00+00:00" />
 <meta itemprop="name" content="2D Signed Distance Field Basics">
@@ -113,7 +113,7 @@ We&rsquo;re going to start by generating signed distance fields with functions i
       
     </header>
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.</p>
-<p>We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d. I&rsquo;m going to use the worldspace coordinates to make everything as independent from scaling and uv coordinates as possible, so if you&rsquo;re unsure how that works, look at <a href="https://ronja-tutorials.com/post/008-planar-mapping/">this tutorial about planar mapping</a> which explains what&rsquo;s happening.</p>
+<p>We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d. I&rsquo;m going to use the worldspace coordinates to make everything as independent from scaling and uv coordinates as possible, so if you&rsquo;re unsure how that works, look at <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">this tutorial about planar mapping</a> which explains what&rsquo;s happening.</p>
 <p><img src="/assets/images/posts/034/Result.gif" alt=""></p>
 <h2 id="base-setup">Base Setup</h2>
 <p>From the base of the planar mapping shader we throw out the properties for now because we&rsquo;ll do the technical base for now. Then we&rsquo;ll write the world position to the vertex to fragment struct directly instead of transforming it to the uvs first. As a last point for preparation we&rsquo;ll write a new function which will calculate the scene and return the distance to the nearest surface. Then we&rsquo;ll call the function and use the result as the color.</p>
@@ -297,7 +297,7 @@ float2 translate(float2 samplePosition, float2 offset){
 <h3 id="hard-shape">Hard Shape</h3>
 <p>This is a method similar to what&rsquo;s often used in text rendering and produces a clean shape. If we don&rsquo;t generate the distance field from a function and instead read it from a texture instead this allows us to use textures with way less resolution than usual and still have a nice result. TextMesh Pro uses this technique for text rendering.</p>
 <p>For this technique we use the fact that the data in signed distance fields is continuous and we know the cutoff point. We start by calculating how much the distance field changes to the next pixel. This should be the same amount as the length of the change of the coordinates, but it&rsquo;s easier and more reliable to evaluate the signed distance.</p>
-<p>After we have the change in distance, we can do a smoothstep from half the change in distance to minus plus half the change in distance. That will do a simple cutoff around 0, but with antialiasing. We can then use this antialiased value for whatever we binary value we need. In this example I&rsquo;m going to change the shader to a transparent shader and use it for the alpha channel. The reason why we do the smoothstep from the positive to the negative value is that we want the negative value of the distance field to be visible. And if you don&rsquo;t completely understand how the transparent rendering works here, I recommend you read <a href="https://ronja-tutorials.com/post/006-simple-transparency/">this tutorial</a> I made about transparent rendering.</p>
+<p>After we have the change in distance, we can do a smoothstep from half the change in distance to minus plus half the change in distance. That will do a simple cutoff around 0, but with antialiasing. We can then use this antialiased value for whatever we binary value we need. In this example I&rsquo;m going to change the shader to a transparent shader and use it for the alpha channel. The reason why we do the smoothstep from the positive to the negative value is that we want the negative value of the distance field to be visible. And if you don&rsquo;t completely understand how the transparent rendering works here, I recommend you read <a href="https://www.ronja-tutorials.com/post/006-simple-transparency/">this tutorial</a> I made about transparent rendering.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//properties</span>
 Properties{
     _Color(<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
@@ -711,7 +711,7 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

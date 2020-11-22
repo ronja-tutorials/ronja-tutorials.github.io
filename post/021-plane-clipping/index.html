@@ -34,7 +34,7 @@ Define Plane We start by creating a new C# script which will define the plane we
 To follow this tutorial, it’s best to know how surface shaders work - you can find a tutorial how they work here.
 Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/021-plane-clipping/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/021-plane-clipping/" />
 <meta property="article:published_time" content="2018-08-06T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-08-06T00:00:00+00:00" />
 <meta itemprop="name" content="Clipping a Model with a Plane">
@@ -118,7 +118,7 @@ Define Plane We start by creating a new C# script which will define the plane we
     </header>
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
 <p>Another cool effect is to make the surface disappear when it’s beyond a certain plane.</p>
-<p>To follow this tutorial, it’s best to know how <a href="https://ronja-tutorials.com/post/005-simple-surface/">surface shaders work</a> - you can find a tutorial how they work <a href="https://ronja-tutorials.com/post/005-simple-surface/">here</a>.</p>
+<p>To follow this tutorial, it’s best to know how <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">surface shaders work</a> - you can find a tutorial how they work <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">here</a>.</p>
 <p><img src="/assets/images/posts/021/Result.gif" alt="Result"></p>
 <h2 id="define-plane">Define Plane</h2>
 <p>We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.</p>
@@ -146,11 +146,11 @@ Define Plane We start by creating a new C# script which will define the plane we
 </code></pre></div><p>To set up this script we add it to a empty gameobject and apply our material to the corresponding variable.</p>
 <p><img src="/assets/images/posts/021/PlaneInspector.png" alt=""></p>
 <h2 id="clip-plane">Clip Plane</h2>
-<p>Then we’ll write the shader. As a base for it we use the basic surface shader from this (tutorial](https://ronja-tutorials.com/post/005-simple-surface/).</p>
+<p>Then we’ll write the shader. As a base for it we use the basic surface shader from this (tutorial](https://www.ronja-tutorials.com/post/005-simple-surface/).</p>
 <p>First we add the plane variable we just passed into the material. Because we won’t write to it from the inspector, we don’t need a property for it.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float4 _Plane;
 </code></pre></div><p>In the surface shader we can then calculate the distance of the surface point to the plane if it was in the origin of the world. We do this by calculating the dot product between the surface point and the plane normal. For all points on that plane the dot product will return 0 because the position vector is orthogonal to the normal. For points that are above the plane the values will be positive because the vectors point in the same direction and for the surface points below the plane the dot product will be negative because they point away from the normal.</p>
-<p>To do this comparison we need the world position, so we add it to our input struct, just the exact name <code>worldPos</code> is enough for surface shaders to generate the world position for us, in <a href="https://ronja-tutorials.com/post/008-planar-mapping/">non-surface shaders we can do that ourselves with a small matrix multiplication</a>. Then we get the dot product and just write it to the emission for now.</p>
+<p>To do this comparison we need the world position, so we add it to our input struct, just the exact name <code>worldPos</code> is enough for surface shaders to generate the world position for us, in <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">non-surface shaders we can do that ourselves with a small matrix multiplication</a>. Then we get the dot product and just write it to the emission for now.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
 <span style="color:#080;font-weight:bold">struct</span> Input {
     float2 uv_MainTex;
@@ -355,7 +355,7 @@ o.Emission <span style="color:#333">=</span> lerp(_CutoffColor, _Emission, facin
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

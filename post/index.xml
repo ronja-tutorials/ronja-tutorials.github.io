@@ -2,188 +2,188 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Ronja&#39;s tutorials</title>
-    <link>https://ronja-tutorials.com/post/</link>
+    <link>https://www.ronja-tutorials.com/post/</link>
     <description>Recent content in Posts on Ronja&#39;s tutorials</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 16 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 16 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Graphics.DrawProcedural</title>
-      <link>https://ronja-tutorials.com/post/051-draw-procedural/</link>
+      <link>https://www.ronja-tutorials.com/post/051-draw-procedural/</link>
       <pubDate>Wed, 16 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/051-draw-procedural/</guid>
+      <guid>https://www.ronja-tutorials.com/post/051-draw-procedural/</guid>
       <description>The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&amp;rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?</description>
     </item>
     
     <item>
       <title>Compute Shader</title>
-      <link>https://ronja-tutorials.com/post/050-compute-shader/</link>
+      <link>https://www.ronja-tutorials.com/post/050-compute-shader/</link>
       <pubDate>Sun, 26 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/050-compute-shader/</guid>
+      <guid>https://www.ronja-tutorials.com/post/050-compute-shader/</guid>
       <description>So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&amp;rsquo;re also referred to as GPGPU for &amp;ldquo;general purpose graphics processing unit&amp;rdquo; because of that). To do things that arent in the fix pipeline we&amp;rsquo;re using so far we have to use compute shaders.
 If you&amp;rsquo;re asking yourself why we&amp;rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&amp;rsquo;m here to tell you that you&amp;rsquo;re 100% correct.</description>
     </item>
     
     <item>
       <title>Sprite Outlines</title>
-      <link>https://ronja-tutorials.com/post/049-sprite-outlines/</link>
+      <link>https://www.ronja-tutorials.com/post/049-sprite-outlines/</link>
       <pubDate>Thu, 23 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/049-sprite-outlines/</guid>
+      <guid>https://www.ronja-tutorials.com/post/049-sprite-outlines/</guid>
       <description>I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&amp;rsquo;re using opaque meshes that write into the depth buffer, if we&amp;rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
 Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find.</description>
     </item>
     
     <item>
       <title>Instancing and Material Property Blocks</title>
-      <link>https://ronja-tutorials.com/post/048-material-property-blocks/</link>
+      <link>https://www.ronja-tutorials.com/post/048-material-property-blocks/</link>
       <pubDate>Tue, 11 Feb 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/048-material-property-blocks/</guid>
+      <guid>https://www.ronja-tutorials.com/post/048-material-property-blocks/</guid>
       <description>Current State I&amp;rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &amp;ldquo;per material&amp;rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering.</description>
     </item>
     
     <item>
       <title>Inverse Lerp and Remap</title>
-      <link>https://ronja-tutorials.com/post/047-invlerp_remap/</link>
+      <link>https://www.ronja-tutorials.com/post/047-invlerp_remap/</link>
       <pubDate>Wed, 08 Jan 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/047-invlerp_remap/</guid>
+      <guid>https://www.ronja-tutorials.com/post/047-invlerp_remap/</guid>
       <description>In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&amp;rsquo;re not builtin functions so we&amp;rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&amp;rsquo;t too hard.
 Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one.</description>
     </item>
     
     <item>
       <title>Partial Derivatives (fwidth)</title>
-      <link>https://ronja-tutorials.com/post/046-fwidth/</link>
+      <link>https://www.ronja-tutorials.com/post/046-fwidth/</link>
       <pubDate>Fri, 29 Nov 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/046-fwidth/</guid>
+      <guid>https://www.ronja-tutorials.com/post/046-fwidth/</guid>
       <description>The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&amp;rsquo;m explaining straightforward functions you don&amp;rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity.</description>
     </item>
     
     <item>
       <title>Handling Depth for Spheretracing</title>
-      <link>https://ronja-tutorials.com/post/045-spheretracing-depth/</link>
+      <link>https://www.ronja-tutorials.com/post/045-spheretracing-depth/</link>
       <pubDate>Mon, 14 Oct 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/045-spheretracing-depth/</guid>
+      <guid>https://www.ronja-tutorials.com/post/045-spheretracing-depth/</guid>
       <description>In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&amp;rsquo;t write to the depth buffer at all, or with the shape of the mesh that&amp;rsquo;s used for them and the depth check is similarly lacking.</description>
     </item>
     
     <item>
       <title>Spheretracing with Shading</title>
-      <link>https://ronja-tutorials.com/post/044-spheretracing-shading/</link>
+      <link>https://www.ronja-tutorials.com/post/044-spheretracing-shading/</link>
       <pubDate>Thu, 15 Aug 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/044-spheretracing-shading/</guid>
+      <guid>https://www.ronja-tutorials.com/post/044-spheretracing-shading/</guid>
       <description>In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
 Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&amp;rsquo;ll do a function call in this place and return the result of the function.</description>
     </item>
     
     <item>
       <title>Spheretracing Basics</title>
-      <link>https://ronja-tutorials.com/post/043-spheretracing-basics/</link>
+      <link>https://www.ronja-tutorials.com/post/043-spheretracing-basics/</link>
       <pubDate>Fri, 21 Jun 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/043-spheretracing-basics/</guid>
+      <guid>https://www.ronja-tutorials.com/post/043-spheretracing-basics/</guid>
       <description>Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&amp;rsquo;ll just trace the silouette of a sphere, but in future tutorials I&amp;rsquo;ll give examples how to make more complex shapes and do lighting.
 As the base of the shader we&amp;rsquo;ll use a basic unlit shader, so you can do this tutorial when you&amp;rsquo;re fairly new to shaders.</description>
     </item>
     
     <item>
       <title>Dithering</title>
-      <link>https://ronja-tutorials.com/post/042-dithering/</link>
+      <link>https://www.ronja-tutorials.com/post/042-dithering/</link>
       <pubDate>Sat, 11 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/042-dithering/</guid>
+      <guid>https://www.ronja-tutorials.com/post/042-dithering/</guid>
       <description>We often use gradients of some kind in shaders, but there are cases where we&amp;rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&amp;rsquo;s also possible to use dithering for more shades of color with more complex algorithms.</description>
     </item>
     
     <item>
       <title>HSV Color Space</title>
-      <link>https://ronja-tutorials.com/post/041-hsv-colorspace/</link>
+      <link>https://www.ronja-tutorials.com/post/041-hsv-colorspace/</link>
       <pubDate>Tue, 16 Apr 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/041-hsv-colorspace/</guid>
+      <guid>https://www.ronja-tutorials.com/post/041-hsv-colorspace/</guid>
       <description>So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the color. This is great if we want to render the color or tint it, but adjusting the hue or saturation becomes very bothersome. For those kinds of operations we can use the HSV color space. In addition to the HSV color space there are also other similar color spaces, like the HSL or CIE color models.</description>
     </item>
     
     <item>
       <title>Halftone Shading</title>
-      <link>https://ronja-tutorials.com/post/040-halftone-shading/</link>
+      <link>https://www.ronja-tutorials.com/post/040-halftone-shading/</link>
       <pubDate>Sat, 02 Mar 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/040-halftone-shading/</guid>
+      <guid>https://www.ronja-tutorials.com/post/040-halftone-shading/</guid>
       <description>This tutorial is on another common toon shading technique called halftone shading, unlike normal shading it only uses full lit or full unlit as colors, but it doesn&amp;rsquo;t create a hard cut either. Instead it uses a pattern to decide which pixels are lit and which aren&amp;rsquo;t and the chance of a pixel being lit gets higher the brighter the pixel would be with a normal lighting method. To understand this tutorial I recommend reading and understanding the tutorial about custom lighting methods and the tutorial about generating screenspace texture coordinates.</description>
     </item>
     
     <item>
       <title>Screenspace Textures</title>
-      <link>https://ronja-tutorials.com/post/039-screenspace-texture/</link>
+      <link>https://www.ronja-tutorials.com/post/039-screenspace-texture/</link>
       <pubDate>Sun, 20 Jan 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/039-screenspace-texture/</guid>
+      <guid>https://www.ronja-tutorials.com/post/039-screenspace-texture/</guid>
       <description>There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&amp;rsquo;ll use the position of the pixel on the screen as the coordinate.
 On it&amp;rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&amp;rsquo;ll go into in the future.</description>
     </item>
     
     <item>
       <title>Texture Dissolve</title>
-      <link>https://ronja-tutorials.com/post/038-dissolve/</link>
+      <link>https://www.ronja-tutorials.com/post/038-dissolve/</link>
       <pubDate>Sat, 15 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/038-dissolve/</guid>
+      <guid>https://www.ronja-tutorials.com/post/038-dissolve/</guid>
       <description>This tutorial is about how to make Meshes dissolve in the pattern of a texture. We will use a surface shader for this tutorial, so if you don&amp;rsquo;t understand how they work yet, I can refer you to my tutorial about them here. This tutorial will also just work with opaque shaders, but you can also use the same principles on transparent or unlit shaders.
 Simple Dissolve We start by adding a new texture to our shader to drive the dissolve.</description>
     </item>
     
     <item>
       <title>2D SDF Shadows</title>
-      <link>https://ronja-tutorials.com/post/037-2d-shadows/</link>
+      <link>https://www.ronja-tutorials.com/post/037-2d-shadows/</link>
       <pubDate>Sat, 01 Dec 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/037-2d-shadows/</guid>
+      <guid>https://www.ronja-tutorials.com/post/037-2d-shadows/</guid>
       <description>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&amp;rsquo;ll use them to render 2d soft shadows. If you haven&amp;rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
 Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.</description>
     </item>
     
     <item>
       <title>2D SDF Space Manipulation</title>
-      <link>https://ronja-tutorials.com/post/036-sdf-space-manipulation/</link>
+      <link>https://www.ronja-tutorials.com/post/036-sdf-space-manipulation/</link>
       <pubDate>Sat, 24 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/036-sdf-space-manipulation/</guid>
+      <guid>https://www.ronja-tutorials.com/post/036-sdf-space-manipulation/</guid>
       <description>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&amp;rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.</description>
     </item>
     
     <item>
       <title>2D SDF Combination</title>
-      <link>https://ronja-tutorials.com/post/035-2d-sdf-combination/</link>
+      <link>https://www.ronja-tutorials.com/post/035-2d-sdf-combination/</link>
       <pubDate>Sat, 17 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/035-2d-sdf-combination/</guid>
+      <guid>https://www.ronja-tutorials.com/post/035-2d-sdf-combination/</guid>
       <description>In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&amp;rsquo;t go into here.</description>
     </item>
     
     <item>
       <title>2D Signed Distance Field Basics</title>
-      <link>https://ronja-tutorials.com/post/034-2d-sdf-basics/</link>
+      <link>https://www.ronja-tutorials.com/post/034-2d-sdf-basics/</link>
       <pubDate>Sat, 10 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/034-2d-sdf-basics/</guid>
+      <guid>https://www.ronja-tutorials.com/post/034-2d-sdf-basics/</guid>
       <description>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
 We&amp;rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.</description>
     </item>
     
     <item>
       <title>Flowing River</title>
-      <link>https://ronja-tutorials.com/post/033-river/</link>
+      <link>https://www.ronja-tutorials.com/post/033-river/</link>
       <pubDate>Sat, 03 Nov 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/033-river/</guid>
+      <guid>https://www.ronja-tutorials.com/post/033-river/</guid>
       <description>This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
 The Tutorial is done via a surface shader, so if you don&amp;rsquo;t know how they work it&amp;rsquo;s best to read the tutorial on surface shaders first.
 Transparent Surface Shader We&amp;rsquo;ll start with a transparent surface shader, for that we&amp;rsquo;ll have to add the alpha attribute to our surface shader declaration.</description>
@@ -191,114 +191,114 @@ Transparent Surface Shader We&amp;rsquo;ll start with a transparent surface shad
     
     <item>
       <title>Improved Toon Light</title>
-      <link>https://ronja-tutorials.com/post/032-improved-toon/</link>
+      <link>https://www.ronja-tutorials.com/post/032-improved-toon/</link>
       <pubDate>Sat, 27 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/032-improved-toon/</guid>
+      <guid>https://www.ronja-tutorials.com/post/032-improved-toon/</guid>
       <description>Last weeks tutorial was about making a simple toon shader, but I felt like there&amp;rsquo;s still a lot to improve about it so this weeks tutorial is too. We&amp;rsquo;ll fix a thing, and add multiple steps to the lighting as well as a specular highlight. I recommend you to read the previous tutorial if you haven&amp;rsquo;t because this one is heavily based on it and expands its code.
 Improved shadows for multiple lights.</description>
     </item>
     
     <item>
       <title>Single Step Toon Light</title>
-      <link>https://ronja-tutorials.com/post/031-single-step-toon/</link>
+      <link>https://www.ronja-tutorials.com/post/031-single-step-toon/</link>
       <pubDate>Sat, 20 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/031-single-step-toon/</guid>
+      <guid>https://www.ronja-tutorials.com/post/031-single-step-toon/</guid>
       <description>I thought about how to make a toon shader and this is the result. There are obviously many different toon styles, so this is just one possiblity of many, but even if it&amp;rsquo;s not the result you want in your game this tutorial can give you some insight in how I work and how to do stuff with shaders. The main advantage for me to use this toon shader in opposition to one that reads from ramp texures is that I can dynamically change the parameters without editing a texture first.</description>
     </item>
     
     <item>
       <title>Baking Shaders into Textures</title>
-      <link>https://ronja-tutorials.com/post/030-baking_shaders/</link>
+      <link>https://www.ronja-tutorials.com/post/030-baking_shaders/</link>
       <pubDate>Sat, 13 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/030-baking_shaders/</guid>
+      <guid>https://www.ronja-tutorials.com/post/030-baking_shaders/</guid>
       <description>Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&amp;rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&amp;rsquo;t depend on external parameters like object position or lighting.
 We&amp;rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&amp;rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.</description>
     </item>
     
     <item>
       <title>Tiling Noise</title>
-      <link>https://ronja-tutorials.com/post/029-tiling-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/029-tiling-noise/</link>
       <pubDate>Sat, 06 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/029-tiling-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/029-tiling-noise/</guid>
       <description>So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&amp;rsquo;re baking noise into a texture. In this tutorial I&amp;rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
 I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&amp;rsquo;s possible to use those patterns with many different types of noise and other shaders as well.</description>
     </item>
     
     <item>
       <title>Voronoi Noise</title>
-      <link>https://ronja-tutorials.com/post/028-voronoi-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/028-voronoi-noise/</link>
       <pubDate>Sat, 29 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/028-voronoi-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/028-voronoi-noise/</guid>
       <description>Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders.</description>
     </item>
     
     <item>
       <title>Layered Noise</title>
-      <link>https://ronja-tutorials.com/post/027-layered-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/027-layered-noise/</link>
       <pubDate>Sat, 22 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/027-layered-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/027-layered-noise/</guid>
       <description>Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.</description>
     </item>
     
     <item>
       <title>Perlin Noise</title>
-      <link>https://ronja-tutorials.com/post/026-perlin-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/026-perlin-noise/</link>
       <pubDate>Sat, 15 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/026-perlin-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/026-perlin-noise/</guid>
       <description>Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &amp;ldquo;gradient noise&amp;rdquo; similarly to value noise it&amp;rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first.</description>
     </item>
     
     <item>
       <title>Value Noise</title>
-      <link>https://ronja-tutorials.com/post/025-value-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/025-value-noise/</link>
       <pubDate>Sat, 08 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/025-value-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/025-value-noise/</guid>
       <description>Summary In the last tutorial we learned how to generate random numbers in a shader. In this one we&amp;rsquo;ll go into interpolating between random numbers to generate noise that&amp;rsquo;s smoother and gradually changes. Because we need random values to interpolate between for value noise, you should know how to generate random values in shaders before doing this tutorial. Value noise is similar to perlin noise, but different because we always interpolate between the center of the cells, perlin noise will be explained in a later tutorial.</description>
     </item>
     
     <item>
       <title>White Noise</title>
-      <link>https://ronja-tutorials.com/post/024-white-noise/</link>
+      <link>https://www.ronja-tutorials.com/post/024-white-noise/</link>
       <pubDate>Sun, 02 Sep 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/024-white-noise/</guid>
+      <guid>https://www.ronja-tutorials.com/post/024-white-noise/</guid>
       <description>Summary For many effects we want random numbers to generate patterns or other things in our shaders. Directly using those random values generates a pattern we call &amp;ldquo;white noise&amp;rdquo;. There are other patterns which have more structure we can generate based on that which we will explore in other tutorials, for example perlin and voronoi noise. For this tutorial we will implement the noise in a surface shader so you should know how to write a basic surface shader).</description>
     </item>
     
     <item>
       <title>Blur Postprocessing Effect</title>
-      <link>https://ronja-tutorials.com/post/023-postprocessing-blur/</link>
+      <link>https://www.ronja-tutorials.com/post/023-postprocessing-blur/</link>
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/023-postprocessing-blur/</guid>
+      <guid>https://www.ronja-tutorials.com/post/023-postprocessing-blur/</guid>
       <description>Summary A effect that&amp;rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&amp;rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
 Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.</description>
     </item>
     
     <item>
       <title>Stencil Buffers</title>
-      <link>https://ronja-tutorials.com/post/022-stencil-buffers/</link>
+      <link>https://www.ronja-tutorials.com/post/022-stencil-buffers/</link>
       <pubDate>Sat, 18 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/022-stencil-buffers/</guid>
+      <guid>https://www.ronja-tutorials.com/post/022-stencil-buffers/</guid>
       <description>Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &amp;ldquo;stencil operations&amp;rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
 The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply.</description>
     </item>
     
     <item>
       <title>Clipping a Model with a Plane</title>
-      <link>https://ronja-tutorials.com/post/021-plane-clipping/</link>
+      <link>https://www.ronja-tutorials.com/post/021-plane-clipping/</link>
       <pubDate>Mon, 06 Aug 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/021-plane-clipping/</guid>
+      <guid>https://www.ronja-tutorials.com/post/021-plane-clipping/</guid>
       <description>Summary Another cool effect is to make the surface disappear when it’s beyond a certain plane.
 To follow this tutorial, it’s best to know how surface shaders work - you can find a tutorial how they work here.
 Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.</description>
@@ -306,19 +306,19 @@ Define Plane We start by creating a new C# script which will define the plane we
     
     <item>
       <title>Hull Outlines</title>
-      <link>https://ronja-tutorials.com/post/020-hull-outline/</link>
+      <link>https://www.ronja-tutorials.com/post/020-hull-outline/</link>
       <pubDate>Sat, 21 Jul 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/020-hull-outline/</guid>
+      <guid>https://www.ronja-tutorials.com/post/020-hull-outline/</guid>
       <description>Summary So far we only ever wrote a color to the screen once per shader (or let unity generate multiple passes for us via surface shaders). But we have the possibility to draw our mesh multiple times in a single shader. A great way to use this is to draw outlines. First we draw our object as usual and then we draw it again, but we change the vertices a bit so it’s only visible around the original object, drawing a outline.</description>
     </item>
     
     <item>
       <title>Outlines via Postprocessing</title>
-      <link>https://ronja-tutorials.com/post/019-postprocessing-outlines/</link>
+      <link>https://www.ronja-tutorials.com/post/019-postprocessing-outlines/</link>
       <pubDate>Sun, 15 Jul 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/019-postprocessing-outlines/</guid>
+      <guid>https://www.ronja-tutorials.com/post/019-postprocessing-outlines/</guid>
       <description>Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edges than the alternative (inverted hull outlines) and you don’t have to change all of your materials to give them the outline effect.
 To understand how to create outlines via postprocessing it’s best to have understood how to get access to the depth and normals of the scene first.
 Depth Outlines We start with the shader and C# script from the postprocessing with normals tutorial.</description>
@@ -326,10 +326,10 @@ Depth Outlines We start with the shader and C# script from the postprocessing wi
     
     <item>
       <title>Postprocessing with Normal Texture</title>
-      <link>https://ronja-tutorials.com/post/018-postprocessing-normal/</link>
+      <link>https://www.ronja-tutorials.com/post/018-postprocessing-normal/</link>
       <pubDate>Sun, 08 Jul 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/018-postprocessing-normal/</guid>
+      <guid>https://www.ronja-tutorials.com/post/018-postprocessing-normal/</guid>
       <description>Summary Another piece of information we can easily get our hands on thats very useful for postprocessing is the normals of the scene. They show in which direction the surface at any given pixel is pointing.
 To understand how to get and use the normals of the scene it’s best to know how to access the scene depth first, I made a tutorial on how to do that here.
 Read Depth and Normals We start this tutorials with the files from the depth postprocessing tutorial and expand them as we need.</description>
@@ -337,69 +337,69 @@ Read Depth and Normals We start this tutorials with the files from the depth pos
     
     <item>
       <title>Postprocessing with the Depth Texture</title>
-      <link>https://ronja-tutorials.com/post/017-postprocessing-depth/</link>
+      <link>https://www.ronja-tutorials.com/post/017-postprocessing-depth/</link>
       <pubDate>Sun, 01 Jul 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/017-postprocessing-depth/</guid>
+      <guid>https://www.ronja-tutorials.com/post/017-postprocessing-depth/</guid>
       <description>Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
 To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here.</description>
     </item>
     
     <item>
       <title>Postprocessing Basics</title>
-      <link>https://ronja-tutorials.com/post/016-postprocessing-basics/</link>
+      <link>https://www.ronja-tutorials.com/post/016-postprocessing-basics/</link>
       <pubDate>Sat, 23 Jun 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/016-postprocessing-basics/</guid>
+      <guid>https://www.ronja-tutorials.com/post/016-postprocessing-basics/</guid>
       <description>Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
 Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first.</description>
     </item>
     
     <item>
       <title>Wobble Displacement</title>
-      <link>https://ronja-tutorials.com/post/015-wobble-displacement/</link>
+      <link>https://www.ronja-tutorials.com/post/015-wobble-displacement/</link>
       <pubDate>Sat, 16 Jun 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/015-wobble-displacement/</guid>
+      <guid>https://www.ronja-tutorials.com/post/015-wobble-displacement/</guid>
       <description>Summary So far we only used the vertex shader to move vertices from their object coordinates to their clip space coordinates (or to the world space coordinates which we then used for other things). But there are more things we can do with vertex shaders. As a introduction I’m going to show you how to apply a simple sine wave to a model, making it wobble.
 I will make the shader with a surface shader so you should know the basics of surface shaders, but it works the same with any other type of shader.</description>
     </item>
     
     <item>
       <title>Polygon Clipping</title>
-      <link>https://ronja-tutorials.com/post/014-polygon-clipping/</link>
+      <link>https://www.ronja-tutorials.com/post/014-polygon-clipping/</link>
       <pubDate>Sun, 10 Jun 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/014-polygon-clipping/</guid>
+      <guid>https://www.ronja-tutorials.com/post/014-polygon-clipping/</guid>
       <description>Summary Of course everything we render so far is made of polygons, but someone asked me how to clip a polygon shape based on a list of points in a shader so I’ll explain how to do that now. I will explain how to do that with a single shader pass in a fragment shader, a different way would be to actually generate triangles based on your polygon and use stencil buffers to clip, but I won’t explain that in this tutorial.</description>
     </item>
     
     <item>
       <title>Custom Lighting</title>
-      <link>https://ronja-tutorials.com/post/013-custom-lighting/</link>
+      <link>https://www.ronja-tutorials.com/post/013-custom-lighting/</link>
       <pubDate>Sat, 02 Jun 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/013-custom-lighting/</guid>
+      <guid>https://www.ronja-tutorials.com/post/013-custom-lighting/</guid>
       <description>Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometimes we want to change the way we treat lighting to get a different, often more cartoonish, look. Custom lighting functions allow us to do exactly that.
 This tutorial is about a surface shader specific feature, while the basics of lighting are the same in all shaders, you need a lot more code to archieve the same result from a non-surface shader and I won’t explain it in this tutorial.</description>
     </item>
     
     <item>
       <title>Fresnel</title>
-      <link>https://ronja-tutorials.com/post/012-fresnel/</link>
+      <link>https://www.ronja-tutorials.com/post/012-fresnel/</link>
       <pubDate>Sat, 26 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/012-fresnel/</guid>
+      <guid>https://www.ronja-tutorials.com/post/012-fresnel/</guid>
       <description>Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
 For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.</description>
     </item>
     
     <item>
       <title>Checkerboard Pattern</title>
-      <link>https://ronja-tutorials.com/post/011-chessboard/</link>
+      <link>https://www.ronja-tutorials.com/post/011-chessboard/</link>
       <pubDate>Fri, 18 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/011-chessboard/</guid>
+      <guid>https://www.ronja-tutorials.com/post/011-chessboard/</guid>
       <description>Summary For me, one of the most interresting things to do with shaders is procedural images. To get started with that, we’re going to create a simple Checkerboard pattern.
 This tutorial will build on the simple shader with only properties, but as always, you can also use the technique to generate colors in more complex shaders.
 Stripes I will take the world position of the surface to generate the chessboard texture, that way we can later move and rotate the model around and the generated patterns will fit together.</description>
@@ -407,30 +407,30 @@ Stripes I will take the world position of the surface to generate the chessboard
     
     <item>
       <title>Triplanar Mapping</title>
-      <link>https://ronja-tutorials.com/post/010-triplanar-mapping/</link>
+      <link>https://www.ronja-tutorials.com/post/010-triplanar-mapping/</link>
       <pubDate>Fri, 11 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/010-triplanar-mapping/</guid>
+      <guid>https://www.ronja-tutorials.com/post/010-triplanar-mapping/</guid>
       <description>Summary I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.
 This tutorial will build upon the planar mapping shader which is a unlit shader, but you can use the technique with many shaders, including surface shaders.</description>
     </item>
     
     <item>
       <title>Color Interpolation</title>
-      <link>https://ronja-tutorials.com/post/009-interpolating-colors/</link>
+      <link>https://www.ronja-tutorials.com/post/009-interpolating-colors/</link>
       <pubDate>Thu, 03 May 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/009-interpolating-colors/</guid>
+      <guid>https://www.ronja-tutorials.com/post/009-interpolating-colors/</guid>
       <description>Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
 This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value.</description>
     </item>
     
     <item>
       <title>Planar Mapping</title>
-      <link>https://ronja-tutorials.com/post/008-planar-mapping/</link>
+      <link>https://www.ronja-tutorials.com/post/008-planar-mapping/</link>
       <pubDate>Mon, 23 Apr 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/008-planar-mapping/</guid>
+      <guid>https://www.ronja-tutorials.com/post/008-planar-mapping/</guid>
       <description>Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
 This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
 Basics We start by removing the uv coordinates from the input struct as we&amp;rsquo;ll generate our own texture coordinates.</description>
@@ -438,30 +438,30 @@ Basics We start by removing the uv coordinates from the input struct as we&amp;r
     
     <item>
       <title>Sprite Shaders</title>
-      <link>https://ronja-tutorials.com/post/007-sprite-shaders/</link>
+      <link>https://www.ronja-tutorials.com/post/007-sprite-shaders/</link>
       <pubDate>Fri, 13 Apr 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/007-sprite-shaders/</guid>
+      <guid>https://www.ronja-tutorials.com/post/007-sprite-shaders/</guid>
       <description>Summary In unity the way sprites are rendered is very similar to the way 3d objects are rendered. Most of the work is done by the sprite renderer component. I’ll go a bit over what the component is doing and how we can change our shader to do some of the stuff the default sprite renderer is doing.
 This tutorial will build on the transparent shader we made previously so it’s best that you understand that one first.</description>
     </item>
     
     <item>
       <title>Basic Transparency</title>
-      <link>https://ronja-tutorials.com/post/006-simple-transparency/</link>
+      <link>https://www.ronja-tutorials.com/post/006-simple-transparency/</link>
       <pubDate>Fri, 06 Apr 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/006-simple-transparency/</guid>
+      <guid>https://www.ronja-tutorials.com/post/006-simple-transparency/</guid>
       <description>Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
 To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&amp;rsquo;ll start with the result of the tutorial for implementing textures.</description>
     </item>
     
     <item>
       <title>Surface Shader Basics</title>
-      <link>https://ronja-tutorials.com/post/005-simple-surface/</link>
+      <link>https://www.ronja-tutorials.com/post/005-simple-surface/</link>
       <pubDate>Fri, 30 Mar 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/005-simple-surface/</guid>
+      <guid>https://www.ronja-tutorials.com/post/005-simple-surface/</guid>
       <description>Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &amp;ldquo;surface shaders&amp;rdquo;.
 To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
 Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us.</description>
@@ -469,10 +469,10 @@ Conversion to simple Surface Shader When using surface shaders we don’t have t
     
     <item>
       <title>Basic Shader</title>
-      <link>https://ronja-tutorials.com/post/004-basic/</link>
+      <link>https://www.ronja-tutorials.com/post/004-basic/</link>
       <pubDate>Fri, 23 Mar 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/004-basic/</guid>
+      <guid>https://www.ronja-tutorials.com/post/004-basic/</guid>
       <description>Summary In the last three tutorials I explained some of the cornerstones of how shaders work. In this one I show you how to fill in the rest.
 The main thing I didn&amp;rsquo;t show was actual executed code. Thats because you don&amp;rsquo;t need much code to get a shader running at first and all of the fancy code is in specialized tutorials.
 What we have so far Everything here should be explained in one of the previous three tutorials.</description>
@@ -480,28 +480,28 @@ What we have so far Everything here should be explained in one of the previous t
     
     <item>
       <title>Variables</title>
-      <link>https://ronja-tutorials.com/post/003-variables/</link>
+      <link>https://www.ronja-tutorials.com/post/003-variables/</link>
       <pubDate>Thu, 22 Mar 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/003-variables/</guid>
+      <guid>https://www.ronja-tutorials.com/post/003-variables/</guid>
       <description>Summary After making clear how the shader stages are put together and the rough outline of shaderlab outside of the actual shader code, lets talk about what variables our shader needs to function and how we add them to our code. This includes the variables that we set per material, the variables that are part of the mesh data and the data thats passed from the vertex to the fragment.</description>
     </item>
     
     <item>
       <title>HLSL</title>
-      <link>https://ronja-tutorials.com/post/002-hlsl/</link>
+      <link>https://www.ronja-tutorials.com/post/002-hlsl/</link>
       <pubDate>Wed, 21 Mar 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/002-hlsl/</guid>
+      <guid>https://www.ronja-tutorials.com/post/002-hlsl/</guid>
       <description>HLSL? Hlsl is the language the &amp;ldquo;juicy&amp;rdquo; parts of unity shaders are written in. The parts that contain custom logic and eventually decide what is drawn where on screen. It&amp;rsquo;s the language Microsoft designed to work with their Direct3D API to write gpu programs. Strictly speaking most Unity shaders are tagged as being written in CG which is short for C for Graphics, but CG shares most of it&amp;rsquo;s syntax and features with hlsl and was deprecated in 2012, so wrongly referring to it as hlsl leads to you being able to find better results in search engines and not much else.</description>
     </item>
     
     <item>
       <title>Structure</title>
-      <link>https://ronja-tutorials.com/post/001-structure/</link>
+      <link>https://www.ronja-tutorials.com/post/001-structure/</link>
       <pubDate>Tue, 20 Mar 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://ronja-tutorials.com/post/001-structure/</guid>
+      <guid>https://www.ronja-tutorials.com/post/001-structure/</guid>
       <description>Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
 Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&amp;rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now).</description>
     </item>

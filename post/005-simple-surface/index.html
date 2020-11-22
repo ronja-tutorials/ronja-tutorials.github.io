@@ -34,7 +34,7 @@ Conversion to simple Surface Shader When using surface shaders we don’t have t
 To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
 Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/005-simple-surface/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/005-simple-surface/" />
 <meta property="article:published_time" content="2018-03-30T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-03-30T00:00:00+00:00" />
 <meta itemprop="name" content="Surface Shader Basics">
@@ -121,7 +121,7 @@ Conversion to simple Surface Shader When using surface shaders we don’t have t
 allows us to define some parameters and let unity generate the code
 which does the complex light calculations. Those shaders are called
 &ldquo;surface shaders&rdquo;.</p>
-<p>To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them <a href="https://ronja-tutorials.com/post/004-basic/">here</a>.</p>
+<p>To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them <a href="https://www.ronja-tutorials.com/post/004-basic/">here</a>.</p>
 <p><img src="/assets/images/posts/005/Result.png" alt="Result"></p>
 <h2 id="conversion-to-simple-surface-shader">Conversion to simple Surface Shader</h2>
 <p>When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us. For the conversion to a surface shader we can delete our vertex shader completely. We can delete the pragma definitions of the vertex and fragment function. We can delete the input as well as the vertex to fragment struct. We can delete the MainTex_ST variable for texture scaling and we can delete the inclusion of the UnityCG include file. And we remove the pass beginning and end, Unity will generate passes for us. After all of that our emptied Shader should look like this:</p>
@@ -362,7 +362,7 @@ o.Emission <span style="color:#333">=</span> _Emission;
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

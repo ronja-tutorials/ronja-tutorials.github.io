@@ -32,7 +32,7 @@ This tutorial will build upon the planar mapping shader which is a unlit shader,
 <meta property="og:description" content="Summary I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.
 This tutorial will build upon the planar mapping shader which is a unlit shader, but you can use the technique with many shaders, including surface shaders." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/010-triplanar-mapping/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/010-triplanar-mapping/" />
 <meta property="article:published_time" content="2018-05-11T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-05-11T00:00:00+00:00" />
 <meta itemprop="name" content="Triplanar Mapping">
@@ -114,7 +114,7 @@ This tutorial will build upon the planar mapping shader which is a unlit shader,
     </header>
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
 <p>I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.</p>
-<p>This tutorial will build upon the <a href="https://ronja-tutorials.com/post/008-planar-mapping/">planar mapping shader</a> which is a unlit shader, but you can use the technique with many shaders, including surface shaders.
+<p>This tutorial will build upon the <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">planar mapping shader</a> which is a unlit shader, but you can use the technique with many shaders, including surface shaders.
 <img src="/assets/images/posts/010/Result.gif" alt="Result"></p>
 <h2 id="calculate-projection-planes">Calculate Projection Planes</h2>
 <p>To generate three different sets of UV coordinates, we start by changing the way we get the UV coordinates. Instead of returning the transformed uv coordinates from the vertex shader we return the world position and then generate the UV coordinates in the fragment shader.</p>
@@ -359,7 +359,7 @@ weights <span style="color:#333">=</span> pow(weights, _sharpness)
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

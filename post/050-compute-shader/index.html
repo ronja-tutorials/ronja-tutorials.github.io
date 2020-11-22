@@ -32,7 +32,7 @@ If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant en
 <meta property="og:description" content="So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
 If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/050-compute-shader/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/050-compute-shader/" />
 <meta property="article:published_time" content="2020-07-26T00:00:00+00:00" />
 <meta property="article:modified_time" content="2020-07-26T00:00:00+00:00" />
 <meta itemprop="name" content="Compute Shader">
@@ -195,7 +195,7 @@ After thats done we can dispatch the shader and tell it how many thread groups i
 </code></pre></div><p><img src="/assets/images/posts/050/Row.png" alt=""></p>
 <h2 id="a-tiny-bit-more-complex-compute-shader">A tiny bit more complex Compute Shader</h2>
 <p>The rest of this is just to make stuff look nice, its just plain hlsl like in all my other tutorials.</p>
-<p>In the Compute Shader I first include the functions from <a href="https://ronja-tutorials.com/post/024-white-noise/">my tutorial on randomness</a> and add a new variable called time.
+<p>In the Compute Shader I first include the functions from <a href="https://www.ronja-tutorials.com/post/024-white-noise/">my tutorial on randomness</a> and add a new variable called time.
 In the kernel function I get a random vector(based on the kernel index), normalize it and get it to a random length between 0.1 and 1 (if I let it go too short bad math can happen too easily and some points become NaN). Then I generate a new vector thats orthogonal to that one by taking the cross product between the vector and a different random vector(this isn&rsquo;t guaranteed to work, if the vectors are paralell the cross product is <code>(0,0,0)</code> and can&rsquo;t e normalized, but it works well enough) and give its length the same treatment to make it be between 0.1 and 0.9. The random looking numbers I add to the inputs are to avoid some of the symmetry so not all random functions return the same result. Then I get a time variable by multiplying the time by 2(that 2 could be a uniform value if you want to adjust the speed manually) and give it a offset by a random value multiplied by some big-ish odd number.</p>
 <p>Those values can then be combined by multiplying one of the vectors by the sine of the time and the other by the cosine of the time and adding the 2 results. I then also multiplied it by 20 to make it bigger, but you should also consider using a property settable from outside here(do as I say not as I do).</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// Each #kernel tells which function to compile; you can have many kernels</span>
@@ -341,7 +341,7 @@ RWStructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

@@ -32,7 +32,7 @@ For this tutorial we will make a surface shader, so if you follow it directly yo
 <meta property="og:description" content="Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
 For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/012-fresnel/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/012-fresnel/" />
 <meta property="article:published_time" content="2018-05-26T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-05-26T00:00:00+00:00" />
 <meta itemprop="name" content="Fresnel">
@@ -114,11 +114,11 @@ For this tutorial we will make a surface shader, so if you follow it directly yo
     </header>
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
 <p>A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.</p>
-<p>For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them <a href="https://ronja-tutorials.com/post/004-basic/">here</a>. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.</p>
+<p>For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them <a href="https://www.ronja-tutorials.com/post/004-basic/">here</a>. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.</p>
 <p><img src="/assets/images/posts/012/Result.jpg" alt="Material with fresnel effect"></p>
 <h2 id="highlighting-one-side-of-the-model">Highlighting one Side of the Model</h2>
 <p>We start with the surface shader modify it to show the fresnel. The fresnel uses the normals of the object to determine the intensity of the effect. To get the normals in worldspace in our shader, we add the worldNormal attribute to our input struct as well as the internal data macro. We won’t interact with the internal data at all, but unity needs it to generate the worldspace normal.</p>
-<p>You can generate the worldspace normals in non-surface shaders with a simple matrix multiplication, it’s explained in my <a href="https://ronja-tutorials.com/post/010-triplanar-mapping/">triplanar mapping tutorial</a>.</p>
+<p>You can generate the worldspace normals in non-surface shaders with a simple matrix multiplication, it’s explained in my <a href="https://www.ronja-tutorials.com/post/010-triplanar-mapping/">triplanar mapping tutorial</a>.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
 <span style="color:#080;font-weight:bold">struct</span> Input {
     float2 uv_MainTex;
@@ -156,7 +156,7 @@ For this tutorial we will make a surface shader, so if you follow it directly yo
 </code></pre></div><p><img src="/assets/images/posts/012/WhiteTopBlackBottom.png" alt="Material dot product added to emissive channel, the bottom is black"></p>
 <h2 id="highlighting-the-outer-parts">Highlighting the outer Parts</h2>
 <p>The next step is to make the effect relative to our view direction instead of a fixed direction. In surface shaders we get the view direction by just adding it to our input struct.</p>
-<p>If you’re making a unlit fresnel shader, you can get the view direction by subtracting the camera position from the world position of your vertex (I explain how to get the worldspace position in my <a href="https://ronja-tutorials.com/post/008-planar-mapping/">planar mapping tutorial</a> and you can get the camera position from the builtin variable _WorldSpaceCameraPos (you can just use it in your code without adding anything else)).</p>
+<p>If you’re making a unlit fresnel shader, you can get the view direction by subtracting the camera position from the world position of your vertex (I explain how to get the worldspace position in my <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">planar mapping tutorial</a> and you can get the camera position from the builtin variable _WorldSpaceCameraPos (you can just use it in your code without adding anything else)).</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
 <span style="color:#080;font-weight:bold">struct</span> Input {
     float2 uv_MainTex;
@@ -364,7 +364,7 @@ float3 _FresnelColor;
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

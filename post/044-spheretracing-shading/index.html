@@ -32,7 +32,7 @@ Architecture Changes In the previous shader we returned a solid color after find
 <meta property="og:description" content="In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
 Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/044-spheretracing-shading/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/044-spheretracing-shading/" />
 <meta property="article:published_time" content="2019-08-15T00:00:00+00:00" />
 <meta property="article:modified_time" content="2019-08-15T00:00:00+00:00" />
 <meta itemprop="name" content="Spheretracing with Shading">
@@ -112,7 +112,7 @@ Architecture Changes In the previous shader we returned a solid color after find
       
       
     </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://ronja-tutorials.com/post/043-spheretracing-basics/">previous tutorial</a> I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.</p>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://www.ronja-tutorials.com/post/043-spheretracing-basics/">previous tutorial</a> I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.</p>
 <h2 id="architecture-changes">Architecture Changes</h2>
 <p>In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function. This material function will calculate the light and combine the lighting with the surface color. To make this function as modular as possible I decided to put the light calculations in another function and the calculations for the normal of the surface in yet another one. If fewer more monolithic functions are more readable to you, feel free to structure your shader like that.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 normal(float3 pos){
@@ -183,7 +183,7 @@ float3 normal(float3 pos){
 }
 </code></pre></div><p><img src="/assets/images/posts/044/normals.png" alt=""></p>
 <h2 id="lighting">Lighting</h2>
-<p>The lighting function works the same as in any other context. The main difference to <a href="https://ronja-tutorials.com/post/013-custom-lighting/">the lighting implementations I&rsquo;ve explained previously</a> we can&rsquo;t use surface shaders so this implementation is more limited since that would need multiple shader passes. I&rsquo;m not going to implement more than 1 light and won&rsquo;t show how to make point lights work here, so we&rsquo;re stuck with a single directional light.</p>
+<p>The lighting function works the same as in any other context. The main difference to <a href="https://www.ronja-tutorials.com/post/013-custom-lighting/">the lighting implementations I&rsquo;ve explained previously</a> we can&rsquo;t use surface shaders so this implementation is more limited since that would need multiple shader passes. I&rsquo;m not going to implement more than 1 light and won&rsquo;t show how to make point lights work here, so we&rsquo;re stuck with a single directional light.</p>
 <p>We begin my retrieving the surface normal with the previously written function. Then we get the direction the light is coming from. In the case of directional lights this is always saved in <code>_WorldSpaceLightPos0.xyz</code>.</p>
 <p>With this information we can do a simple lighting calculation. We get the dot product between direction and normal and then we use the saturate function to ensure the result is never negative. The result of the function is this falloff multiplied by the color of the light which is stored in <code>_LightColor0</code> to use the color of the light as a tint. It&rsquo;s important that the <code>_LightColor0</code> variable is only available when we imclude the <code>Lighting.cginc</code> include file in our shader, so we also add that.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#include &#34;Lighting.cginc&#34;</span>
@@ -378,7 +378,7 @@ float4 lightColor(float3 position){
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

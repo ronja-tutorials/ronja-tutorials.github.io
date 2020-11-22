@@ -30,7 +30,7 @@
     <meta property="og:title" content="Halftone Shading" />
 <meta property="og:description" content="This tutorial is on another common toon shading technique called halftone shading, unlike normal shading it only uses full lit or full unlit as colors, but it doesn&rsquo;t create a hard cut either. Instead it uses a pattern to decide which pixels are lit and which aren&rsquo;t and the chance of a pixel being lit gets higher the brighter the pixel would be with a normal lighting method. To understand this tutorial I recommend reading and understanding the tutorial about custom lighting methods and the tutorial about generating screenspace texture coordinates." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://ronja-tutorials.com/post/040-halftone-shading/" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/040-halftone-shading/" />
 <meta property="article:published_time" content="2019-03-02T00:00:00+00:00" />
 <meta property="article:modified_time" content="2019-03-02T00:00:00+00:00" />
 <meta itemprop="name" content="Halftone Shading">
@@ -108,10 +108,10 @@
       
       
     </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>This tutorial is on another common toon shading technique called halftone shading, unlike normal shading it only uses full lit or full unlit as colors, but it doesn&rsquo;t create a hard cut either. Instead it uses a pattern to decide which pixels are lit and which aren&rsquo;t and the chance of a pixel being lit gets higher the brighter the pixel would be with a normal lighting method. To understand this tutorial I recommend reading and understanding <a href="https://ronja-tutorials.com/post/013-custom-lighting/">the tutorial about custom lighting methods</a> and <a href="https://ronja-tutorials.com/post/039-screenspace-texture/">the tutorial about generating screenspace texture coordinates</a>.</p>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>This tutorial is on another common toon shading technique called halftone shading, unlike normal shading it only uses full lit or full unlit as colors, but it doesn&rsquo;t create a hard cut either. Instead it uses a pattern to decide which pixels are lit and which aren&rsquo;t and the chance of a pixel being lit gets higher the brighter the pixel would be with a normal lighting method. To understand this tutorial I recommend reading and understanding <a href="https://www.ronja-tutorials.com/post/013-custom-lighting/">the tutorial about custom lighting methods</a> and <a href="https://www.ronja-tutorials.com/post/039-screenspace-texture/">the tutorial about generating screenspace texture coordinates</a>.</p>
 <p><img src="/assets/images/posts/040/Result.png" alt=""></p>
 <h2 id="hard-step-halftone-shading">Hard Step Halftone Shading</h2>
-<p>For the first simplest implementation we use the result of the <a href="https://ronja-tutorials.com/post/013-custom-lighting/">custom surface lighting tutorial</a> as the base shader and start to modify that. First we make it simpler by removing the part where the shader reads the value of the toon ramp. Instead we multiply the shadow attenuation earlier with the <code>towardsLight</code> variable and pass it to the <code>saturate</code> function to clamp it between 0 and 1. Additionally the light intensity is now only saved as a one-dimensional float since we don&rsquo;t read from a texture with colors anymore.</p>
+<p>For the first simplest implementation we use the result of the <a href="https://www.ronja-tutorials.com/post/013-custom-lighting/">custom surface lighting tutorial</a> as the base shader and start to modify that. First we make it simpler by removing the part where the shader reads the value of the toon ramp. Instead we multiply the shadow attenuation earlier with the <code>towardsLight</code> variable and pass it to the <code>saturate</code> function to clamp it between 0 and 1. Additionally the light intensity is now only saved as a one-dimensional float since we don&rsquo;t read from a texture with colors anymore.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">40</span>_DitheredLighting<span style="color:#f00;background-color:#faa">&#34;</span> {
 	<span style="color:#888">//show values to edit in inspector</span>
 	Properties {
@@ -175,7 +175,7 @@
 }
 </code></pre></div><p><img src="/assets/images/posts/040/BasicShading.png" alt=""></p>
 <p>With this done, we already have a value that represents how much a given pixel is lit, the next step is to change it from a gradient to a binary one or zero value. To do this we have to compare the value to another value. For this tutorial, we&rsquo;re getting this other value by sampling a texture via screenspace texture coordinates. You can also use other texture coordinates like the normal UV coordinates, triplanar coordinates or even completely procedural shapes for this that don&rsquo;t rely on textures at all, but I&rsquo;ve found screenspace coordinates to be robust and versatile so I&rsquo;m gonna use them as a example for this tutorial.</p>
-<p>In the <a href="https://ronja-tutorials.com/post/039-screenspace-texture/">tutorial about screenspace coordinates</a> I explain how to get the screenspace coordinates. As soon as we created them, we have to get them from our surface function to our lighting function. For that purpose we have to create a new surface output struct with all of the data we need. This data includes the base color of the shader, the screenspace texture coordinate, the emission of the material, the alpha transparency and the normal. Not all of those values might seem important to us right now, but the alpha and emission variables for example are needed for unity to be able to successfully generate the final shader.</p>
+<p>In the <a href="https://www.ronja-tutorials.com/post/039-screenspace-texture/">tutorial about screenspace coordinates</a> I explain how to get the screenspace coordinates. As soon as we created them, we have to get them from our surface function to our lighting function. For that purpose we have to create a new surface output struct with all of the data we need. This data includes the base color of the shader, the screenspace texture coordinate, the emission of the material, the alpha transparency and the normal. Not all of those values might seem important to us right now, but the alpha and emission variables for example are needed for unity to be able to successfully generate the final shader.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">sampler2D</span> _HalftonePattern;
 float4 _HalftonePattern_ST;
 </code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> HalftoneSurfaceOutput {
@@ -420,7 +420,7 @@ lightIntensity <span style="color:#333">=</span> smoothstep(halftoneValue <span 
     </main>
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
     &copy;  Ronja's tutorials 2020 
   </a>
     <div>

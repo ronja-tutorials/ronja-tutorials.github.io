@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Structure | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
+Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now).">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Structure" />
+<meta property="og:description" content="Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
+Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/001-structure/" />
+<meta property="article:published_time" content="2018-03-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-03-20T00:00:00+00:00" />
+<meta itemprop="name" content="Structure">
+<meta itemprop="description" content="Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
+Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now).">
+<meta itemprop="datePublished" content="2018-03-20T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-03-20T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1812">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Structure"/>
+<meta name="twitter:description" content="Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
+Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now)."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Structure</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-03-20T00:00:00Z">March 20, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="shader-structure">Shader Structure</h2>
+<p>When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.</p>
+<p>Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now). We can also use custom vertex shaders to animate the position of the vertices without changing the mesh data and pass more data to the fragment shader. After we defined where on the screen the vertices are the triangles between them are turned into pixels by the rasterizer. In addition to deciding which pixel gets rendered for a object the rasterizer also interpolates all data in the output of the vertex shader so pixels that are between vertices also get the inbetween values. After deciding which pixels get rendered the fragment shader (also called pixel shader) decides the color of the pixel.</p>
+<p><img src="/assets/images/posts/001/pipeline.png" alt="Result"></p>
+<p>This is just the basic setup of a shader. I&rsquo;m gonna explain in future tutorials how to write all that, what those &ldquo;spaces&rdquo; are, which data we move between the stages and where the data comes from, but I hope just seeing this gives you an idea of the layers of separation a shader has. This is the same in most shading languages and environments. Node based shaders that don&rsquo;t have a concept of vertex and fragment stages still generate those stages internally.</p>
+<h2 id="shaderlab">ShaderLab</h2>
+<p>Regular shaders in Unity are just text files where the file name has .shader at the end in a similar manner how C# scripts end with .cs. We can also create easly by doing <code>rightclick &gt; Create &gt; Shader &gt; &lt;any&gt;</code> to get one of the templates, what we do with the template is mostly irrelevant. To ease you into writing shaders we&rsquo;re going to start with a shader thats fairly similar to the shader you get when you do <code>rightclick &gt; Create &gt; Shader &gt; Unlit Shader</code>. The main difference is that our shader won&rsquo;t correctly react to fog and it&rsquo;ll have a texture as well as a tint which are multiplied so you can make objects that have a solid color without creating a texture of that color. The whole shader looks like this and I&rsquo;m going to explain all parts of it bit by bit over the first few tutorials. This is supposed to be a start for learning shaders, so if you have any troubles understanding this feel free to write me about the problems you have so I can improve the tutorials so future learners have a easier time.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">001</span><span style="color:#333">-</span><span style="color:#40e;font-weight:bold">004</span>_Basic_Unlit<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+			<span style="color:#888">//the mesh data thats read by the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#888">//apply the texture transforms to the UV coordinates and pass them to the v2f struct</span>
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader function</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+			    <span style="color:#888">//read the texture color at the uv coordinate</span>
+				fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+				<span style="color:#888">//multiply the texture color and tint color</span>
+				col <span style="color:#333">*=</span> _Color;
+				<span style="color:#888">//return the final color to be drawn on screen</span>
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+	Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h2 id="whats-shaderlab">Whats ShaderLab?</h2>
+<p>Unity Shaders are written in a custom declarative language called &ldquo;Shaderlab&rdquo;. It defines most things about the context in which models are drawn in unity. Actual shader programs are written in one of the shader languages hlsl, glsl or CG which are contained in blocks inside of shaderlab.</p>
+<p><img src="/assets/images/posts/002/LanguageAreas.png" alt=""></p>
+<p>As you can see &ldquo;pure&rdquo; shaderlab only takes up a small part of our shader right now. Thats partially because shaderlab isn&rsquo;t executed, instead it just describes things in a more abstract form. And for a minimal shader like this one the default settings are fine for most things.</p>
+<h2 id="shadersubshaderpass">Shader/SubShader/Pass</h2>
+<p>You might have discovered that there are multiple blocks marked by curly braces <code>{}</code> inside of each other so lets look at those first.</p>
+<p><code>Shader</code> defines the whole shader. The name of the shader as which it appears in the shader menu in materials is also set at the start of the shader block. When setting the name of the shader you can add slashes to the name to group shaders into categories. I put all shaders I write in tutorials in the <code>Tutorial</code> shader category and create a new subcategory when theres multiple shaders in a tutorial, but feel free to use whatever categories feel best to you. Theres always only a single shader defined per file, more are not possible. It&rsquo;s also possible to define fallback shaders in the top level of the shader. If you define a fallback shader it will act as if all subshaders of the fallback shader are pasted into your shader file.</p>
+<p>A <code>Shader</code> block can contain one or multiple <code>Subshader</code>s. Multiple subshaders can be used to provide different shaders that are used depending on the hardware the shader is used on, but the documentation on how to define which subshader is used when is extremely lacking and in my experience you&rsquo;ll be fine with one subshader usually. One exception is that you often don&rsquo;t want to write your own shadowpass so you can set a fallback shader and unity will automatically use that shadowpass if it can&rsquo;t find one in your shader. Most shaders use the <code>VertexLit</code> shader as a fallback to get shadows because it&rsquo;s a very cheap and simple shader (also probably because of tradition and copying shader code around, I don&rsquo;t even know which of the many VertexLit shaders it&rsquo;s using tbh). Inside the subshaders you can define the <a href="https://docs.unity3d.com/Manual/SL-SubShaderTags.html">subshader tags</a> as well as multiple shader passes and properties that are set for all passes in the subshader.</p>
+<p>A <code>Pass</code> is a single unit of something being drawn to the screen. If you define multiple passes in the default render pipeline they&rsquo;re drawn one after the other (URP only ever draws one pass afaik). Shaders that do that are sometimes referred to as multipass shaders. In addition to an optional name, <a href="https://docs.unity3d.com/Manual/SL-PassTags.html">pass tags</a> and the same parameters we can define in subshaders (but this time on a per pass basis, in a subshader with 1 pass it doesn&rsquo;t matter whether the properties are in the pass or subshader) the pass also has the code thats actually managing the rendering.</p>
+<h2 id="properties-and-tags">Properties and Tags</h2>
+<p>You might have seen 2 other blocks in the ShaderLab part of our that we haven&rsquo;t talked about yet. The <code>Properties</code> in the shader outer block and the <code>Tags</code> in the subshader.</p>
+<p>If you know a dictionary from other programming languages you can compare the tags to them. They hold key value pairs that the engine can use. Subshader tags mainly define how materials with the shader are shown in the editor, when they&rsquo;re rendered or what operations can be applied to them while pass tags are mainly used to define in the legacy pipeline which pass are used for which step of light calculation. You can find subshader tags <a href="https://docs.unity3d.com/Manual/SL-SubShaderTags.html">here</a> and pass tags <a href="https://docs.unity3d.com/Manual/SL-PassTags.html">here</a>.</p>
+<p>Properties are used to display variables in the material editor. They have some limitations as we&rsquo;re only able to set properties via this that are the same over all objects where the material is used so you&rsquo;ll have to use different techniques if you want to set a property per objects or even per smaller part of the mesh. But since we have access to the texture coordinates by default and we can set the textures via those properties they bring us pretty far. I&rsquo;m going to go deeper into explaining properties in one of the next tutorials.</p>
+<p>Overall this is how the just the rough structure of this shader looks like with a bit of abstraction</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Category<span style="color:#333">/</span>Name<span style="color:#f00;background-color:#faa">&#34;</span>{
+	Properties{
+		<span style="color:#888">//Properties</span>
+	}
+	Subshader{
+		Tags{
+			<span style="color:#888">//Subshader Tags</span>
+		}
+
+		<span style="color:#888">//Settings for all passes</span>
+
+		Pass{
+			Tags{
+				<span style="color:#888">//Pass Tags</span>
+			}
+
+			<span style="color:#888">//Settings for pass</span>
+
+			CGPROGRAM
+			<span style="color:#888">//shader code</span>
+			ENDCG
+		}
+	}
+}
+</code></pre></div><h2 id="source">Source</h2>
+<p>All tutorials have the source of the resulting shader linked at the bottom. Since we&rsquo;re just analyzing right now I&rsquo;m just gonna put the code of a full shader here for now.</p>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/001-004_basic_unlit/basic_unlit.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/001-004_basic_unlit/basic_unlit.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">001</span><span style="color:#333">-</span><span style="color:#40e;font-weight:bold">004</span>_Basic_Unlit<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+<span style="color:#888">//	_Color (&#34;Tint&#34;, Color) = (0, 0, 0, 1)</span>
+<span style="color:#888">//	_MainTex (&#34;Texture&#34;, 2D) = &#34;white&#34; {}</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+		Pass{
+			CGPROGRAM
+<span style="color:#888">//</span>
+<span style="color:#888">//		//include useful shader functions</span>
+<span style="color:#888">//		#include &#34;UnityCG.cginc&#34;</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//define vertex and fragment shader functions</span>
+<span style="color:#888">//		#pragma vertex vert</span>
+<span style="color:#888">//		#pragma fragment frag</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//texture and transforms of the texture</span>
+<span style="color:#888">//		sampler2D _MainTex;</span>
+<span style="color:#888">//		float4 _MainTex_ST;</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//tint of the texture</span>
+<span style="color:#888">//		fixed4 _Color;</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//the mesh data thats read by the vertex shader</span>
+<span style="color:#888">//		struct appdata{</span>
+<span style="color:#888">//			float4 vertex : POSITION;</span>
+<span style="color:#888">//			float2 uv : TEXCOORD0;</span>
+<span style="color:#888">//		};</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+<span style="color:#888">//		struct v2f{</span>
+<span style="color:#888">//			float4 position : SV_POSITION;</span>
+<span style="color:#888">//			float2 uv : TEXCOORD0;</span>
+<span style="color:#888">//		};</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//the vertex shader function</span>
+<span style="color:#888">//		v2f vert(appdata v){</span>
+<span style="color:#888">//			v2f o;</span>
+<span style="color:#888">//			//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+<span style="color:#888">//			o.position = UnityObjectToClipPos(v.vertex);</span>
+<span style="color:#888">//			//apply the texture transforms to the UV coordinates and pass them to the v2f struct</span>
+<span style="color:#888">//			o.uv = TRANSFORM_TEX(v.uv, _MainTex);</span>
+<span style="color:#888">//			return o;</span>
+<span style="color:#888">//		}</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		//the fragment shader function</span>
+<span style="color:#888">//		fixed4 frag(v2f i) : SV_TARGET{</span>
+<span style="color:#888">//			//read the texture color at the uv coordinate</span>
+<span style="color:#888">//			fixed4 col = tex2D(_MainTex, i.uv);</span>
+<span style="color:#888">//			//multiply the texture color and tint color</span>
+<span style="color:#888">//			col *= _Color;</span>
+<span style="color:#888">//			//return the final color to be drawn on screen</span>
+<span style="color:#888">//			return col;</span>
+<span style="color:#888">//</span>
+<span style="color:#888">//		}</span>
+			ENDCG
+		}
+	}
+	Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

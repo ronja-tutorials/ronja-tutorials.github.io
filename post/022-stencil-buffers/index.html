@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Stencil Buffers | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Stencil Buffers" />
+<meta property="og:description" content="Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/022-stencil-buffers/" />
+<meta property="article:published_time" content="2018-08-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-08-18T00:00:00+00:00" />
+<meta itemprop="name" content="Stencil Buffers">
+<meta itemprop="description" content="Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply.">
+<meta itemprop="datePublished" content="2018-08-18T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-08-18T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1588">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Stencil Buffers"/>
+<meta name="twitter:description" content="Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Stencil Buffers</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-08-18T00:00:00Z">August 18, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.</p>
+<p>The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply. For those limitations and other more indepth information on how to use the stencil buffer in unity you can read here: <a href="https://docs.unity3d.com/Manual/SL-Stencil.html">https://docs.unity3d.com/Manual/SL-Stencil.html</a>.</p>
+<p>This tutorial will go into some of the basics of the stencil buffer and show read and write from it. We will start with the <a href="https://ronja-tutorials.com/post/005-simple-surface/">basic surface shader</a>) but it works just as well with all other types of shaders including unlit and postprocessing ones. In any case you should understand <a href="/basics.html">basics shaders</a> before getting into manipulating stencil buffers.</p>
+<p><img src="/assets/images/posts/022/Result.gif" alt=""></p>
+<h2 id="reading-from-the-stencil-buffer">Reading from the Stencil Buffer</h2>
+<p>The shader which will read from the stencil buffer will draw itself, but only where the buffer has a specific value, everywhere else it will be discarded.</p>
+<p>All stencil operations are done via a small stencil code block outside of our hlsl code. Like most shaderlab things we can write them in our subshader to use them for the whole subshader or in the shader pass to use them only in that one shader pass. Because in surface shaders our shader passes are generated automatically by unity, we&rsquo;ll write it in the subshader in this case.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">SubShader {
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Stencil{
+        <span style="color:#888">//stencil operation</span>
+    }
+
+    <span style="color:#888">//surface shader code...</span>
+</code></pre></div><p>The most important parameter of the stencil operation is <code>Ref</code> which marks the reference value we operate on. The default value is 0 which is the default value the buffer has before anything writes to it. We&rsquo;ll set it to 0 at first which doesn&rsquo;t change anything, but having it typed out explicitely makes the code a bit clearer and let&rsquo;s us change it easily later.</p>
+<p>Another parameter of the stencil operation we need is <code>Comp</code> which defines when the stencil operation passes. The default value is <code>Always</code>, which means that no matter what reference value we use, the object will always be drawn. For this shader reading from the stencil buffer we&rsquo;ll use <code>Equal</code> which results in the object only being drawn when the stencil buffer at that position is at the value we mark as <code>Ref</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Stencil{
+    Ref <span style="color:#40e;font-weight:bold">0</span>
+    Comp Equal
+}
+</code></pre></div><p><img src="/assets/images/posts/022/NormalMaterial.png" alt=""></p>
+<p>With this our material looks just like before, that&rsquo;s because the value of the stencil buffer is 0 everywhere and that&rsquo;s the value we compare to. If we change the reference value to any other number our material will be completely invisible because the comparison fails.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Stencil{
+    Ref <span style="color:#00d;font-weight:bold">1</span>
+    Comp Equal
+}
+</code></pre></div><p><img src="/assets/images/posts/022/Invisible.png" alt=""></p>
+<p>Before we start writing a new shader I&rsquo;d like to add the possibility to change the reference value from the inspector. For that we first add a property with a range going from 0 to 255, that includes all values the stencil buffer can have. Then we add the <code>[IntRange]</code> attribute to the property to ensure we can only choose whole values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    _Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    _Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    [HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>)
+
+    [IntRange] _StencilRef (<span style="color:#f00;background-color:#faa">&#34;</span>Stencil Reference Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">255</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+}
+</code></pre></div><p>Then to use the reference value in the stencil operation, we put it behind the <code>Ref</code>, but put it in square brackets. In this context the square brackets tell unity to parse the value as a property. With this in place we still only have the choice between visible (0) and invisible (all other values), but we can easily switch between the values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Stencil{
+    Ref [_StencilRef]
+    Comp Equal
+}
+</code></pre></div><h2 id="writing-to-the-stencil-buffer">Writing to the Stencil Buffer</h2>
+<p>To make real use from our shader which reads from the stencil buffer, we&rsquo;ll write a second one which reads from it. This second shader will not write to the screen itself and will render before the first shader, so we make sure the stencil buffer already has the correct values written to it when we read from it.</p>
+<p>For this shader we start with a basic unlit shader, like in <a href="/basics.html">the basics</a> because it&rsquo;s so simple and we don&rsquo;t need much. For it to not render to the screen at all and just manipulate the stencil buffer we&rsquo;ll add a few other small detail to it though.</p>
+<p>First we let the fragment shader just return 0, because we don&rsquo;t care about the return value anyways. Then we set the blending to <code>Zero One</code>, which means that the the color that is returned by the shader will be completely ignored and the color that was rendered before will be preserved completely. Another change to make the shader not render is that we&rsquo;ll tell it to not write to the Z buffer. Otherwise it would occlude objects behind it and because we want to see other things though the surface we don&rsquo;t want that at all. And the last change is to ensure the material renders before the materials which might read from the stencil buffer: We change the queue from <code>geometry</code> to <code>geomety-1</code> which puts it earlier in the render queue.</p>
+<p>Then we also delete the color variable and property because they became obsolete.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Blend Zero One
+ZWrite Off
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
+Properties{
+
+}
+</code></pre></div><p><img src="/assets/images/posts/022/Invisible.png" alt=""></p>
+<p>With this we&rsquo;ve made another completely invisible shader, but with the advantage that it stays invisble no matter what the stencil buffer value is and that it actually draws something so we can stick a stencil operation to it.</p>
+<p>We start by copying the stencil block and the ref property from the first shader. Then we change the comparison operation to <code>Always</code> this means the material won&rsquo;t compare the ref value to the buffer and just draw the output of the shader. Then we add a new attribute called <code>Pass</code>, it declares what will happen when the comparison with the zbuffer is successful, so what happens if the object isn&rsquo;t occluded. And we set it to the value of <code>Replace</code>, which means it&rsquo;ll take the ref value and write it to the stencil buffer. Theres also a attribute called <code>Fail</code> if you want to specify what will happen when the object is occluded, but it&rsquo;s set to not do anything by default so we won&rsquo;t touch it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Stencil{
+    Ref [_StencilRef]
+    Comp Always
+    Pass Replace
+}
+</code></pre></div><p><img src="/assets/images/posts/022/SphereAndQuad.png" alt=""></p>
+<p>Now you can see the first material when it is at the same pixel on the screen as the second and has the same reference value.</p>
+<p>And with those two shaders you already know the basics on how to use stencil buffers in unity. If you want to learn more, you can look at the official documentation of stencil buffers here <a href="https://docs.unity3d.com/Manual/SL-Stencil.html">https://docs.unity3d.com/Manual/SL-Stencil.html</a> or just experiment with them to see what possibilities they open.</p>
+<p><img src="/assets/images/posts/022/WrongStencil.png" alt=""></p>
+<p>When trying things out I ran into the problem that when using multiple stencil values to read/write the one that&rsquo;s behind can be rendered later and will then overwrite the value from the buffer in the front. If you run into that problem a solution is to change the render queue of the materials. That&rsquo;s because unity sorts all materials with a render queue higher than 2500 so they&rsquo;re rendered furthest away to closest. usually this is done to ensure transparent object are drawn properly, but it works just as well to make sure we render the correct stencil values. In my example I used 2501 for the stencil write materials and 2502 for the stencil read materials. important is just that we render the write materials before the read materials and that we give them a queue order below 3000, otherwise we might mess with drawing of transparent objects.</p>
+<p><img src="/assets/images/posts/022/WriteInspector.png" alt=""></p>
+<p><img src="/assets/images/posts/022/ReadInspector.png" alt=""></p>
+<p><img src="/assets/images/posts/022/Result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">022</span>_stencil_buffer<span style="color:#333">/</span>read<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+		_Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		_Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		[HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>)
+
+		[IntRange] _StencilRef (<span style="color:#f00;background-color:#faa">&#34;</span>Stencil Reference Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">255</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        <span style="color:#888">//stencil operation</span>
+		Stencil{
+			Ref [_StencilRef]
+			Comp Equal
+		}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+		fixed4 _Color;
+
+		<span style="color:#080;font-weight:bold">half</span> _Smoothness;
+		<span style="color:#080;font-weight:bold">half</span> _Metallic;
+		half3 _Emission;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float2 uv_MainTex;
+		};
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+			col <span style="color:#333">*=</span> _Color;
+			o.Albedo <span style="color:#333">=</span> col.rgb;
+			o.Metallic <span style="color:#333">=</span> _Metallic;
+			o.Smoothness <span style="color:#333">=</span> _Smoothness;
+			o.Emission <span style="color:#333">=</span> _Emission;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">022</span>_stencil_buffer<span style="color:#333">/</span>write<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		[IntRange] _StencilRef (<span style="color:#f00;background-color:#faa">&#34;</span>Stencil Reference Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">255</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        <span style="color:#888">//stencil operation</span>
+		Stencil{
+			Ref [_StencilRef]
+			Comp Always
+			Pass Replace
+		}
+
+		Pass{
+            <span style="color:#888">//don&#39;t draw color or depth</span>
+			Blend Zero One
+			ZWrite Off
+
+			CGPROGRAM
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+			};
+
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+			};
+
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//calculate the position in clip space to render the object</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				<span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><p>I hope this tutorial helped you understand how to use the stencil buffer and how to archieve cool effects with it.</p>
+<p>You can also find the source here:</p>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_read.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_read.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_write.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_write.shader</a></li>
+</ul>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

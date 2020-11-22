@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Inverse Lerp and Remap | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Inverse Lerp and Remap" />
+<meta property="og:description" content="In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/047-invlerp_remap/" />
+<meta property="article:published_time" content="2020-01-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-01-08T00:00:00+00:00" />
+<meta itemprop="name" content="Inverse Lerp and Remap">
+<meta itemprop="description" content="In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one.">
+<meta itemprop="datePublished" content="2020-01-08T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-01-08T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1474">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Inverse Lerp and Remap"/>
+<meta name="twitter:description" content="In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Inverse Lerp and Remap</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-01-08T00:00:00Z">January 8, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://ronja-tutorials.com/post/009-interpolating-colors/">previous tutorial</a> I explained how the builtin <code>lerp</code> function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.</p>
+<p><img src="/assets/images/posts/047/result.png" alt=""></p>
+<h2 id="example-shader">Example Shader</h2>
+<p>The base shader is pretty barebones, a little more complex than <a href="/basics.html">a completely unlit one</a>. I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the &ldquo;blending variable&rdquo; I used the y component of the UV coordinates so it&rsquo;s immediately visible what the function does over a gradient from 0 to 1.</p>
+<p>A shader version for a regular linear interpolation looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">047</span>_InvLerp_Remap<span style="color:#333">/</span>Lerp<span style="color:#f00;background-color:#faa">&#34;</span>{
+  <span style="color:#888">//show values to edit in inspector</span>
+  Properties{
+    _FromColor (<span style="color:#f00;background-color:#faa">&#34;</span>From Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the base color</span>
+    _ToColor (<span style="color:#f00;background-color:#faa">&#34;</span>To Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the color to blend to</span>
+  }
+
+  SubShader{
+    <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Pass{
+      CGPROGRAM
+
+      <span style="color:#888">//include useful shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Interpolation.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#888">//define vertex and fragment shader</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#888">//the colors to blend between</span>
+      fixed4 _FromColor;
+      fixed4 _ToColor;
+
+      <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> appdata{
+        float4 vertex <span style="color:#333">:</span> POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> v2f{
+        float4 position <span style="color:#333">:</span> SV_POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the vertex shader</span>
+      v2f vert(appdata v){
+        v2f o;
+        <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+        o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+        o.uv <span style="color:#333">=</span> v.uv;
+        <span style="color:#080;font-weight:bold">return</span> o;
+      }
+
+      <span style="color:#888">//the fragment shader</span>
+      fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+          <span style="color:#080;font-weight:bold">float</span> blend <span style="color:#333">=</span> i.uv.y;
+        fixed4 col <span style="color:#333">=</span> lerp(_FromColor, _ToColor, blend);
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+
+      ENDCG
+    }
+  }
+}
+</code></pre></div><p>And the &ldquo;barebones&rdquo; include file looks like this, the <code>ifdef</code> and <code>define</code> statements are there to allow including the file multiple times over multiple files without leading to errors.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//avoid multiple imports</span>
+<span style="color:#579">#ifndef INTERPOLATION</span>
+<span style="color:#579">#define INTERPOLATION</span>
+
+<span style="color:#888">/* //hlsl supports linear interpolation intrinsically so this isn&#39;t needed
+</span><span style="color:#888">float lerp(float from, float to, float rel){
+</span><span style="color:#888">  return ((1 - rel) * from) + (rel * to);
+</span><span style="color:#888">}
+</span><span style="color:#888">*/</span>
+
+<span style="color:#579">#endif</span>
+</code></pre></div><h2 id="inverse-lerp">Inverse Lerp</h2>
+<p>Lerp does a interpolation that returns values between the <code>from</code> and <code>to</code> input values for interpolation values between 0 and 1. The inverse of that is a function which we can hand a third value and it&rsquo;ll return how close that value is to the first or second value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> inverseLerped <span style="color:#333">=</span> invLerp(from, to, value);
+<span style="color:#080;font-weight:bold">float</span> result <span style="color:#333">=</span> lerp(from, to, inverseLerped);
+</code></pre></div><p>In this example the <code>result</code> should always be the same value as the input <code>value</code>. Similarly first doing a lerp and then an inverse lerp with the arguments chained like this shouldn&rsquo;t change anything.</p>
+<p>I like the straightforward way we can deduce the function. We start by making sure that if the value is the same as the lower bound, the function returns a <code>0</code>, we do this by subtracting the <code>from</code> variable from the value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> invLerp(<span style="color:#080;font-weight:bold">float</span> from, <span style="color:#080;font-weight:bold">float</span> to, <span style="color:#080;font-weight:bold">float</span> value){
+  <span style="color:#080;font-weight:bold">return</span> value <span style="color:#333">-</span> from;
+}
+</code></pre></div><p>With this setup the function returns 0 when the input value is equal to the from variable. Next let&rsquo;s ensure that a input value equal to the to variable results in a output of <code>1</code>. So far the output would be <code>from - to</code>, so lets divide the whole thing we wrote so far by <code>from - to</code>. With this the function is already done.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> invLerp(<span style="color:#080;font-weight:bold">float</span> from, <span style="color:#080;font-weight:bold">float</span> to, <span style="color:#080;font-weight:bold">float</span> value){
+  <span style="color:#080;font-weight:bold">return</span> (value <span style="color:#333">-</span> from) <span style="color:#333">/</span> (to <span style="color:#333">-</span> from);
+}
+</code></pre></div><p>With this you can can get gradients in a 0 to 1 range from any other gradient. You could replace all of the arguments with multidimensional vectors (<code>float2</code>, <code>float3</code>, <code>float4</code>), but it&rsquo;s far less useful than with <code>lerp</code> unless you want a component-wise inverse lerp.</p>
+<p><img src="/assets/images/posts/047/InvLerp.gif" alt=""></p>
+<p>The <code>smoothstep</code> function that&rsquo;s built into hlsl does almost the same as our inverse lerp function, but it also applies cubic smoothing, so it&rsquo;s marginally more expensive to calculate and only works between 0 and 1 while our function can also extrapolate. It&rsquo;s best to try around with both to get a feel for which to use for which occasion. (I admit I use smoothstep a lot when invLerp would be better, just because I don&rsquo;t have to add the function to the project&hellip;)</p>
+<h2 id="remap">Remap</h2>
+<p>I mentioned earlier that chaining inverse lerp and lerp with the same arguments results in no change. While this is still true, we can chain them with different arguments for the lower and upper bounds. The custom remap function I wrote takes 5 arguments, the source bounds as well as the target bounds and the original value. The &ldquo;remap&rdquo; action then remaps those values so the a original value of the source <code>from</code> value will become a target <code>from</code> value. Similarly the <code>to</code> values and those inbetween. This allows you to remap linear gradients however you want.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> remap(<span style="color:#080;font-weight:bold">float</span> origFrom, <span style="color:#080;font-weight:bold">float</span> origTo, <span style="color:#080;font-weight:bold">float</span> targetFrom, <span style="color:#080;font-weight:bold">float</span> targetTo, <span style="color:#080;font-weight:bold">float</span> value){
+  <span style="color:#080;font-weight:bold">float</span> rel <span style="color:#333">=</span> invLerp(origFrom, origTo, value);
+  <span style="color:#080;font-weight:bold">return</span> lerp(targetFrom, targetTo, rel);
+}
+</code></pre></div><p>This also has more of a use with vectors because it can be used to set the whitelevel of a color output. After also creating the same vector version for the invLerp function you can create a multidimensional version by replacing all <code>float</code> with the fitting vector version.</p>
+<p><img src="/assets/images/posts/047/Remap.png" alt=""></p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//avoid multiple imports</span>
+<span style="color:#579">#ifndef INTERPOLATION</span>
+<span style="color:#579">#define INTERPOLATION</span>
+
+<span style="color:#888">/* //hlsl supports linear interpolation intrinsically so this isn&#39;t needed
+</span><span style="color:#888">float lerp(float from, float to, float rel){
+</span><span style="color:#888">  return ((1 - rel) * from) + (rel * to);
+</span><span style="color:#888">}
+</span><span style="color:#888">*/</span>
+
+<span style="color:#080;font-weight:bold">float</span> invLerp(<span style="color:#080;font-weight:bold">float</span> from, <span style="color:#080;font-weight:bold">float</span> to, <span style="color:#080;font-weight:bold">float</span> value) {
+  <span style="color:#080;font-weight:bold">return</span> (value <span style="color:#333">-</span> from) <span style="color:#333">/</span> (to <span style="color:#333">-</span> from);
+}
+
+float4 invLerp(float4 from, float4 to, float4 value) {
+  <span style="color:#080;font-weight:bold">return</span> (value <span style="color:#333">-</span> from) <span style="color:#333">/</span> (to <span style="color:#333">-</span> from);
+}
+
+<span style="color:#080;font-weight:bold">float</span> remap(<span style="color:#080;font-weight:bold">float</span> origFrom, <span style="color:#080;font-weight:bold">float</span> origTo, <span style="color:#080;font-weight:bold">float</span> targetFrom, <span style="color:#080;font-weight:bold">float</span> targetTo, <span style="color:#080;font-weight:bold">float</span> value){
+  <span style="color:#080;font-weight:bold">float</span> rel <span style="color:#333">=</span> invLerp(origFrom, origTo, value);
+  <span style="color:#080;font-weight:bold">return</span> lerp(targetFrom, targetTo, rel);
+}
+
+float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo, float4 value){
+  float4 rel <span style="color:#333">=</span> invLerp(origFrom, origTo, value);
+  <span style="color:#080;font-weight:bold">return</span> lerp(targetFrom, targetTo, rel);
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/InvLerp.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/InvLerp.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">047</span>_InvLerp_Remap<span style="color:#333">/</span>InvLerp<span style="color:#f00;background-color:#faa">&#34;</span>{
+  <span style="color:#888">//show values to edit in inspector</span>
+  Properties{
+    _SrcZeroValue (<span style="color:#f00;background-color:#faa">&#34;</span>Src <span style="color:#40e;font-weight:bold">0</span> Value<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//source min value</span>
+    _SrcOneValue (<span style="color:#f00;background-color:#faa">&#34;</span>Src <span style="color:#00d;font-weight:bold">1</span> Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//source max value</span>
+    _TargetZeroValue (<span style="color:#f00;background-color:#faa">&#34;</span>Target <span style="color:#40e;font-weight:bold">0</span> Value<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//target min value</span>
+    _TargetOneValue (<span style="color:#f00;background-color:#faa">&#34;</span>Target <span style="color:#00d;font-weight:bold">1</span> Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//target max value</span>
+  }
+
+  SubShader{
+    <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Pass{
+      CGPROGRAM
+
+      <span style="color:#888">//include useful shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Interpolation.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#888">//define vertex and fragment shader</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#888">//the colors to blend between</span>
+      fixed4 _SrcZeroValue;
+      fixed4 _SrcOneValue;
+      fixed4 _TargetZeroValue;
+      fixed4 _TargetOneValue;
+
+      <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> appdata{
+        float4 vertex <span style="color:#333">:</span> POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> v2f{
+        float4 position <span style="color:#333">:</span> SV_POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the vertex shader</span>
+      v2f vert(appdata v){
+        v2f o;
+        <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+        o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+        o.uv <span style="color:#333">=</span> v.uv;
+        <span style="color:#080;font-weight:bold">return</span> o;
+      }
+
+      <span style="color:#888">//the fragment shader</span>
+      fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+          <span style="color:#080;font-weight:bold">float</span> blend <span style="color:#333">=</span> i.uv.y;
+          fixed4 col <span style="color:#333">=</span> remap(_SrcZeroValue, _SrcOneValue, _TargetZeroValue, _TargetOneValue, blend);
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+
+      ENDCG
+    }
+  }
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Remap.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Remap.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">047</span>_InvLerp_Remap<span style="color:#333">/</span>Remap<span style="color:#f00;background-color:#faa">&#34;</span>{
+  <span style="color:#888">//show values to edit in inspector</span>
+  Properties{
+    _SrcZeroValue (<span style="color:#f00;background-color:#faa">&#34;</span>Src <span style="color:#40e;font-weight:bold">0</span> Value<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//source min value</span>
+    _SrcOneValue (<span style="color:#f00;background-color:#faa">&#34;</span>Src <span style="color:#00d;font-weight:bold">1</span> Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//source max value</span>
+    _TargetZeroValue (<span style="color:#f00;background-color:#faa">&#34;</span>Target <span style="color:#40e;font-weight:bold">0</span> Value<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//target min value</span>
+    _TargetOneValue (<span style="color:#f00;background-color:#faa">&#34;</span>Target <span style="color:#00d;font-weight:bold">1</span> Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//target max value</span>
+  }
+
+  SubShader{
+    <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Pass{
+      CGPROGRAM
+
+      <span style="color:#888">//include useful shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Interpolation.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#888">//define vertex and fragment shader</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#888">//the colors to blend between</span>
+      fixed4 _SrcZeroValue;
+      fixed4 _SrcOneValue;
+      fixed4 _TargetZeroValue;
+      fixed4 _TargetOneValue;
+
+      <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> appdata{
+        float4 vertex <span style="color:#333">:</span> POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+      <span style="color:#080;font-weight:bold">struct</span> v2f{
+        float4 position <span style="color:#333">:</span> SV_POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+      };
+
+      <span style="color:#888">//the vertex shader</span>
+      v2f vert(appdata v){
+        v2f o;
+        <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+        o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+        o.uv <span style="color:#333">=</span> v.uv;
+        <span style="color:#080;font-weight:bold">return</span> o;
+      }
+
+      <span style="color:#888">//the fragment shader</span>
+      fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+          <span style="color:#080;font-weight:bold">float</span> blend <span style="color:#333">=</span> i.uv.y;
+          fixed4 col <span style="color:#333">=</span> remap(_SrcZeroValue, _SrcOneValue, _TargetZeroValue, _TargetOneValue, blend);
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+
+      ENDCG
+    }
+  }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

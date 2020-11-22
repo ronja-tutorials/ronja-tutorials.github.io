@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Sprite Outlines | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Sprite Outlines" />
+<meta property="og:description" content="I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/049-sprite-outlines/" />
+<meta property="article:published_time" content="2020-07-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-07-23T00:00:00+00:00" />
+<meta itemprop="name" content="Sprite Outlines">
+<meta itemprop="description" content="I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find.">
+<meta itemprop="datePublished" content="2020-07-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-07-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1493">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Sprite Outlines"/>
+<meta name="twitter:description" content="I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Sprite Outlines</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-07-23T00:00:00Z">July 23, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I already talked about 2 ways of generating outlines in your programs, <a href="https://ronja-tutorials.com/post/019-postprocessing-outlines/">by analyzing the depth and normals of your scene</a> or <a href="https://ronja-tutorials.com/post/020-hull-outline/">by rendering the model twice with a hull</a>. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works.
+The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.</p>
+<h2 id="basic-implementation">Basic Implementation</h2>
+<p>The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find. When a Pixel is not visible for the original texture sample, but we can find a higher alpha value when looking at the neighboring pixels, then we color in the outline.</p>
+<p>The base for our code is from <a href="https://ronja-tutorials.com/post/007-sprite-shaders/">my sprite shader tutorial</a>. In the fragment function we start by making an array of directions we want to sample in. You could sacrifice some speed for more flexibility and get the directions via <code>sin</code> and <code>cos</code>, but thats your choice. I chose to sample in 8 directions, the for cardinal directions as well as diagonals. Important here is that the diagonal directions should also have a length of 1, if we just use <code>(1, 1)</code> they&rsquo;d have a length of <code>sqrt(2)</code> (you can easily get that via the pythogoras (<code>sqrt(1² + 1²)</code>)), instead we divide each component by <code>sqrt(2)</code>, so use <code>1 / sqrt(2)</code> and all is fine.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#define DIV_SQRT_2 0.70710678118</span>
+float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
+  float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
+  float2(<span style="color:#333">-</span>DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2), float2(DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2)};
+</code></pre></div><p>Before the loop we declare the &ldquo;maximum alpha&rdquo; variable and initialize it to zero. The loop is a simple for loop over all 8 indices of the array (you could also make it count to 4 for a cheaper outline without diagonals). Inside the loop we first calculate the sample point and then put the maximum of the maximum alpha so far and the alpha at that point in the maximum alpha variable.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//generate border</span>
+<span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+    float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.001</span><span style="color:#888">/*magic number*/</span>;
+    maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_MainTex, sampleUV).a);
+}
+</code></pre></div><p>After figuring out the maximum alpha of those points we can apply the border by first making everything that isn&rsquo;t visible in the original sprite have the color of our outline. Then we set the color to the maximum value between the alpha so far and the maximum alpha of our border samples.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//apply border</span>
+col.rgb <span style="color:#333">=</span> lerp(float3(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)<span style="color:#888">/*magic color*/</span>, col.rgb, col.a);
+col.a <span style="color:#333">=</span> max(col.a, maxAlpha);
+
+<span style="color:#080;font-weight:bold">return</span> col;
+</code></pre></div><p>This should net you something like this. Not pretty, not flexible, but a outline!</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+  <span style="color:#888">//get regular color</span>
+  fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+  col <span style="color:#333">*=</span> _Color;
+  col <span style="color:#333">*=</span> i.color;
+
+  <span style="color:#888">//sample directions</span>
+          <span style="color:#f00;background-color:#faa">#</span>define DIV_SQRT_2 <span style="color:#60e;font-weight:bold">0.70710678118</span>
+          float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
+              float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
+              float2(<span style="color:#333">-</span>DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2), float2(DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2)};
+
+  <span style="color:#888">//generate border</span>
+  <span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+  <span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+      float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.01</span>;
+      maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_MainTex, sampleUV).a);
+  }
+
+  <span style="color:#888">//apply border</span>
+  col.rgb <span style="color:#333">=</span> lerp(float3(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>), col.rgb, col.a);
+  col.a <span style="color:#333">=</span> max(col.a, maxAlpha);
+
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="%5Cassets%5Cimages%5Cposts%5C049%5CFirstShot.png" alt=""></p>
+<h2 id="cleanup">Cleanup</h2>
+<p>Lets add two properties so we can change the way our outline looks without having to recompile the shader. One of them is for the width of the outline and one for the color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in properties block</span>
+_OutlineColor (<span style="color:#f00;background-color:#faa">&#34;</span>Outline Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>)
+_OutlineWidth (<span style="color:#f00;background-color:#faa">&#34;</span>Outline Width<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in CGPROGRAM</span>
+fixed4 _OutlineColor;
+<span style="color:#080;font-weight:bold">float</span> _OutlineWidth;
+</code></pre></div><p>Then in our function we use the color property instead of the hardcoded red value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//apply border</span>
+col.rgb <span style="color:#333">=</span> lerp(_OutlineColor.rgb, col.rgb, col.a);
+</code></pre></div><p>Next lets fix up the outline size, currently its declared via a magic number in uv space. A easy fix is to declare how many texture pixels we want the outline to be. We can get the size of one texture pixel (or texel) by creating a new variable called &lt;TextureName&gt;_TexelSize, so in our case _MainTex_TexelSize. Then we can multiply our property with the x and y components of that variable (<code>x</code> and <code>y</code> are texel size in uv distance, <code>z</code> and <code>w</code> are texture size in pixels) and use the result as a scale for the outline width instead.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 sampleDistance <span style="color:#333">=</span> _MainTex_TexelSize.xy <span style="color:#333">*</span> _OutlineWidth;
+
+<span style="color:#888">//generate border</span>
+<span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+  float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> sampleDistance;
+  maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_MainTex, sampleUV).a);
+}
+</code></pre></div><p><img src="%5Cassets%5Cimages%5Cposts%5C049%5CProperties.gif" alt=""></p>
+<h2 id="world-distance-outline">World Distance Outline</h2>
+<p>You might not always want to have your outline scale in texture pixels though. You might want a outline width in screen pixels, in screen percent, in world distance. I&rsquo;m not gonna go through all of those possibilities there, but I am going to show the most complex of those, world space width.</p>
+<p>We just need the uv distance per world distance and then we can multiply that with our outline width like we&rsquo;re doing so far with the texel size, so lets write a function for that. Calculating that is possible via <a href="https://ronja-tutorials.com/post/046-fwidth/">screenspace partial derivatives, better known as ddx, ddy and fwidth</a>.</p>
+<p>The derivatives allow us to get the change in uv per screen pixel as well as the change in worldspace position per screen pixel. We have to get the absolute value of the uv change to not accidentally get negative values as well as get the length of the change in world position to get correct distances in case our camera is rotated.</p>
+<p>With those values we can get the uv per unit in both x and y axis by dividing the uv per pixel by the units per pixel. After getting that for x and y we simply add the two values and return it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 uvPerWorldUnit(float2 uv, float2 space){
+  float2 uvPerPixelX <span style="color:#333">=</span> abs(ddx(uv));
+  float2 uvPerPixelY <span style="color:#333">=</span> abs(ddy(uv));
+  <span style="color:#080;font-weight:bold">float</span> unitsPerPixelX <span style="color:#333">=</span> length(ddx(space));
+  <span style="color:#080;font-weight:bold">float</span> unitsPerPixelY <span style="color:#333">=</span> length(ddy(space));
+  float2 uvPerUnitX <span style="color:#333">=</span> uvPerPixelX <span style="color:#333">/</span> unitsPerPixelX;
+  float2 uvPerUnitY <span style="color:#333">=</span> uvPerPixelY <span style="color:#333">/</span> unitsPerPixelY;
+  <span style="color:#080;font-weight:bold">return</span> (uvPerUnitX <span style="color:#333">+</span> uvPerUnitY);
+}
+</code></pre></div><p>You might have notives that I was talking about using the world position even though we don&rsquo;t have access to that yet, so lets quickly add that, I havent made a tutorial specifically about that, but <a href="https://ronja-tutorials.com/post/008-planar-mapping/">the planar mapping one</a> uses the world pos and not much else.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> v2f{
+  float4 position <span style="color:#333">:</span> SV_POSITION;
+  float2 uv <span style="color:#333">:</span> TEXCOORD0;
+  float3 worldPos <span style="color:#333">:</span> TEXCOORD1;
+  fixed4 color <span style="color:#333">:</span> COLOR;
+};
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">v2f vert(appdata v){
+  v2f o;
+  o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+  o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+  o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+  o.color <span style="color:#333">=</span> v.color;
+  <span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in fragment function</span>
+float2 sampleDistance <span style="color:#333">=</span> uvPerWorldUnit(i.uv, i.worldPos.xy) <span style="color:#333">*</span> _OutlineWidth;
+</code></pre></div><p>with this you can freely scale, rotate, whatever your sprites and you&rsquo;ll always have a consistent outline.</p>
+<p><img src="/assets/images/posts/049/WorldOutlines.gif" alt=""></p>
+<h2 id="limitations">Limitations</h2>
+<p>One huge limitation of this method is that we can only draw the outline where theres already a mesh, setting the mesh type in our sprites to &ldquo;Full Rect&rdquo; as well as adding padding to the sprites helps by just rendering more by default, but it also adds overdraw to your scene and it also can&rsquo;t always avoid artefacts, I tried thinking about how to do that but couldn&rsquo;t come up with a quick tutorial-able solution.</p>
+<p>In addition to that this method is really bad at generating outlines of small or pointy features, often generating spikes in the outline. If you want to have 2d outlines but a more perfect approach, heres a article about how you might try to do that: <a href="https://medium.com/@bgolus/the-quest-for-very-wide-outlines-ba82ed442cd9">https://medium.com/@bgolus/the-quest-for-very-wide-outlines-ba82ed442cd9</a>.</p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/049_Sprite_Outline/SpriteOutline.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/049_Sprite_Outline/SpriteOutline.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">04</span><span style="color:#00d;font-weight:bold">9</span>_SpriteOutline<span style="color:#f00;background-color:#faa">&#34;</span>{
+  Properties{
+    _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    _OutlineColor (<span style="color:#f00;background-color:#faa">&#34;</span>OutlineColor<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    _OutlineWidth (<span style="color:#f00;background-color:#faa">&#34;</span>OutlineWidth<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+  }
+
+  SubShader{
+    Tags{
+      <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span>
+      <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span>
+    }
+
+    Blend SrcAlpha OneMinusSrcAlpha
+
+    ZWrite off
+    Cull off
+
+    Pass{
+      CGPROGRAM
+
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+      float4 _MainTex_ST;
+      float4 _MainTex_TexelSize;
+
+      fixed4 _Color;
+      fixed4 _OutlineColor;
+      <span style="color:#080;font-weight:bold">float</span> _OutlineWidth;
+
+      <span style="color:#080;font-weight:bold">struct</span> appdata{
+        float4 vertex <span style="color:#333">:</span> POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+        fixed4 color <span style="color:#333">:</span> COLOR;
+      };
+
+      <span style="color:#080;font-weight:bold">struct</span> v2f{
+        float4 position <span style="color:#333">:</span> SV_POSITION;
+        float2 uv <span style="color:#333">:</span> TEXCOORD0;
+        float3 worldPos <span style="color:#333">:</span> TEXCOORD1;
+        fixed4 color <span style="color:#333">:</span> COLOR;
+      };
+
+      v2f vert(appdata v){
+        v2f o;
+        o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+        o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+        o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+        o.color <span style="color:#333">=</span> v.color;
+        <span style="color:#080;font-weight:bold">return</span> o;
+      }
+
+      float2 uvPerWorldUnit(float2 uv, float2 space){
+        float2 uvPerPixelX <span style="color:#333">=</span> abs(ddx(uv));
+        float2 uvPerPixelY <span style="color:#333">=</span> abs(ddy(uv));
+        <span style="color:#080;font-weight:bold">float</span> unitsPerPixelX <span style="color:#333">=</span> length(ddx(space));
+        <span style="color:#080;font-weight:bold">float</span> unitsPerPixelY <span style="color:#333">=</span> length(ddy(space));
+        float2 uvPerUnitX <span style="color:#333">=</span> uvPerPixelX <span style="color:#333">/</span> unitsPerPixelX;
+        float2 uvPerUnitY <span style="color:#333">=</span> uvPerPixelY <span style="color:#333">/</span> unitsPerPixelY;
+        <span style="color:#080;font-weight:bold">return</span> (uvPerUnitX <span style="color:#333">+</span> uvPerUnitY);
+      }
+
+      fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+      <span style="color:#888">//get regular color</span>
+        fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+        col <span style="color:#333">*=</span> _Color;
+        col <span style="color:#333">*=</span> i.color;
+
+        float2 sampleDistance <span style="color:#333">=</span> uvPerWorldUnit(i.uv, i.worldPos.xy) <span style="color:#333">*</span> _OutlineWidth;
+
+        <span style="color:#888">//sample directions</span>
+        <span style="color:#f00;background-color:#faa">#</span>define DIV_SQRT_2 <span style="color:#60e;font-weight:bold">0.70710678118</span>
+        float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
+          float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
+          float2(<span style="color:#333">-</span>DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2), float2(DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2)};
+
+        <span style="color:#888">//generate border</span>
+        <span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+        <span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+          float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> sampleDistance;
+          maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_MainTex, sampleUV).a);
+        }
+
+        <span style="color:#888">//apply border</span>
+        col.rgb <span style="color:#333">=</span> lerp(_OutlineColor.rgb, col.rgb, col.a);
+        col.a <span style="color:#333">=</span> max(col.a, maxAlpha);
+
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+      ENDCG
+    }
+  }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

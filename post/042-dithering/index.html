@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Dithering | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Dithering" />
+<meta property="og:description" content="We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/042-dithering/" />
+<meta property="article:published_time" content="2019-05-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-05-11T00:00:00+00:00" />
+<meta itemprop="name" content="Dithering">
+<meta itemprop="description" content="We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms.">
+<meta itemprop="datePublished" content="2019-05-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-05-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2153">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Dithering"/>
+<meta name="twitter:description" content="We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Dithering</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2019-05-11T00:00:00Z">May 11, 2019</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms.</p>
+<p><img src="/assets/images/posts/042/Result.gif" alt=""></p>
+<h2 id="simple-dithering">Simple Dithering</h2>
+<p>For this first version we&rsquo;re taking the red channel of the input texture as the ratio between the two colors. For the pattern how to combine them we use a &ldquo;bayer dithering&rdquo; pattern, it&rsquo;s optimized to have as much difference between the neighboring pixels in the pattern. As the base for this shader I used the result of <a href="https://ronja-tutorials.com/post/004-basic/">the unlit shader with texture access</a>.</p>
+<p>Getting access to the base color we want to dither is already done with with this texture sample, but we don&rsquo;t know how to read from the dither pattern texture. Unless you use fancy mapping techniques like Return of Obra Dinn did, the most straightforward approach here is to use screenspace UV coordinates. I explain how to get the basic screenspace coordinates in <a href="https://ronja-tutorials.com/post/039-screenspace-texture/">this tutorial</a>. One thing that&rsquo;s pretty special about dithering is that we don&rsquo;t care about how big the dither texture is or how often it repeats on the screen. The only thing we care about is that one texture pixel maps to one screen pixel to use it exactly as intended. To archieve that we first multiply the sceenspace UVs by the screen size itself, creating a UV set that increases by 1 for every pixel. Then we divide that UV by the amount of pixels of the dither texture, creating a texture that goes from 0 to 1 every &ldquo;dither texture size&rdquo; pixels, always sampling the middle of the pixels.</p>
+<p>When doing those calculations we can easily get the screen size from the x and y components of the builtin <code>_ScreenParams</code> variable. To get the size of the dither pattern we add a new variable to the shader that has the same name as the texture we want to know the size of, but with <code>_TexelSize</code> to the end of it&rsquo;s name. Then instead of dividing by the size of the texture (the z and w components of this vector) we can also multiply with one divided by the size, this value is already saved in the x and y components of this vector. We do this because a multiplication is usually faster than a division.</p>
+<p>Here are the 4x4 and 8x8 versions of the dither texture I used:</p>
+<!-- raw HTML omitted -->
+<p>It&rsquo;s important to disable compression completely in unity, otherwise it will mess with your textures and it will look bad (the textures are so tiny that compression wouldn&rsquo;t make much of a difference anyways). Which texture you use doesn&rsquo;t matter that much, the 8x8 texture gives you similar results in small areas and leads to less banding with slowly changing values, so if you&rsquo;re not sure use the bigger one.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Shader Property</span>
+_DitherPattern (<span style="color:#f00;background-color:#faa">&#34;</span>Dithering Pattern<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Shader Variables</span>
+
+<span style="color:#888">//The dithering pattern</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _DitherPattern;
+float4 _DitherPattern_TexelSize;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+<span style="color:#080;font-weight:bold">struct</span> v2f{
+    float4 position <span style="color:#333">:</span> SV_POSITION;
+    float2 uv <span style="color:#333">:</span> TEXCOORD0;
+    float4 screenPosition <span style="color:#333">:</span> TEXCOORD1;
+};
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//test fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float2 screenPos <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+    <span style="color:#080;font-weight:bold">return</span> ditherValue;
+}
+</code></pre></div><p><img src="/assets/images/posts/042/DitherPattern.png" alt=""></p>
+<p>With this value in hand we can already compare it to the density of the dithering and render the result. For this case the <code>step</code> function is ideal, we can pipe in the dither value and the value of our texture to get a 0 or 1 binary result that&rsquo;ll represent the value of the texture value by regulating the density of the pixels.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//texture value the dithering is based on</span>
+    <span style="color:#080;font-weight:bold">float</span> texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv).r;
+
+    <span style="color:#888">//value from the dither pattern</span>
+    float2 screenPos <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+    <span style="color:#888">//combine dither pattern with texture value to get final result</span>
+    <span style="color:#080;font-weight:bold">float</span> col <span style="color:#333">=</span> step(ditherValue, texColor);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/042/DitherGradient.png" alt=""></p>
+<p>If you want to make the dither colors anything but black/white you can use a linear interpolation with the value we just used as a color as the interpolation parameter.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Shader Properties</span>
+_Color1 (<span style="color:#f00;background-color:#faa">&#34;</span>Dither Color <span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+_Color2 (<span style="color:#f00;background-color:#faa">&#34;</span>Dither Color <span style="color:#00d;font-weight:bold">2</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>)
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Shader variables</span>
+float4 _Color1;
+float4 _Color2;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//texture value the dithering is based on</span>
+    <span style="color:#080;font-weight:bold">float</span> texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv).r;
+
+    <span style="color:#888">//value from the dither pattern</span>
+    float2 screenPos <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+    <span style="color:#888">//combine dither pattern with texture value to get final result</span>
+    <span style="color:#080;font-weight:bold">float</span> ditheredValue <span style="color:#333">=</span> step(ditherValue, texColor);
+    float4 col <span style="color:#333">=</span> lerp(_Color1, _Color2, ditheredValue);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/042/DyedDither.png" alt=""></p>
+<h2 id="surface-shader">Surface Shader</h2>
+<p>When we want to do the same in a surface shader the steps we have to take are a bit easier since we don&rsquo;t have to write our own vetex shader to get access to the screenspace coordinates. Instead we just just have to add a variable called <code>ScreenPos</code> to the input struct. If you want to do this but don&rsquo;t know yet how surface shaders work like, read <a href="https://ronja-tutorials.com/post/005-simple-surface/">the tutorial about them here</a>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_MainTex;
+    float4 screenPos;
+};
+
+<span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    <span style="color:#888">//texture value the dithering is based on</span>
+    <span style="color:#080;font-weight:bold">float</span> texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex).r;
+
+    <span style="color:#888">//value from the dither pattern</span>
+    float2 screenPos <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+    <span style="color:#888">//combine dither pattern with texture value to get final result</span>
+    <span style="color:#080;font-weight:bold">float</span> ditheredValue <span style="color:#333">=</span> step(ditherValue, texColor);
+    o.Albedo <span style="color:#333">=</span> lerp(_Color1, _Color2, ditheredValue);
+}
+</code></pre></div><p>If you do this you might notice that the end result on your screen has a gradient based on the lighting. If you don&rsquo;t want that you can also <a href="https://ronja-tutorials.com/post/013-custom-lighting/">write your own lighting function</a> and implement the dithering after the lighting was calculated, but I&rsquo;m not going into that in this tutorial.</p>
+<h2 id="fade-dither-transparency">Fade Dither Transparency</h2>
+<p>I explained how to make your materials look transparent in <a href="https://ronja-tutorials.com/post/006-simple-transparency/">an earlier tutorial</a>, but when we use this our material becomes much more expensive to render because it becomes more important in which order objects are rendered since we can&rsquo;t use the Z-buffer anymore (it&rsquo;s not critical to understand what this means) and all objects at a position have to be rendered because the colors might mix. A solution to this problem is that we can discard pixels completely with the <code>clip</code> function. The main draw of this function is that it can only completely draw or discard a pixel, no inbetween values, this is where dithering comes in, but by drawing some of the pixels and discarding the rest with a dither pattern the result looks again like a semitransparent surface. In this example I&rsquo;m going to show how to convert the surface shader variant into a shader that fades out when it comes close to the camera, but it works just as well for the unlit variant.</p>
+<p>The clip function discards a pixel when it&rsquo;s passed a value that&rsquo;s lower than 0 and does nothing if the argument is 0 or higher. We can use this to do dithered transparency without even using the step function. By subtracting the dither pattern from the value we want to encode as a dithered pattern we get values that are lower than 0 in the correct relation to values that are not.</p>
+<p>If you use the alpha channel instead of the red channel for discarding pixels here you can do normal transparency like this without having to pay the full rendering cost that comes with it. (There are other disadvantages, but it&rsquo;s worth a shot if that&rsquo;s whats killing your performance. Especially in particles where you can get a lot of overdraw otherwise this can be useful)</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    <span style="color:#888">//read texture and write it to diffuse color</span>
+    float4 texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+    o.Albedo <span style="color:#333">=</span> texColor.rgb;
+
+    <span style="color:#888">//value from the dither pattern</span>
+    float2 screenPos <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+    <span style="color:#888">//discard pixels accordingly</span>
+    clip(texColor.r <span style="color:#333">-</span> ditherValue);
+}
+</code></pre></div><p><img src="/assets/images/posts/042/DitherTransGradient.png" alt=""></p>
+<p>We can already get the approximate distance to the camera by taking the 4th component of the screen position variable. After we have that we can then remap it to be 0 at the closest distance where surface is completely hidden and 1 at the furthest distance where the surface is completely visible. This operation is like the opposite of a linear interpolation and we can do it by first ensuring the zero is correct by subtracting the minimum fade distance from the distance and then dividing the result by the different between the maximum and minimum fade distance to move the point that was equal to the maximum before to 1.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    <span style="color:#888">//read texture and write it to diffuse color</span>
+    float3 texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+    o.Albedo <span style="color:#333">=</span> texColor.rgb;
+
+    <span style="color:#888">//value from the dither pattern</span>
+    float2 screenPos <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+    float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+    <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+    <span style="color:#888">//get relative distance from the camera</span>
+    <span style="color:#080;font-weight:bold">float</span> relDistance <span style="color:#333">=</span> i.screenPos.w;
+    relDistance <span style="color:#333">=</span> relDistance <span style="color:#333">-</span> _MinDistance;
+    relDistance <span style="color:#333">=</span> relDistance <span style="color:#333">/</span> (_MaxDistance <span style="color:#333">-</span> _MinDistance);
+    <span style="color:#888">//discard pixels accordingly</span>
+    clip(relDistance <span style="color:#333">-</span> ditherValue);
+}
+</code></pre></div><p><img src="/assets/images/posts/042/DitherPoles.png" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="unlit-binary-dither">Unlit Binary Dither</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/042_Dithering/BW_Dithering.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/042_Dithering/BW_Dithering.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">042</span>_Dithering<span style="color:#333">/</span>Basic<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _DitherPattern (<span style="color:#f00;background-color:#faa">&#34;</span>Dithering Pattern<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _Color1 (<span style="color:#f00;background-color:#faa">&#34;</span>Dither Color <span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _Color2 (<span style="color:#f00;background-color:#faa">&#34;</span>Dither Color <span style="color:#00d;font-weight:bold">2</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#888">//include useful shader functions</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//define vertex and fragment shader</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//texture and transforms of the texture</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+            float4 _MainTex_ST;
+
+            <span style="color:#888">//The dithering pattern</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _DitherPattern;
+            float4 _DitherPattern_TexelSize;
+
+            <span style="color:#888">//Dither colors</span>
+            float4 _Color1;
+            float4 _Color2;
+
+            <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+                float4 screenPosition <span style="color:#333">:</span> TEXCOORD1;
+            };
+
+            <span style="color:#888">//the vertex shader</span>
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+                o.screenPosition <span style="color:#333">=</span> ComputeScreenPos(o.position);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#888">//the fragment shader</span>
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//texture value the dithering is based on</span>
+                <span style="color:#080;font-weight:bold">float</span> texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv).r;
+
+                <span style="color:#888">//value from the dither pattern</span>
+                float2 screenPos <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+                float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+                <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+                <span style="color:#888">//combine dither pattern with texture value to get final result</span>
+                <span style="color:#080;font-weight:bold">float</span> ditheredValue <span style="color:#333">=</span> step(ditherValue, texColor);
+                float4 col <span style="color:#333">=</span> lerp(_Color1, _Color2, ditheredValue);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+
+    Fallback <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="surface-camera-fade">Surface Camera Fade</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/042_Dithering/DistanceFade.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/042_Dithering/DistanceFade.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">042</span>_Dithering<span style="color:#333">/</span>DistanceFade<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _DitherPattern (<span style="color:#f00;background-color:#faa">&#34;</span>Dithering Pattern<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _MinDistance (<span style="color:#f00;background-color:#faa">&#34;</span>Minimum Fade Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Float) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+        _MaxDistance (<span style="color:#f00;background-color:#faa">&#34;</span>Maximum Fade Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Float) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    }
+
+    SubShader {
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        CGPROGRAM
+
+        <span style="color:#888">//the shader is a surface shader, meaning that it will be extended by unity in the background to have fancy lighting and other features</span>
+        <span style="color:#888">//our surface shader function is called surf and we use the default PBR lighting model</span>
+        <span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard
+        <span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+        <span style="color:#888">//texture and transforms of the texture</span>
+        <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+
+        <span style="color:#888">//The dithering pattern</span>
+        <span style="color:#080;font-weight:bold">sampler2D</span> _DitherPattern;
+        float4 _DitherPattern_TexelSize;
+
+        <span style="color:#888">//remapping of distance</span>
+        <span style="color:#080;font-weight:bold">float</span> _MinDistance;
+        <span style="color:#080;font-weight:bold">float</span> _MaxDistance;
+
+        <span style="color:#888">//input struct which is automatically filled by unity</span>
+        <span style="color:#080;font-weight:bold">struct</span> Input {
+            float2 uv_MainTex;
+            float4 screenPos;
+        };
+
+        <span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+        <span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+            <span style="color:#888">//read texture and write it to diffuse color</span>
+            float3 texColor <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+            o.Albedo <span style="color:#333">=</span> texColor.rgb;
+
+            <span style="color:#888">//value from the dither pattern</span>
+            float2 screenPos <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+            float2 ditherCoordinate <span style="color:#333">=</span> screenPos <span style="color:#333">*</span> _ScreenParams.xy <span style="color:#333">*</span> _DitherPattern_TexelSize.xy;
+            <span style="color:#080;font-weight:bold">float</span> ditherValue <span style="color:#333">=</span> tex2D(_DitherPattern, ditherCoordinate).r;
+
+            <span style="color:#888">//get relative distance from the camera</span>
+            <span style="color:#080;font-weight:bold">float</span> relDistance <span style="color:#333">=</span> i.screenPos.w;
+            relDistance <span style="color:#333">=</span> relDistance <span style="color:#333">-</span> _MinDistance;
+            relDistance <span style="color:#333">=</span> relDistance <span style="color:#333">/</span> (_MaxDistance <span style="color:#333">-</span> _MinDistance);
+            <span style="color:#888">//discard pixels accordingly</span>
+            clip(relDistance <span style="color:#333">-</span> ditherValue);
+        }
+        ENDCG
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

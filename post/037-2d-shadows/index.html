@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>2D SDF Shadows | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="2D SDF Shadows" />
+<meta property="og:description" content="Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/037-2d-shadows/" />
+<meta property="article:published_time" content="2018-12-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-12-01T00:00:00+00:00" />
+<meta itemprop="name" content="2D SDF Shadows">
+<meta itemprop="description" content="Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.">
+<meta itemprop="datePublished" content="2018-12-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-12-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2181">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="2D SDF Shadows"/>
+<meta name="twitter:description" content="Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">2D SDF Shadows</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-12-01T00:00:00Z">December 1, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).</p>
+<p><img src="/assets/images/posts/037/Result.gif" alt=""></p>
+<h2 id="base-setup">Base Setup</h2>
+<p>I did a simple room setup here, it uses the techniques described in earlier tutorials. Two things I used that I didn&rsquo;t explicitely mention previously are that I used a <code>abs</code> on a vector2 to mirror the position around both the x and y axis and that I negated a shape distance to flip the inside and outside.</p>
+<p>We also copy the <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc">2D_SDF.cginc</a> file from the previous tutorial to the same folder as the shader we&rsquo;re writing for this one.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">037</span>_2D_SDF_Shadows<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                <span style="color:#080;font-weight:bold">float</span> bounds <span style="color:#333">=</span> <span style="color:#333">-</span>rectangle(position, <span style="color:#00d;font-weight:bold">2</span>);
+
+                float2 quarterPos <span style="color:#333">=</span> abs(position);
+
+                <span style="color:#080;font-weight:bold">float</span> corner <span style="color:#333">=</span> rectangle(translate(quarterPos, <span style="color:#00d;font-weight:bold">1</span>), <span style="color:#60e;font-weight:bold">0.5</span>);
+                corner <span style="color:#333">=</span> subtract(corner, rectangle(position, <span style="color:#60e;font-weight:bold">1.2</span>));
+
+                <span style="color:#080;font-weight:bold">float</span> diamond <span style="color:#333">=</span> rectangle(rotate(position, <span style="color:#60e;font-weight:bold">0.125</span>), <span style="color:#60e;font-weight:bold">.5</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> world <span style="color:#333">=</span> merge(bounds, corner);
+                world <span style="color:#333">=</span> merge(world, diamond);
+
+                <span style="color:#080;font-weight:bold">return</span> world;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                <span style="color:#080;font-weight:bold">return</span> dist;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>If we still used the visualisation technique we used in the previous tutorials, this shape would look like this:</p>
+<p><img src="/assets/images/posts/037/SDF_Shape.png" alt=""></p>
+<h2 id="simple-shadows">Simple Shadows</h2>
+<p>For hard shadows, we walk the space from the sample position to he light position. If we find a object on the way there we decide that the pixel should be shadowed and if we get to the light without being interrupted we say that it&rsquo;s not shadowed.</p>
+<p>We start by calculating the base parameters of a ray. We already have the origin (the position of the pixel we&rsquo;re rendering) and the goal (the position of the light) of the ray. What we need is the length and the normalised direction. We can get the direction by subtracting the start from the destination and normalising the result and the length by subtracting the positions and passing it to the <code>length</code> method.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadow(float2 position, float2 lightPosition){
+    <span style="color:#080;font-weight:bold">float</span> direction <span style="color:#333">=</span> normalise(lightPosition <span style="color:#333">-</span> position);
+    <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+}
+</code></pre></div><p>Then we iterate through the ray in a for loop. We&rsquo;ll set the iterations of the loop via a define declaration, this allows us to adjust the maximum amount of iterations later and also allows the compiler to optimise the shader a bit by unrolling the loop.</p>
+<p>In the loop we need a position at which we currently are, so we declare that outside of the loop with a start value of 0. Then back in the loop we can calculate the sample position by adding the ray progress multiplied by the ray direction to the base position. Then we sample the signed distance function at the position we just calculated.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// outside of function</span>
+<span style="color:#579">#define SAMPLES 32</span>
+
+<span style="color:#888">// in shadow function</span>
+<span style="color:#080;font-weight:bold">float</span> rayDistance <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+    <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayDistance);
+
+    <span style="color:#888">//do other stuff and move the ray further</span>
+}
+</code></pre></div><p>Then we can do checks whether we&rsquo;re already at the point where we can abort the loop. If the scene distance of the signed distance function is near 1, we can assume the ray was blocked by a shape and we return 0. If the ray progress is bigger than the light distance, we can assume that we reached the light without any collisions and return a value of 1.</p>
+<p>If we didn&rsquo;t return yet, we then have to calculate the next sample position. We do that by adding the distance of the scene to the ray progress. The reason for this is that the scene distance gives us the distance to the nearest shape, so if we add that amount to our ray, we can&rsquo;t possibly cast our ray further than the nearest shape, or even beyond it, which would allow for shadow leaking.</p>
+<p>In case we don&rsquo;t hit anything and also don&rsquo;t find the light by the time we used our whole sample budget (the loop ended), we also have to return a value. Because this mainly happens near shapes, shortly before the pixel would count as occluded anyways, we&rsquo;ll use a return value of 0 here.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#define SAMPLES 32</span>
+
+<span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition){
+    float2 direction <span style="color:#333">=</span> normalize(lightPosition <span style="color:#333">-</span> position);
+    <span style="color:#080;font-weight:bold">float</span> lightDistance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+
+    <span style="color:#080;font-weight:bold">float</span> rayProgress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+        <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(position <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayProgress);
+
+        <span style="color:#080;font-weight:bold">if</span>(sceneDist <span style="color:#333">&lt;=</span> <span style="color:#40e;font-weight:bold">0</span>){
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+        }
+        <span style="color:#080;font-weight:bold">if</span>(rayProgress <span style="color:#333">&gt;</span> lightDistance){
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span>;
+        }
+
+        rayProgress <span style="color:#333">=</span> rayProgress <span style="color:#333">+</span> sceneDist;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><p>To use the function, we call it in the fragment function with the pixel position and the light position. Then we can multiply the result with any color to tint it in the lights color.</p>
+<p>I used the technique described in [the first tutorial I made about signed distance fields]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}#hard-shape) to also visualise the geometry. Then I simply added the shadows and the geometry. We can use a simple add operation here instead of doing a linear interpolation or similar because the shape color is black everywhere where there&rsquo;s no shape and the shadow color is black everywhere where there is a shape.</p>
+<p>fixed4 frag(v2f i) : SV_TARGET{
+float2 position = i.worldPos.xz;</p>
+<pre><code>float2 lightPos;
+sincos(_Time.y, lightPos.x /*sine of time*/, lightPos.y /*cosine of time*/);
+float shadows = traceShadows(position, lightPos);
+float3 light = shadows * float3(.6, .6, 1);
+
+float sceneDistance = scene(position);
+float distanceChange = fwidth(sceneDistance) * 0.5;
+float binaryScene = smoothstep(distanceChange, -distanceChange, sceneDistance);
+float3 geometry = binaryScene * float3(0, 0.3, 0.1);
+
+float3 col = geometry + light;
+
+return float4(col, 1);
+</code></pre>
+<p>}</p>
+<p><img src="/assets/images/posts/037/HardShadows.gif" alt=""></p>
+<h2 id="soft-shadows">Soft Shadows</h2>
+<p>The upgrade from those hard shadows to softer, more realistic ones is pretty straightforward and doesn&rsquo;t make the shader much more performance intensive.</p>
+<p>Out first take on this will just get the distance to the nearest scene object for every sample we go through and get the nearest one, then where we previously returned just 1, we can return the distance to the nearest shape. To prevent the shadow intensity to get too high and lead to weird colors when used, we pass it through the <code>saturate</code> method which clamps it between 0 and 1. We get the minimum between the current nearest shape and the next one after the check wether the progress reached the light already, otherwise we could take samples that overshot to behind the light and get weird artefacts.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition){
+    float2 direction <span style="color:#333">=</span> normalize(lightPosition <span style="color:#333">-</span> position);
+    <span style="color:#080;font-weight:bold">float</span> lightDistance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+
+    <span style="color:#080;font-weight:bold">float</span> rayProgress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> nearest <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">9999</span>;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+        <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(position <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayProgress);
+
+        <span style="color:#080;font-weight:bold">if</span>(sceneDist <span style="color:#333">&lt;=</span> <span style="color:#40e;font-weight:bold">0</span>){
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+        }
+        <span style="color:#080;font-weight:bold">if</span>(rayProgress <span style="color:#333">&gt;</span> lightDistance){
+            <span style="color:#080;font-weight:bold">return</span> saturate(nearest);
+        }
+
+        nearest <span style="color:#333">=</span> min(nearest, sceneDist);
+
+        rayProgress <span style="color:#333">=</span> rayProgress <span style="color:#333">+</span> sceneDist;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><p><img src="/assets/images/posts/037/HardCuts.png" alt=""></p>
+<p>The first thing we notice when we do this is the weird &ldquo;teeth&rdquo; in the shadows. The reason they appear is that the distance to the scene from the light is less than 1. I tried a lot to counteract that, but didn&rsquo;t find a solution. What we can do instead is to implement the hardness of the shadows. The hardness will be another parameter in the shadow function. In the loop we multiply the scene distance with the hardness, so with a hardness of 2, the soft, grey part of the shadow is only half as big as before. When using the hardness, the light is allowed to be 1 divided by the hardness close to a shape until the artefacts appear. So if we now use a hardness of 20, we have a distance of 0.05 units we should respect.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition, <span style="color:#080;font-weight:bold">float</span> hardness){
+    float2 direction <span style="color:#333">=</span> normalize(lightPosition <span style="color:#333">-</span> position);
+    <span style="color:#080;font-weight:bold">float</span> lightDistance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+
+    <span style="color:#080;font-weight:bold">float</span> rayProgress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> nearest <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">9999</span>;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+        <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(position <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayProgress);
+
+        <span style="color:#080;font-weight:bold">if</span>(sceneDist <span style="color:#333">&lt;=</span> <span style="color:#40e;font-weight:bold">0</span>){
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+        }
+        <span style="color:#080;font-weight:bold">if</span>(rayProgress <span style="color:#333">&gt;</span> lightDistance){
+            <span style="color:#080;font-weight:bold">return</span> saturate(nearest);
+        }
+
+        nearest <span style="color:#333">=</span> min(nearest, hardness <span style="color:#333">*</span> sceneDist);
+
+        rayProgress <span style="color:#333">=</span> rayProgress <span style="color:#333">+</span> sceneDist;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in fragment function</span>
+<span style="color:#080;font-weight:bold">float</span> shadows <span style="color:#333">=</span> traceShadows(position, lightPos, <span style="color:#00d;font-weight:bold">20</span>);
+</code></pre></div><p><img src="/assets/images/posts/037/HarderWrongSoftShadows.png" alt=""></p>
+<p>With this problem minimised, the next thing we see is that even in the areas that shouldn&rsquo;t be shadowed, we still see a falloff near walls. Also the softness of the shadow seems similar over the whole shadow, not hard near the shape and softer the further away the point is from the caster.</p>
+<p>The way we fix this is by dividing the scene distance by the ray progress. By doing this we divide the distance by very small numbers where the ray starts, that means we still get high numbers and a nice crisp shadow. When we find the nearest point to the ray at a later point on the ray, the nearest point gets divided by a bigger number, making the shadow softer. Because this doesn&rsquo;t have that much to do with the nearest distance, we&rsquo;ll also rename the variable to <code>shadow</code>.</p>
+<p>Another small change we&rsquo;ll make is that because we&rsquo;re dividing by rayProgress, starting at 0 is a bad idea (dividing by zero is almost always a bad idea). Any very small number is fine as a start here.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition, <span style="color:#080;font-weight:bold">float</span> hardness){
+    float2 direction <span style="color:#333">=</span> normalize(lightPosition <span style="color:#333">-</span> position);
+    <span style="color:#080;font-weight:bold">float</span> lightDistance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+
+    <span style="color:#080;font-weight:bold">float</span> rayProgress <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.0001</span>;
+    <span style="color:#080;font-weight:bold">float</span> shadow <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">9999</span>;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+        <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(position <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayProgress);
+
+        <span style="color:#080;font-weight:bold">if</span>(sceneDist <span style="color:#333">&lt;=</span> <span style="color:#40e;font-weight:bold">0</span>){
+            <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+        }
+        <span style="color:#080;font-weight:bold">if</span>(rayProgress <span style="color:#333">&gt;</span> lightDistance){
+            <span style="color:#080;font-weight:bold">return</span> saturate(shadow);
+        }
+
+        shadow <span style="color:#333">=</span> min(shadow, hardness <span style="color:#333">*</span> sceneDist <span style="color:#333">/</span> rayProgress);
+
+        rayProgress <span style="color:#333">=</span> rayProgress <span style="color:#333">+</span> sceneDist;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><p><img src="/assets/images/posts/037/SoftShadows.png" alt=""></p>
+<h2 id="multiple-lights">Multiple lights</h2>
+<p>In this simple one-shader implementation the easiest way to get multiple lights is to calculate them separately and then add all of the results.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float2 position <span style="color:#333">=</span> i.worldPos.xz;
+
+    float2 lightPos1 <span style="color:#333">=</span> float2(sin(_Time.y), <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+    <span style="color:#080;font-weight:bold">float</span> shadows1 <span style="color:#333">=</span> traceShadows(position, lightPos1, <span style="color:#00d;font-weight:bold">20</span>);
+    float3 light1 <span style="color:#333">=</span> shadows1 <span style="color:#333">*</span> float3(<span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#00d;font-weight:bold">1</span>);
+
+    float2 lightPos2 <span style="color:#333">=</span> float2(<span style="color:#333">-</span>sin(_Time.y) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">1.75</span>, <span style="color:#60e;font-weight:bold">1.75</span>);
+    <span style="color:#080;font-weight:bold">float</span> shadows2 <span style="color:#333">=</span> traceShadows(position, lightPos2, <span style="color:#00d;font-weight:bold">10</span>);
+    float3 light2 <span style="color:#333">=</span> shadows2 <span style="color:#333">*</span> float3(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#60e;font-weight:bold">.6</span>);
+
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> scene(position);
+    <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(sceneDistance) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> binaryScene <span style="color:#333">=</span> smoothstep(distanceChange, <span style="color:#333">-</span>distanceChange, sceneDistance);
+    float3 geometry <span style="color:#333">=</span> binaryScene <span style="color:#333">*</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.3</span>, <span style="color:#60e;font-weight:bold">0.1</span>);
+
+    float3 col <span style="color:#333">=</span> geometry <span style="color:#333">+</span> light1 <span style="color:#333">+</span> light2;
+
+    <span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
+}
+</code></pre></div><p><img src="/assets/images/posts/037/Result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="2d-sdf-library-unchanged-but-used-here">2D SDF Library (unchanged but used here)</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc</a></li>
+</ul>
+<h3 id="2d-soft-shadows">2D Soft Shadows</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF_Shadows.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF_Shadows.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">037</span>_2D_SDF_Shadows<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                <span style="color:#080;font-weight:bold">float</span> bounds <span style="color:#333">=</span> <span style="color:#333">-</span>rectangle(position, <span style="color:#00d;font-weight:bold">2</span>);
+
+                float2 quarterPos <span style="color:#333">=</span> abs(position);
+
+                <span style="color:#080;font-weight:bold">float</span> corner <span style="color:#333">=</span> rectangle(translate(quarterPos, <span style="color:#00d;font-weight:bold">1</span>), <span style="color:#60e;font-weight:bold">0.5</span>);
+                corner <span style="color:#333">=</span> subtract(corner, rectangle(position, <span style="color:#60e;font-weight:bold">1.2</span>));
+
+                <span style="color:#080;font-weight:bold">float</span> diamond <span style="color:#333">=</span> rectangle(rotate(position, <span style="color:#60e;font-weight:bold">0.125</span>), <span style="color:#60e;font-weight:bold">.5</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> world <span style="color:#333">=</span> merge(bounds, corner);
+                world <span style="color:#333">=</span> merge(world, diamond);
+
+                <span style="color:#080;font-weight:bold">return</span> world;
+            }
+
+            <span style="color:#f00;background-color:#faa">#</span>define STARTDISTANCE <span style="color:#60e;font-weight:bold">0.00001</span>
+            <span style="color:#f00;background-color:#faa">#</span>define MINSTEPDIST <span style="color:#60e;font-weight:bold">0.02</span>
+            <span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">32</span>
+
+            <span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition, <span style="color:#080;font-weight:bold">float</span> hardness){
+                float2 direction <span style="color:#333">=</span> normalize(lightPosition <span style="color:#333">-</span> position);
+                <span style="color:#080;font-weight:bold">float</span> lightDistance <span style="color:#333">=</span> length(lightPosition <span style="color:#333">-</span> position);
+
+                <span style="color:#080;font-weight:bold">float</span> lightSceneDistance <span style="color:#333">=</span> scene(lightPosition) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.8</span>;
+
+                <span style="color:#080;font-weight:bold">float</span> rayProgress <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.0001</span>;
+                <span style="color:#080;font-weight:bold">float</span> shadow <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">9999</span>;
+                <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span> ;i<span style="color:#333">&lt;</span>SAMPLES; i<span style="color:#333">++</span>){
+                    <span style="color:#080;font-weight:bold">float</span> sceneDist <span style="color:#333">=</span> scene(position <span style="color:#333">+</span> direction <span style="color:#333">*</span> rayProgress);
+
+                    <span style="color:#080;font-weight:bold">if</span>(sceneDist <span style="color:#333">&lt;=</span> <span style="color:#40e;font-weight:bold">0</span>){
+                        <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+                    }
+                    <span style="color:#080;font-weight:bold">if</span>(rayProgress <span style="color:#333">&gt;</span> lightDistance){
+                        <span style="color:#080;font-weight:bold">return</span> saturate(shadow);
+                    }
+
+                    shadow <span style="color:#333">=</span> min(shadow, hardness <span style="color:#333">*</span> sceneDist <span style="color:#333">/</span> rayProgress);
+                    rayProgress <span style="color:#333">=</span> rayProgress <span style="color:#333">+</span> max(sceneDist, <span style="color:#60e;font-weight:bold">0.02</span>);
+                }
+
+                <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                float2 position <span style="color:#333">=</span> i.worldPos.xz;
+
+                float2 lightPos1 <span style="color:#333">=</span> float2(sin(_Time.y), <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+                <span style="color:#080;font-weight:bold">float</span> shadows1 <span style="color:#333">=</span> traceShadows(position, lightPos1, <span style="color:#00d;font-weight:bold">20</span>);
+                float3 light1 <span style="color:#333">=</span> shadows1 <span style="color:#333">*</span> float3(<span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#00d;font-weight:bold">1</span>);
+
+                float2 lightPos2 <span style="color:#333">=</span> float2(<span style="color:#333">-</span>sin(_Time.y) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">1.75</span>, <span style="color:#60e;font-weight:bold">1.75</span>);
+                <span style="color:#080;font-weight:bold">float</span> shadows2 <span style="color:#333">=</span> traceShadows(position, lightPos2, <span style="color:#00d;font-weight:bold">10</span>);
+                float3 light2 <span style="color:#333">=</span> shadows2 <span style="color:#333">*</span> float3(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">.6</span>, <span style="color:#60e;font-weight:bold">.6</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> scene(position);
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(sceneDistance) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> binaryScene <span style="color:#333">=</span> smoothstep(distanceChange, <span style="color:#333">-</span>distanceChange, sceneDistance);
+                float3 geometry <span style="color:#333">=</span> binaryScene <span style="color:#333">*</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.3</span>, <span style="color:#60e;font-weight:bold">0.1</span>);
+
+                float3 col <span style="color:#333">=</span> geometry <span style="color:#333">+</span> light1 <span style="color:#333">+</span> light2;
+
+                <span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>This is only one of many uses of signed distance fields. So far they&rsquo;re a bit unweildy because all shapes have to be hardcoded into a shader or passed via shader properties, but I have a few ideas on how to make them more usable with future tutorials.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Partial Derivatives (fwidth) | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Partial Derivatives (fwidth)" />
+<meta property="og:description" content="The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/046-fwidth/" />
+<meta property="article:published_time" content="2019-11-29T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-11-29T00:00:00+00:00" />
+<meta itemprop="name" content="Partial Derivatives (fwidth)">
+<meta itemprop="description" content="The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity.">
+<meta itemprop="datePublished" content="2019-11-29T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-11-29T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2656">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Partial Derivatives (fwidth)"/>
+<meta name="twitter:description" content="The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Partial Derivatives (fwidth)</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2019-11-29T00:00:00Z">November 29, 2019</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity. If don&rsquo;t know the basics yet, I have a couple of <a href="/basics.html">tutorials on them here</a>.</p>
+<p><img src="/assets/images/posts/046/fire.gif" alt=""></p>
+<h2 id="ddx-and-ddy">DDX and DDY</h2>
+<p>&ldquo;Derivative&rdquo; is a fancy word which means &ldquo;change of a function&rdquo; at a point. In this case we can use any value and get the change between the neighboring speenspace pixels. <code>ddx</code> and <code>ddy</code> are the simpler 2 of the 3 functions, they compare values of two pixels next to each other vertically or horizontally. This isn&rsquo;t something that&rsquo;s possible with any other functions and relies on a special architetecture detail of the GPU you might not expect. Instead of calculating every pixel completely on their own, pixels are grouped in little 2x2 fields that are calculated in parallel and in those units any information can be compared. The ddx function returns the value of the subtraction of the left pixel of a horizontal pixel pair from the right pixel. The ddy pixel works similarly for the vertical axis. This means that two pixels in such a pixel pair always return the same value for ddx or ddy.</p>
+<p><img src="/assets/images/posts/046/ddx_ddy.png" alt=""></p>
+<p>For a test I used a simple shader with UV coordinates and returned the derivative of the first component of the coordinate multiplied by an adjustable factor. The <code>.xxx</code> I used converts the 1d scalar value to a 3d value with the same value for all 3 components.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+  <span style="color:#888">//calculate the change of the uv coordinate to the next pixel</span>
+  <span style="color:#080;font-weight:bold">float</span> derivative <span style="color:#333">=</span> ddx(i.uv.x) <span style="color:#333">*</span> _Factor;
+  <span style="color:#888">//transform derivative to greyscale color</span>
+  fixed4 col <span style="color:#333">=</span> float4(derivative.xxx , <span style="color:#00d;font-weight:bold">1</span>);
+  col <span style="color:#333">*=</span> _Color;
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>When we now play around with this shader we can see that it changes color depending on how much the x value of the UVs changes in relation to the screen x pixels. If we zoom closer to the surface or scale it up theres less change per pixel and the surface gets darker. If we rotate the surface the change in uv.x is in the screen y axis instead of the x axis and the surface becomes again darker.</p>
+<p><img src="/assets/images/posts/046/ddx_transform_change.gif" alt=""></p>
+<p>This alone can be very powerful. For example it&rsquo;s possible to very quickly calculate low-quality normalmaps from depth maps from this and the tex2D function uses this internally to choose between mipmap levels. But the most frequent use I have needs the overall change of a value, not the directional one, this is what fwidth gives us.</p>
+<h2 id="fwidth">fwidth</h2>
+<p>If we want to combine ddx and ddy the most straightforward way to do that is to get their absolute values and then add them, so a custom implementation would look like this (you don&rsquo;t have to add this code to your shader since the internal definition of fwidth already does this):</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> fwidth(<span style="color:#080;font-weight:bold">float</span> value){
+  <span style="color:#080;font-weight:bold">return</span> abs(ddx(value)) <span style="color:#333">+</span> abs(ddy(value));
+}
+</code></pre></div><p>If we replace the ddx in our test shader from earlier with an fwidth we can see that zooming or scaling still has the same effect, but rotating now only changes the brightness slightly, having the same grey at 90° angles, but being a bit brighter inbetween. We could eliminate the color change by writing our own fwidth function with a little bit of fancy trigonometry (we&rsquo;d square the results of ddx and ddy and take the square root of the sum), but in most cases the higher quality of the math here isn&rsquo;t worth the performance hit of the more complicated math.</p>
+<p><img src="/assets/images/posts/046/fwidth_transform_change.gif" alt=""></p>
+<h2 id="non-aliased-step">Non-aliased step</h2>
+<p>The #1 usecase for fwidth (at least for me) is to cut off gradients at a specific value into distinct fields without getting aliasing artefacts, this is used in many variations for effects like fire, water, toon lighting and many more. The most straightforward way to cut off a gradient this way is to take the step of the gradient value and the cutoff value and then do a linear interpolation with that step result from the color of one side to the color of the other side. This step introduces aliasing though, jaggy edges we usually want to avoid. The way to avoid this is to do a inverse lerp based on how much the value changes over a single pixel.</p>
+<p>We start doing the non aliased step by first calculating the fwidth value of our gradient (I&rsquo;ll use the UV x component here again, but anything works, try around what you can get away with!). Since the next step is to do the inverse lerp from half a pixel before the cutoff value to half a pixel after the cutoff value to get a whole pixel gradient we also divide the change by 2 here.</p>
+<p>After successfully calculating half of the change, we can do the inverse lerp. Instead of that I also often use the smoothstep function since it&rsquo;s a built-in function, but that one also does some smoothing we don&rsquo;t need here, so it&rsquo;s less effective overall. The inverse of a interpolation means that the calculation returns 0 if the input is equal to the first value or 1 if it&rsquo;s equal to the second value and it returns the inbetween values as expected. To get it we subtract the lower edge of the range from the value, this moves the 0 intersection to the correct value. Then we divide by the difference between the lower to the upper edge of the function. Because this process allows input values outside of the specified edges we end the calculation by clamping the result between 0 and 1 with the saturate function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+  <span style="color:#888">//you can use almost any value as a gradient</span>
+  <span style="color:#080;font-weight:bold">float</span> gradient <span style="color:#333">=</span> i.uv.x;
+  <span style="color:#888">//calculate the change</span>
+  <span style="color:#080;font-weight:bold">float</span> halfChange <span style="color:#333">=</span> fwidth(gradient) <span style="color:#333">/</span> <span style="color:#00d;font-weight:bold">2</span>;
+  <span style="color:#888">//base the range of the inverse lerp on the change over one pixel</span>
+  <span style="color:#080;font-weight:bold">float</span> lowerEdge <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">-</span> halfChange;
+  <span style="color:#080;font-weight:bold">float</span> upperEdge <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">+</span> halfChange;
+  <span style="color:#888">//do the inverse interpolation</span>
+  <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> (gradient <span style="color:#333">-</span> lowerEdge) <span style="color:#333">/</span> (upperEdge <span style="color:#333">-</span> lowerEdge);
+  stepped <span style="color:#333">=</span> saturate(stepped);
+  <span style="color:#888">//convert to greyscale color for output</span>
+  fixed4 col <span style="color:#333">=</span> float4(stepped.xxx, <span style="color:#00d;font-weight:bold">1</span>);
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>Here I compare the regular step function to the non aliased step we just wrote as well as the one that uses the <code>smoothstep</code> function. On the left surface you can see the aliasing jaggyness of the step function while the other two functions provide a smoother transition. I also can&rsquo;t make out a definitive difference between the smoothstep version and the cheaper inverse lerp so I recommend you to stick with that instead of the builtin function.</p>
+<p><img src="/assets/images/posts/046/stepcompare.png" alt=""></p>
+<h2 id="a-better-step">A better step?</h2>
+<p>So far we can see better results with the new technique, but it&rsquo;s also kind of bothersome to write and a bit slower. We can&rsquo;t change the performance demands of the functions but I&rsquo;d also argue that in 99.9% of all cases your performance bottleneck won&rsquo;t be here, as mentioned previously every tex2d call also accesses those functions and thats by far not expensive part of a texture sample. What we can do is to write a custom function that&rsquo;s easy to use as <code>step</code> and can work as a drag and drop replacement.</p>
+<p>Step returns 1 if the first argument is smaller than the second and 0 otherwise. We&rsquo;ll translate those arguments into the comparison value as the first argument and the gradient value as the second one and then we translate the code of the previous implementation into a function that only depends on those two arguments.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//smooth version of step</span>
+<span style="color:#080;font-weight:bold">float</span> aaStep(<span style="color:#080;font-weight:bold">float</span> compValue, <span style="color:#080;font-weight:bold">float</span> gradient){
+  <span style="color:#080;font-weight:bold">float</span> halfChange <span style="color:#333">=</span> fwidth(gradient) <span style="color:#333">/</span> <span style="color:#00d;font-weight:bold">2</span>;
+  <span style="color:#888">//base the range of the inverse lerp on the change over one pixel</span>
+  <span style="color:#080;font-weight:bold">float</span> lowerEdge <span style="color:#333">=</span> compValue <span style="color:#333">-</span> halfChange;
+  <span style="color:#080;font-weight:bold">float</span> upperEdge <span style="color:#333">=</span> compValue <span style="color:#333">+</span> halfChange;
+  <span style="color:#888">//do the inverse interpolation</span>
+  <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> (gradient <span style="color:#333">-</span> lowerEdge) <span style="color:#333">/</span> (upperEdge <span style="color:#333">-</span> lowerEdge);
+  stepped <span style="color:#333">=</span> saturate(stepped);
+  <span style="color:#080;font-weight:bold">return</span> stepped;
+}
+
+<span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+  <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> aaStep(<span style="color:#60e;font-weight:bold">0.5</span>, i.uv.x); 
+  <span style="color:#888">//value to greyscale color with full alpha</span>
+  fixed4 col <span style="color:#333">=</span> float4(stepped.xxx, <span style="color:#00d;font-weight:bold">1</span>);
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><h2 id="an-example">An example</h2>
+<p>One nice use for step is to make procedural fire. I based this example loosely on <a href="https://twitter.com/febucci">Febucci&rsquo;s</a> <a href="https://www.febucci.com/2019/05/fire-shader/">fire shader</a>.</p>
+<p>We shift the texture UVs based on the time, and read from a noise texture, as the gradient how &ldquo;intense&rdquo; a fire is at any position, I&rsquo;ll use a square of the inverse uv y component as that gets us a good amount fire with my noise texture (I used layered perlin noise, generated via <a href="https://ronja-tutorials.com/post/030-baking_shaders/">the texture baking tool I made a tutorial about</a>). Then I generated the cutoff values for the texture, for the shape I used the step between the noise texture and the gradient and for the edges between the colors I did the same but with some offset based on adjustable properties. To combine those colors we can start by making everything the &ldquo;outer&rdquo; color and then interpolating to the &ldquo;inner&rdquo; colors wherever they are visible.</p>
+<p>I also modified the aaStep here to interpolate over 2 pixels instead of one by not dividing the result of the fwidth function by 2, this is something you can play around with and see what feels best for your use case.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//smooth version of step</span>
+<span style="color:#080;font-weight:bold">float</span> aaStep(<span style="color:#080;font-weight:bold">float</span> compValue, <span style="color:#080;font-weight:bold">float</span> gradient){
+  <span style="color:#080;font-weight:bold">float</span> change <span style="color:#333">=</span> fwidth(gradient);
+  <span style="color:#888">//base the range of the inverse lerp on the change over two pixels</span>
+  <span style="color:#080;font-weight:bold">float</span> lowerEdge <span style="color:#333">=</span> compValue <span style="color:#333">-</span> change;
+  <span style="color:#080;font-weight:bold">float</span> upperEdge <span style="color:#333">=</span> compValue <span style="color:#333">+</span> change;
+  <span style="color:#888">//do the inverse interpolation</span>
+  <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> (gradient <span style="color:#333">-</span> lowerEdge) <span style="color:#333">/</span> (upperEdge <span style="color:#333">-</span> lowerEdge);
+  stepped <span style="color:#333">=</span> saturate(stepped);
+  <span style="color:#888">//smoothstep version here would be `smoothstep(lowerEdge, upperEdge, gradient)`</span>
+  <span style="color:#080;font-weight:bold">return</span> stepped;
+}
+
+<span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+  <span style="color:#888">//I square this here to make the fire look a bit more &#34;full&#34;</span>
+  <span style="color:#080;font-weight:bold">float</span> fireGradient <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> i.uv.y;
+  fireGradient <span style="color:#333">=</span> fireGradient <span style="color:#333">*</span> fireGradient;
+  <span style="color:#888">//calculate fire UVs and animate them</span>
+  float2 fireUV <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+  fireUV.y <span style="color:#333">-=</span> _Time.y <span style="color:#333">*</span> _ScrollSpeed;
+  <span style="color:#888">//get the noise texture</span>
+  <span style="color:#080;font-weight:bold">float</span> fireNoise <span style="color:#333">=</span> tex2D(_MainTex, fireUV).x;
+  
+  <span style="color:#888">//calculate whether fire is visibe at all and which colors should be shown</span>
+  <span style="color:#080;font-weight:bold">float</span> outline <span style="color:#333">=</span> aaStep(fireNoise, fireGradient);
+  <span style="color:#080;font-weight:bold">float</span> edge1 <span style="color:#333">=</span> aaStep(fireNoise, fireGradient <span style="color:#333">-</span> _Edge1);
+  <span style="color:#080;font-weight:bold">float</span> edge2 <span style="color:#333">=</span> aaStep(fireNoise, fireGradient <span style="color:#333">-</span> _Edge2);
+  
+  <span style="color:#888">//define shape of fire</span>
+  fixed4 col <span style="color:#333">=</span> _Color1 <span style="color:#333">*</span> outline;
+  <span style="color:#888">//add other colors</span>
+  col <span style="color:#333">=</span> lerp(col, _Color2, edge1);
+  col <span style="color:#333">=</span> lerp(col, _Color3, edge2);
+  
+  <span style="color:#888">//uv to color</span>
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/046/fire.gif" alt=""></p>
+<p>Here is a comparison of step vs. the new non aliased step. It&rsquo;s not huge and if you have a pixely aesthetic it makes your game look worse, but I think it&rsquo;s a good step to making your game look a little better, especially when you have a soft aesthetic and want the game to also look smooth at low-ish resolutions (along the lines of 720p, not pixel art).</p>
+<p><img src="/assets/images/posts/046/FireComparison.png" alt=""></p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/testing.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/testing.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">046</span>_Partial_Derivatives<span style="color:#333">/</span>testing<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Factor(<span style="color:#f00;background-color:#faa">&#34;</span>Factor<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">100</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+		
+		Cull Off
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#080;font-weight:bold">float</span> _Factor;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//calculate the change of the uv coordinate to the next pixel</span>
+			    <span style="color:#080;font-weight:bold">float</span> derivative <span style="color:#333">=</span> fwidth(i.uv.x) <span style="color:#333">*</span> _Factor;
+			    <span style="color:#888">//transform derivative to greyscale color</span>
+				fixed4 col <span style="color:#333">=</span> float4(derivative.xxx , <span style="color:#00d;font-weight:bold">1</span>);
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/aa_step.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/aa_step.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">046</span>_Partial_Derivatives<span style="color:#333">/</span>aaStep<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+	
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+		
+		Cull Off
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+			
+			<span style="color:#888">//smooth version of step</span>
+			<span style="color:#080;font-weight:bold">float</span> aaStep(<span style="color:#080;font-weight:bold">float</span> compValue, <span style="color:#080;font-weight:bold">float</span> gradient){
+			    <span style="color:#080;font-weight:bold">float</span> halfChange <span style="color:#333">=</span> fwidth(gradient) <span style="color:#333">/</span> <span style="color:#00d;font-weight:bold">2</span>;
+			    <span style="color:#888">//base the range of the inverse lerp on the change over one pixel</span>
+			    <span style="color:#080;font-weight:bold">float</span> lowerEdge <span style="color:#333">=</span> compValue <span style="color:#333">-</span> halfChange;
+			    <span style="color:#080;font-weight:bold">float</span> upperEdge <span style="color:#333">=</span> compValue <span style="color:#333">+</span> halfChange;
+			    <span style="color:#888">//do the inverse interpolation</span>
+			    <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> (gradient <span style="color:#333">-</span> lowerEdge) <span style="color:#333">/</span> (upperEdge <span style="color:#333">-</span> lowerEdge);
+			    stepped <span style="color:#333">=</span> saturate(stepped);
+			    <span style="color:#888">//smoothstep version here would be `smoothstep(lowerEdge, upperEdge, gradient)`</span>
+			    <span style="color:#080;font-weight:bold">return</span> stepped;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> aaStep(<span style="color:#60e;font-weight:bold">0.5</span>, i.uv.x); 
+			    <span style="color:#888">//value to greyscale color with full alpha</span>
+				fixed4 col <span style="color:#333">=</span> float4(stepped.xxx, <span style="color:#00d;font-weight:bold">1</span>);
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+			
+			
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/Fire.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/046_Partial_Derivatives/Fire.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">046</span>_Partial_Derivatives<span style="color:#333">/</span>fire<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+	    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Fire Noise<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	    _ScrollSpeed(<span style="color:#f00;background-color:#faa">&#34;</span>Animation Speed<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	
+		_Color1 (<span style="color:#f00;background-color:#faa">&#34;</span>Color <span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_Color2 (<span style="color:#f00;background-color:#faa">&#34;</span>Color <span style="color:#00d;font-weight:bold">2</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_Color3 (<span style="color:#f00;background-color:#faa">&#34;</span>Color <span style="color:#00d;font-weight:bold">3</span><span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		
+		_Edge1 (<span style="color:#f00;background-color:#faa">&#34;</span>Edge <span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span><span style="color:#00d;font-weight:bold">2</span><span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.25</span>
+		_Edge2 (<span style="color:#f00;background-color:#faa">&#34;</span>Edge <span style="color:#00d;font-weight:bold">2</span><span style="color:#333">-</span><span style="color:#00d;font-weight:bold">3</span><span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.5</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>transparent<span style="color:#f00;background-color:#faa">&#34;</span>}
+		
+		Cull Off
+		Blend SrcAlpha OneMinusSrcAlpha
+		ZWrite Off
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color1;
+			fixed4 _Color2;
+			fixed4 _Color3;
+			
+			<span style="color:#080;font-weight:bold">float</span> _Edge1;
+			<span style="color:#080;font-weight:bold">float</span> _Edge2;
+			
+			<span style="color:#080;font-weight:bold">float</span> _ScrollSpeed;
+			
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+			
+			<span style="color:#888">//smooth version of step</span>
+			<span style="color:#080;font-weight:bold">float</span> aaStep(<span style="color:#080;font-weight:bold">float</span> compValue, <span style="color:#080;font-weight:bold">float</span> gradient){
+			    <span style="color:#080;font-weight:bold">float</span> change <span style="color:#333">=</span> fwidth(gradient);
+			    <span style="color:#888">//base the range of the inverse lerp on the change over two pixels</span>
+			    <span style="color:#080;font-weight:bold">float</span> lowerEdge <span style="color:#333">=</span> compValue <span style="color:#333">-</span> change;
+			    <span style="color:#080;font-weight:bold">float</span> upperEdge <span style="color:#333">=</span> compValue <span style="color:#333">+</span> change;
+			    <span style="color:#888">//do the inverse interpolation</span>
+			    <span style="color:#080;font-weight:bold">float</span> stepped <span style="color:#333">=</span> (gradient <span style="color:#333">-</span> lowerEdge) <span style="color:#333">/</span> (upperEdge <span style="color:#333">-</span> lowerEdge);
+			    stepped <span style="color:#333">=</span> saturate(stepped);
+			    <span style="color:#888">//smoothstep version here would be `smoothstep(lowerEdge, upperEdge, gradient)`</span>
+			    <span style="color:#080;font-weight:bold">return</span> stepped;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+			    <span style="color:#888">//I square this here to make the fire look a bit more &#34;full&#34;</span>
+			    <span style="color:#080;font-weight:bold">float</span> fireGradient <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> i.uv.y;
+			    fireGradient <span style="color:#333">=</span> fireGradient <span style="color:#333">*</span> fireGradient;
+			    <span style="color:#888">//calculate fire UVs and animate them</span>
+			    float2 fireUV <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+			    fireUV.y <span style="color:#333">-=</span> _Time.y <span style="color:#333">*</span> _ScrollSpeed;
+			    <span style="color:#888">//get the noise texture</span>
+			    <span style="color:#080;font-weight:bold">float</span> fireNoise <span style="color:#333">=</span> tex2D(_MainTex, fireUV).x;
+			    
+			    <span style="color:#888">//calculate whether fire is visibe at all and which colors should be shown</span>
+                <span style="color:#080;font-weight:bold">float</span> outline <span style="color:#333">=</span> aaStep(fireNoise, fireGradient);
+                <span style="color:#080;font-weight:bold">float</span> edge1 <span style="color:#333">=</span> aaStep(fireNoise, fireGradient <span style="color:#333">-</span> _Edge1);
+                <span style="color:#080;font-weight:bold">float</span> edge2 <span style="color:#333">=</span> aaStep(fireNoise, fireGradient <span style="color:#333">-</span> _Edge2);
+			    
+			    <span style="color:#888">//define shape of fire</span>
+			    fixed4 col <span style="color:#333">=</span> _Color1 <span style="color:#333">*</span> outline;
+			    <span style="color:#888">//add other colors</span>
+			    col <span style="color:#333">=</span> lerp(col, _Color2, edge1);
+			    col <span style="color:#333">=</span> lerp(col, _Color3, edge2);
+			    
+			    <span style="color:#888">//uv to color</span>
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Layered Noise | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Layered Noise" />
+<meta property="og:description" content="Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/027-layered-noise/" />
+<meta property="article:published_time" content="2018-09-22T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-09-22T00:00:00+00:00" />
+<meta itemprop="name" content="Layered Noise">
+<meta itemprop="description" content="Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.">
+<meta itemprop="datePublished" content="2018-09-22T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-09-22T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2743">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Layered Noise"/>
+<meta name="twitter:description" content="Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Layered Noise</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-09-22T00:00:00Z">September 22, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="layered-noise">Layered Noise</h2>
+<p>So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for <a href="https://ronja-tutorials.com/post/025-value-noise/">value noise</a> as well as <a href="https://ronja-tutorials.com/post/026-perlin-noise/">perlin noise</a>. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.</p>
+<p><img src="/assets/images/posts/027/Result.gif" alt=""></p>
+<h2 id="layered-1d-noise">Layered 1d Noise</h2>
+<p>We can already change the frequency, and by that change the roughness of the noise. We do that by changing the noise size variable.</p>
+<p><img src="/assets/images/posts/027/PerlinSizes.gif" alt=""></p>
+<p>As in the previous tutorials, we&rsquo;ll start by implementing the new technique in 1d. We start by sampling the noise twice, once like we did it before and another time with the noise value multiplied by 2. Multiplying the value means that the noise will change faster and be more high-frequency. After sampling the noise twice we add the second, more high-frequent noise, with less strength to the fist noise. This is possible with perlin noise because it is around 0, so it adds and subtracts values, if you use value noise I recommend remapping it around 0 (by multiplying it by 2 and subtracting 1) first and then adding the noise values.</p>
+<p>For ease of reading we&rsquo;ll also put the code we use for sampling noise in it&rsquo;s own function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(<span style="color:#080;font-weight:bold">float</span> value){
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> gradientNoise(value);
+    <span style="color:#080;font-weight:bold">float</span> highFreqNoise <span style="color:#333">=</span> gradientNoise(value <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">6</span>);
+    noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> highFreqNoise <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.2</span>;
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    <span style="color:#080;font-weight:bold">float</span> value <span style="color:#333">=</span> i.worldPos.x <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value);
+    
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> abs(noise <span style="color:#333">-</span> i.worldPos.y);
+    <span style="color:#080;font-weight:bold">float</span> pixelHeight <span style="color:#333">=</span> fwidth(i.worldPos.y);
+    <span style="color:#080;font-weight:bold">float</span> lineIntensity <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>pixelHeight, pixelHeight, dist);
+    o.Albedo <span style="color:#333">=</span> lerp(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, lineIntensity);
+}
+</code></pre></div><p><img src="/assets/images/posts/027/2Sample1dGradient.png" alt=""></p>
+<p>This already gives us some of the effect we want, a overall structure with some rougher detail, but we can easily go further by sampling the noise even more often. The amount of times we sample the noise is also called octaves, so the example we have right now would be layered noise with 2 octaves.</p>
+<p>To implement more octaves we will implement the sampling in a loop. We will also make the octaves less set in stone, instead we use a define statement to set it as a constant in our code. We could also make it completely variable, but then the compiler wouldn&rsquo;t be able to optimize our loop by unrolling it so I&rsquo;d like to avoid that. The frequency of each layer will be a multiple of the one before it, we will put that frequency multiplier in a variable and call it roughness. The amount which the layer will be factored in will be a fraction of the amount the previous layer is factored in, we&rsquo;ll call that factor persistance. I also factored in the number of the loop into the noise sample, so that we don&rsquo;t get weird artefacts at 0/0 where multiplying the value doesn&rsquo;t change it which would lead to the same value being returned by the noise function for all layers.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+    _Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+    _Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+<span style="color:#579">#define OCTAVES 4 </span>
+
+<span style="color:#080;font-weight:bold">float</span> _CellSize;
+<span style="color:#080;font-weight:bold">float</span> _Roughness;
+<span style="color:#080;font-weight:bold">float</span> _Persistance;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(<span style="color:#080;font-weight:bold">float</span> value){
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+        noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> gradientNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+        factor <span style="color:#333">*=</span> _Persistance;
+        frequency <span style="color:#333">*=</span> _Roughness;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/027/Layered1dGradient.png" alt=""></p>
+<h2 id="layered-multidimensional-noise">Layered multidimensional Noise</h2>
+<p>In multiple dimensions we basically do the same process, we just have to keep in mind that we have to use the appropriate vector type for the input. This is the sampling function for 2d noise:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+        noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+        factor <span style="color:#333">*=</span> _Persistance;
+        frequency <span style="color:#333">*=</span> _Roughness;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><p>And this is for 3d noise:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float3 value){
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+        noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+        factor <span style="color:#333">*=</span> _Persistance;
+        frequency <span style="color:#333">*=</span> _Roughness;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/027/NormalLayeredComparison.png" alt=""></p>
+<h2 id="special-use-case">Special Use Case</h2>
+<p>Another thing noise is used for frequently is as a heightmap. For that we simply read the noise in the vertex shader instead of the fragment shader and add it to our vertex. In this part I will reference an <a href="https://ronja-tutorials.com/post/015-wobble-displacement/">earlier tutorial about displacement</a>, so if you have problems with this part I recommend reading this one first.</p>
+<p>We first change our surface definition to include a vertex function as well as generate a custom shadow pass based on that <code>#pragma surface surf Standard fullforwardshadows vertex:vert addshadow</code>. Then we fill that new vertex function. Unity doesn&rsquo;t pass us a world position automatically if we write a custom vertex function, but we can calculate it ourselved my simply multiplying the object to world matrix with the local vertex position. After sampling the noise like we&rsquo;re used to we add it to the vertex position in the up(Y) axis. Because we&rsquo;re not dealing with colors anymore I&rsquo;m also going to add a amplitude variable which will allow us to set the strength of the noise. We&rsquo;ll simply multiply the noise with the amplitude before applying it.</p>
+<p>Now that we&rsquo;re displaying the noise as hight, we&rsquo;ll stop writing it in the fragment shader and instead just set the albedo color to white.</p>
+<p>If we want to see all of the detail, we have to use a high resolution mesh in this case, otherwise there wouldn&rsquo;t be that many polygons for the shader to translate.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+    _Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+    _Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+    _Amplitude(<span style="color:#f00;background-color:#faa">&#34;</span>Amplitude<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+<span style="color:#080;font-weight:bold">float</span> _Amplitude;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> vert(<span style="color:#080;font-weight:bold">inout</span> appdata_full data){
+    float4 worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, data.vertex);
+    float3 value <span style="color:#333">=</span> worldPos <span style="color:#333">/</span> _CellSize;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    data.vertex.y <span style="color:#333">+=</span> noise <span style="color:#333">*</span> _Amplitude;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    o.Albedo <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+}
+</code></pre></div><p><img src="/assets/images/posts/027/HeightNoiseWrongNormals.png" alt=""></p>
+<p>The problem with this so far is that we only changed the position of the vertices, but the mesh still thinks it&rsquo;s a flat surface pointing up. The shadows we see are all thrown shadows where the mesh throws a shadow on itself. We can improve that by recalculating the shadows based on the new positions. (that part is explained in the displacement tutorial)</p>
+<p>While making this tutorial I ran into the problem that the <code>w</code> component of the vector wasn&rsquo;t 1, which means that the xyz components don&rsquo;t represent the actual lengths. To fix that I had to divide the xyz components by the w component before using them.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> vert(<span style="color:#080;font-weight:bold">inout</span> appdata_full data){
+    <span style="color:#888">//get real base position</span>
+    float3 localPos <span style="color:#333">=</span> data.vertex <span style="color:#333">/</span> data.vertex.w;
+
+    <span style="color:#888">//calculate new posiiton</span>
+    float3 modifiedPos <span style="color:#333">=</span> localPos;
+    float2 basePosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, modifiedPos).xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> basePosNoise <span style="color:#333">=</span> sampleLayeredNoise(basePosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    modifiedPos.y <span style="color:#333">+=</span> basePosNoise <span style="color:#333">*</span> _Amplitude;
+    
+    <span style="color:#888">//calculate new position based on pos + tangent</span>
+    float3 posPlusTangent <span style="color:#333">=</span> localPos <span style="color:#333">+</span> data.tangent <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.02</span>;
+    float2 tangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusTangent).xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> tangentPosNoise <span style="color:#333">=</span> sampleLayeredNoise(tangentPosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    posPlusTangent.y <span style="color:#333">+=</span> tangentPosNoise <span style="color:#333">*</span> _Amplitude;
+
+    <span style="color:#888">//calculate new position based on pos + bitangent</span>
+    float3 bitangent <span style="color:#333">=</span> cross(data.normal, data.tangent);
+    float3 posPlusBitangent <span style="color:#333">=</span> localPos <span style="color:#333">+</span> bitangent <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.02</span>;
+    float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusBitangent).xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> bitangentPosNoise <span style="color:#333">=</span> sampleLayeredNoise(bitangentPosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    posPlusBitangent.y <span style="color:#333">+=</span> bitangentPosNoise <span style="color:#333">*</span> _Amplitude;
+
+    <span style="color:#888">//get recalculated tangent and bitangent</span>
+    float3 modifiedTangent <span style="color:#333">=</span> posPlusTangent <span style="color:#333">-</span> modifiedPos;
+    float3 modifiedBitangent <span style="color:#333">=</span> posPlusBitangent <span style="color:#333">-</span> modifiedPos;
+
+    <span style="color:#888">//calculate new normal and set position + normal</span>
+    float3 modifiedNormal <span style="color:#333">=</span> cross(modifiedTangent, modifiedBitangent);
+    data.normal <span style="color:#333">=</span> normalize(modifiedNormal);
+    data.vertex <span style="color:#333">=</span> float4(modifiedPos.xyz, <span style="color:#00d;font-weight:bold">1</span>);
+}
+</code></pre></div><p><img src="/assets/images/posts/027/CorrectedNormals.png" alt=""></p>
+<p>Now that we did this we can also make it scroll, just to look nice. For that we&rsquo;ll just add the vector multiplied by the time to the all input values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Properties</span>
+_ScrollDirection(<span style="color:#f00;background-color:#faa">&#34;</span>Scroll Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+float2 _ScrollDirection;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate base position</span>
+float2 basePosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, modifiedPos).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate tangent position</span>
+float2 tangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusTangent).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate bitangent position</span>
+float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusBitangent).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+</code></pre></div><p><img src="/assets/images/posts/027/Result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="1d-layered-noise">1d layered noise</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_1d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_1d.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">027</span>_layered_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">1</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+		_Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#888">//global shader variables</span>
+		<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span> 
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Roughness;
+		<span style="color:#080;font-weight:bold">float</span> _Persistance;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> gradientNoise(<span style="color:#080;font-weight:bold">float</span> value){
+			<span style="color:#080;font-weight:bold">float</span> fraction <span style="color:#333">=</span> frac(value);
+			<span style="color:#080;font-weight:bold">float</span> interpolator <span style="color:#333">=</span> easeInOut(fraction);
+
+			<span style="color:#080;font-weight:bold">float</span> previousCellInclination <span style="color:#333">=</span> rand1dTo1d(floor(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> previousCellLinePoint <span style="color:#333">=</span> previousCellInclination <span style="color:#333">*</span> fraction;
+
+			<span style="color:#080;font-weight:bold">float</span> nextCellInclination <span style="color:#333">=</span> rand1dTo1d(ceil(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> nextCellLinePoint <span style="color:#333">=</span> nextCellInclination <span style="color:#333">*</span> (fraction <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>);
+
+			<span style="color:#080;font-weight:bold">return</span> lerp(previousCellLinePoint, nextCellLinePoint, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(<span style="color:#080;font-weight:bold">float</span> value){
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+				noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> gradientNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+				factor <span style="color:#333">*=</span> _Persistance;
+				frequency <span style="color:#333">*=</span> _Roughness;
+			}
+
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			<span style="color:#080;font-weight:bold">float</span> value <span style="color:#333">=</span> i.worldPos.x <span style="color:#333">/</span> _CellSize;
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value);
+			
+			<span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> abs(noise <span style="color:#333">-</span> i.worldPos.y);
+			<span style="color:#080;font-weight:bold">float</span> pixelHeight <span style="color:#333">=</span> fwidth(i.worldPos.y);
+			<span style="color:#080;font-weight:bold">float</span> lineIntensity <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>pixelHeight, pixelHeight, dist);
+			o.Albedo <span style="color:#333">=</span> lerp(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, lineIntensity);
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="2d-layered-noise">2d layered noise</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_2d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_2d.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">027</span>_layered_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+		_Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#888">//global shader variables</span>
+		<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span> 
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Roughness;
+		<span style="color:#080;font-weight:bold">float</span> _Persistance;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value){
+			<span style="color:#888">//generate random directions</span>
+			float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			float2 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#888">//get values of cells based on fraction and cell directions</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerLeftFunctionValue <span style="color:#333">=</span> dot(lowerLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> lowerRightFunctionValue <span style="color:#333">=</span> dot(lowerRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperLeftFunctionValue <span style="color:#333">=</span> dot(upperLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperRightFunctionValue <span style="color:#333">=</span> dot(upperRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+
+			<span style="color:#888">//interpolate between values</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerCells <span style="color:#333">=</span> lerp(lowerLeftFunctionValue, lowerRightFunctionValue, interpolatorX);
+			<span style="color:#080;font-weight:bold">float</span> upperCells <span style="color:#333">=</span> lerp(upperLeftFunctionValue, upperRightFunctionValue, interpolatorX);
+
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(lowerCells, upperCells, interpolatorY);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+				noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+				factor <span style="color:#333">*=</span> _Persistance;
+				frequency <span style="color:#333">*=</span> _Roughness;
+			}
+
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+			<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+			o.Albedo <span style="color:#333">=</span> noise;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="3d-layered-noise">3d layered noise</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_3d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_perlin_noise_3d.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">027</span>_layered_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">3</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+		_Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#888">//global shader variables</span>
+		<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span> 
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Roughness;
+		<span style="color:#080;font-weight:bold">float</span> _Persistance;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float3 value){
+			float3 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorZ <span style="color:#333">=</span> easeInOut(fraction.z);
+
+			float3 cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;z<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;z<span style="color:#333">++</span>){
+				float3 cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;y<span style="color:#333">++</span>){
+					float3 cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;x<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> floor(value) <span style="color:#333">+</span> float3(x, y, z);
+						float3 cellDirection <span style="color:#333">=</span> rand3dTo3d(cell) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+						float3 compareVector <span style="color:#333">=</span> fraction <span style="color:#333">-</span> float3(x, y, z);
+						cellNoiseX[x] <span style="color:#333">=</span> dot(cellDirection, compareVector);
+					}
+					cellNoiseY[y] <span style="color:#333">=</span> lerp(cellNoiseX[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseX[<span style="color:#00d;font-weight:bold">1</span>], interpolatorX);
+				}
+				cellNoiseZ[z] <span style="color:#333">=</span> lerp(cellNoiseY[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseY[<span style="color:#00d;font-weight:bold">1</span>], interpolatorY);
+			}
+			float3 noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float3 value){
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+				noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+				factor <span style="color:#333">*=</span> _Persistance;
+				frequency <span style="color:#333">*=</span> _Roughness;
+			}
+
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+			<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+			o.Albedo <span style="color:#333">=</span> noise;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="scrolling-height-noise">Scrolling height noise</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_noise_special.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/027_Layered_Noise/layered_noise_special.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">027</span>_layered_noise<span style="color:#333">/</span>special_use_case<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">16</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+		_Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+		_Amplitude(<span style="color:#f00;background-color:#faa">&#34;</span>Amplitude<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+		_ScrollDirection(<span style="color:#f00;background-color:#faa">&#34;</span>Scroll Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows vertex<span style="color:#333">:</span>vert addshadow
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span> 
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#888">//global shader variables</span>
+		<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span> 
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Roughness;
+		<span style="color:#080;font-weight:bold">float</span> _Persistance;
+		<span style="color:#080;font-weight:bold">float</span> _Amplitude;
+
+		float2 _ScrollDirection;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value){
+			<span style="color:#888">//generate random directions</span>
+			float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			float2 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#888">//get values of cells based on fraction and cell directions</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerLeftFunctionValue <span style="color:#333">=</span> dot(lowerLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> lowerRightFunctionValue <span style="color:#333">=</span> dot(lowerRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperLeftFunctionValue <span style="color:#333">=</span> dot(upperLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperRightFunctionValue <span style="color:#333">=</span> dot(upperRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+
+			<span style="color:#888">//interpolate between values</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerCells <span style="color:#333">=</span> lerp(lowerLeftFunctionValue, lowerRightFunctionValue, interpolatorX);
+			<span style="color:#080;font-weight:bold">float</span> upperCells <span style="color:#333">=</span> lerp(upperLeftFunctionValue, upperRightFunctionValue, interpolatorX);
+
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(lowerCells, upperCells, interpolatorY);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+				noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>) <span style="color:#333">*</span> factor;
+				factor <span style="color:#333">*=</span> _Persistance;
+				frequency <span style="color:#333">*=</span> _Roughness;
+			}
+
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+		
+		<span style="color:#080;font-weight:bold">void</span> vert(<span style="color:#080;font-weight:bold">inout</span> appdata_full data){
+			<span style="color:#888">//get real base position</span>
+			float3 localPos <span style="color:#333">=</span> data.vertex <span style="color:#333">/</span> data.vertex.w;
+
+			<span style="color:#888">//calculate new posiiton</span>
+			float3 modifiedPos <span style="color:#333">=</span> localPos;
+			float2 basePosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, modifiedPos).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+			<span style="color:#080;font-weight:bold">float</span> basePosNoise <span style="color:#333">=</span> sampleLayeredNoise(basePosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			modifiedPos.y <span style="color:#333">+=</span> basePosNoise <span style="color:#333">*</span> _Amplitude;
+			
+			<span style="color:#888">//calculate new position based on pos + tangent</span>
+			float3 posPlusTangent <span style="color:#333">=</span> localPos <span style="color:#333">+</span> data.tangent <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.02</span>;
+			float2 tangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusTangent).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+			<span style="color:#080;font-weight:bold">float</span> tangentPosNoise <span style="color:#333">=</span> sampleLayeredNoise(tangentPosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			posPlusTangent.y <span style="color:#333">+=</span> tangentPosNoise <span style="color:#333">*</span> _Amplitude;
+
+			<span style="color:#888">//calculate new position based on pos + bitangent</span>
+			float3 bitangent <span style="color:#333">=</span> cross(data.normal, data.tangent);
+			float3 posPlusBitangent <span style="color:#333">=</span> localPos <span style="color:#333">+</span> bitangent <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.02</span>;
+			float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWorld, posPlusBitangent).xz <span style="color:#333">/</span> _CellSize <span style="color:#333">+</span> _ScrollDirection <span style="color:#333">*</span> _Time.y;
+			<span style="color:#080;font-weight:bold">float</span> bitangentPosNoise <span style="color:#333">=</span> sampleLayeredNoise(bitangentPosValue) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			posPlusBitangent.y <span style="color:#333">+=</span> bitangentPosNoise <span style="color:#333">*</span> _Amplitude;
+
+			<span style="color:#888">//get recalculated tangent and bitangent</span>
+			float3 modifiedTangent <span style="color:#333">=</span> posPlusTangent <span style="color:#333">-</span> modifiedPos;
+			float3 modifiedBitangent <span style="color:#333">=</span> posPlusBitangent <span style="color:#333">-</span> modifiedPos;
+
+			<span style="color:#888">//calculate new normal and set position + normal</span>
+			float3 modifiedNormal <span style="color:#333">=</span> cross(modifiedTangent, modifiedBitangent);
+			data.normal <span style="color:#333">=</span> normalize(modifiedNormal);
+			data.vertex <span style="color:#333">=</span> float4(modifiedPos.xyz, <span style="color:#00d;font-weight:bold">1</span>);
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			o.Albedo <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>Octaves are a great way to add complexity to your noise patterns. You can also try to use the same technique to mix different kinds of noise and see what happens. In any case I hope that you learned how it works and you can do amazing stuff with it. If you feel like something is missing or confusing, just write me.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Postprocessing Basics | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Postprocessing Basics" />
+<meta property="og:description" content="Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/016-postprocessing-basics/" />
+<meta property="article:published_time" content="2018-06-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-06-23T00:00:00+00:00" />
+<meta itemprop="name" content="Postprocessing Basics">
+<meta itemprop="description" content="Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first.">
+<meta itemprop="datePublished" content="2018-06-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-06-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1210">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Postprocessing Basics"/>
+<meta name="twitter:description" content="Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Postprocessing Basics</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-06-23T00:00:00Z">June 23, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.</p>
+<p>Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first. If you have read/understand my <a href="https://ronja-tutorials.com/post/004-basic/">tutorial about rendering rextures</a> you should be fine.</p>
+<p><img src="/assets/images/posts/016/Result.jpg" alt="Result"></p>
+<h2 id="postprocessing-shader">Postprocessing Shader</h2>
+<p>As a simple introduction into postprocessing, I’m going to show you how to make a shader which inverts the colors of an image.</p>
+<p>Because most of the structure is the same as other shaders, we’re going to use the textured shader as a base for this one, you can find it <a href="https://ronja-tutorials.com/post/004-basic/">here</a></p>
+<p>This simple shader already has some things we don’t need if we don’t render surfaces with it which we’re going to remove. I’m removing the tint color(we can keep it if we wanted to tint the image), the tags (unity can read when and how to render objects, but like I mentioned, we’re not rendering objects with the shader), the texture transforms (maintex will be the image before we apply the shader to it and we always want the whole scene), the transform tex macro (because it uses the texture transform and we don’t use that anymore, but we still want to write the uv coordinates into the v2f struct) and the part where the tint color is used.</p>
+<p>Then we will add a few details which to make the shader work better as a postprocessing shader. Those are the hide in inspector tag for the main texture property because it will be set from code and markers that tell unity to not perform any culling or writing/reading to the depth buffer.</p>
+<p>After those changes, the shader should look roughly like this.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">016</span>_Postprocessing<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    }
+
+    SubShader{
+        <span style="color:#888">// markers that specify that we don&#39;t need culling</span>
+        <span style="color:#888">// or reading/writing to the depth buffer</span>
+        Cull Off
+        ZWrite Off
+        ZTest Always
+
+        Pass{
+            CGPROGRAM
+            <span style="color:#888">//include useful shader functions</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//define vertex and fragment shader</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//texture and transforms of the texture</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+
+            <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the vertex shader</span>
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.uv <span style="color:#333">=</span> v.uv;
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#888">//the fragment shader</span>
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//get source color from texture</span>
+                fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+}
+</code></pre></div><h2 id="postprocessing-c-script">Postprocessing C# Script</h2>
+<p>Now that we have the base of our postprocessing shader, we can write the C# script that will make the camera use the script.</p>
+<p>We will need a normal monobehaviour, with only one method called OnRenderImage. The method will automatically be called by unity. It’s passed two arguments, one rendertexture with the rendered image and one rendertexture we can write into that’s used as the rendered image afterwards. To move image data from one rendertexture to the other, we use the blit method.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#888">//behaviour which should lie on the same gameobject as the main camera
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">Postprocessing</span> : MonoBehaviour {
+
+	<span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span>	<span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+		<span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>		Graphics.Blit(source, destination);
+	}
+}
+</code></pre></div><p>So far this script wouldn’t do anything because it doesn’t change the image at all. For it to do that we can pass the blit function a material to use to draw the texture as a third parameter. We’ll add a material as a serialized class variable and then pass it to the blit function to do that.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#888">//behaviour which should lie on the same gameobject as the main camera
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">Postprocessing</span> : MonoBehaviour {
+    <span style="color:#888">//material that&#39;s applied when doing postprocessing
+</span><span style="color:#888"></span><span style="color:#00c">    [SerializeField]</span>
+    <span style="color:#080;font-weight:bold">private</span> Material postprocessMaterial;
+
+    <span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+        <span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>        Graphics.Blit(source, destination, postprocessMaterial);
+    }
+}
+</code></pre></div><p>With this set up, we can then set up our scene. First we add a new Material to our project and apply our postprocessing shader to it.</p>
+<p><img src="/assets/images/posts/016/EmptyMaterial.png" alt="The inspector of the material without properties"></p>
+<p>Then we take the gameobject with our camera on it and the C# script we wrote. Then we add our new material to the component.</p>
+<p><img src="/assets/images/posts/016/PostprocessingComponent.png" alt="the camera gameobject with the postprocessing component"></p>
+<h2 id="negative-colors-effect">Negative Colors Effect</h2>
+<p>With this our setup is complete, we should see the image like normal. To use this to invert the colors of our image, we go back into our shader and edit the fragment function. Instead of just returning the color of the input texture, we first invert the color by calculating 1 minus the color and then return it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//get source color from texture</span>
+    fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+    <span style="color:#888">//invert the color</span>
+    col <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> col;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/016/Result.jpg" alt="Result"></p>
+<p>Inverting the color is obviously not a thing you often want to do, but this opens up many possibilities for future effects, some of which I will show in the next weeks.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">016</span>_Postprocessing<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    }
+
+    SubShader{
+        <span style="color:#888">// markers that specify that we don&#39;t need culling</span>
+        <span style="color:#888">// or reading/writing to the depth buffer</span>
+        Cull Off
+        ZWrite Off
+        ZTest Always
+
+        Pass{
+            CGPROGRAM
+            <span style="color:#888">//include useful shader functions</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//define vertex and fragment shader</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//texture and transforms of the texture</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+
+            <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the vertex shader</span>
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.uv <span style="color:#333">=</span> v.uv;
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#888">//the fragment shader</span>
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//get source color from texture</span>
+                fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+                <span style="color:#888">//invert the color</span>
+                col <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> col;
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#888">//behaviour which should lie on the same gameobject as the main camera
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">Postprocessing</span> : MonoBehaviour {
+	<span style="color:#888">//material that&#39;s applied when doing postprocessing
+</span><span style="color:#888"></span><span style="color:#00c">	[SerializeField]</span>
+	<span style="color:#080;font-weight:bold">private</span> Material postprocessMaterial;
+
+	<span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span>	<span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+		<span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>		Graphics.Blit(source, destination, postprocessMaterial);
+	}
+}
+</code></pre></div><p>You can also find the source code for this tutorial here:<!-- raw HTML omitted -->
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.shader</a><!-- raw HTML omitted -->
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.cs</a><!-- raw HTML omitted --></p>
+<p>I hope you learned how to do simple postprocessing in unity and are ready to make simple postprocessing shaders yourself.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

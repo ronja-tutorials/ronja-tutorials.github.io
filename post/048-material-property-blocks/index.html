@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Instancing and Material Property Blocks | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Instancing and Material Property Blocks" />
+<meta property="og:description" content="Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/048-material-property-blocks/" />
+<meta property="article:published_time" content="2020-02-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-02-11T00:00:00+00:00" />
+<meta itemprop="name" content="Instancing and Material Property Blocks">
+<meta itemprop="description" content="Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering.">
+<meta itemprop="datePublished" content="2020-02-11T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-02-11T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2003">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Instancing and Material Property Blocks"/>
+<meta name="twitter:description" content="Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Instancing and Material Property Blocks</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-02-11T00:00:00Z">February 11, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="current-state">Current State</h2>
+<p>I&rsquo;m going to go off a <a href="/basics.html">basic unlit shader</a> in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without</p>
+<p>Important to mention here is that if you&rsquo;re using one of Unity&rsquo;s new scriptable render pipelines the performance slowdown might be way less and you can even make the performance worse by using property blocks. That&rsquo;s because of the new SRP batcher which is able to batch models with different materials, but doesn&rsquo;t support property block as far as I know (it&rsquo;s better to read yourself into the current state of tech yourself and trying out what works better).</p>
+<p><img src="/assets/images/posts/048/SimpleMaterials.png" alt=""></p>
+<h2 id="changing-properties-via-script">Changing Properties via Script</h2>
+<p>If we want to decouple some properties from the materials, we sadly can&rsquo;t set them from the material inspector as that would modify all objects with that material. Instead we create a new C# script which will allow us to set our materials from there. In this instance we just add a public color field and set the <code>_Color</code> property of the shader every time any field is changed in the inspector, which is when the <code>OnValidate</code> method is called automatically.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ColorPropertySetter</span> : MonoBehaviour
+{
+    <span style="color:#080;font-weight:bold">public</span> Color MaterialColor;
+
+    <span style="color:#888">// OnValidate is called in the editor after the component is edited
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">void</span> OnValidate()
+    {
+        <span style="color:#888">//Get a renderer component either of the own gameobject or of a child
+</span><span style="color:#888"></span>        Renderer renderer = GetComponentInChildren&lt;Renderer&gt;();
+        <span style="color:#888">//get the material of the renderer
+</span><span style="color:#888"></span>        Material mat = renderer.material;
+        <span style="color:#888">//set the color property
+</span><span style="color:#888"></span>        mat.SetColor(<span style="background-color:#fff0f0">&#34;_Color&#34;</span>, MaterialColor);
+        <span style="color:#888">//reassign the material to the renderer
+</span><span style="color:#888"></span>        renderer.material = mat;
+    }
+}
+</code></pre></div><p><img src="/assets/images/posts/048/PropertySetter.png" alt=""></p>
+<p>With this setup we can change the properties via a script on a per object basis. What unity hides from us and what makes this very bad is that by using the <code>.material</code> field of the renderer like this, we create a new Material every time we want to modify it. Unity even gives us a little warning to nevr do this in editor code. To get the material without cloning the existing one, we have to use the <code>.sharedMaterial</code> property instead. When we use this property, we also don&rsquo;t have to reassign the material in the last line of the function because we&rsquo;re getting a real reference instead of just a copy.</p>
+<p>If you used the previous version of the script, be sure to apply the same material to all copies again since the renderers are using the clone materials we don&rsquo;t want now.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">// OnValidate is called in the editor after the component is edited
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">void</span> OnValidate()
+{
+    <span style="color:#888">//Get a renderer component either of the own gameobject or of a child
+</span><span style="color:#888"></span>    Renderer renderer = GetComponentInChildren&lt;Renderer&gt;();
+    <span style="color:#888">//get the material of the renderer
+</span><span style="color:#888"></span>    Material mat = renderer.sharedMaterial;
+    <span style="color:#888">//set the color property
+</span><span style="color:#888"></span>    mat.SetColor(<span style="background-color:#fff0f0">&#34;_Color&#34;</span>, MaterialColor);
+}
+</code></pre></div><p><img src="/assets/images/posts/048/ChangeSharedMaterial.gif" alt=""></p>
+<p>Now editing the material via the script is the same as editing it via the material inspector, with the same disadvantages. You can use this knowledge to change materials whenever you want, you can clone a material by passing a new material a old one to clone like <code>Material clone = new Material(oldMaterial);</code>. You can do this in runtime, at awake and if you want a complex system without needing the performance benefits (for example when using the SRP batcher) this should be a good place to start. But to change materials on a per object basis without cloning them, we still need material property blocks.</p>
+<h2 id="setting-material-property-blocks">Setting Material Property Blocks</h2>
+<p>To pass MPBs to shaders, we first have to create a representation of them in C#. It&rsquo;s generally recommended to create them once and reuse it every frame. I check whether a property block already exists at the start of the function and create a new one if it doesn&rsquo;t, if you&rsquo;re only changing the propertyblock in the game and not in the editor creating it during the <code>Awake</code> function is probably more reasonable.
+With the MPB created we can use the same functions as we did on the material on the propertyblock, after setting the properties we apply it to the renderer via the <code>SetPropertyBlock</code> function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ColorPropertySetter</span> : MonoBehaviour
+{
+    <span style="color:#888">//The color of the object
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">public</span> Color MaterialColor;
+
+    <span style="color:#888">//The material property block we pass to the GPU
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">private</span> MaterialPropertyBlock propertyBlock;
+
+    <span style="color:#888">// OnValidate is called in the editor after the component is edited
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">void</span> OnValidate()
+    {
+        <span style="color:#888">//create propertyblock only if none exists
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span> (propertyBlock == <span style="color:#080;font-weight:bold">null</span>)
+            propertyBlock = <span style="color:#080;font-weight:bold">new</span> MaterialPropertyBlock();
+        <span style="color:#888">//Get a renderer component either of the own gameobject or of a child
+</span><span style="color:#888"></span>        Renderer renderer = GetComponentInChildren&lt;Renderer&gt;();
+        <span style="color:#888">//set the color property
+</span><span style="color:#888"></span>        propertyBlock.SetColor(<span style="background-color:#fff0f0">&#34;_Color&#34;</span>, MaterialColor);
+        <span style="color:#888">//apply propertyBlock to renderer
+</span><span style="color:#888"></span>        renderer.SetPropertyBlock(propertyBlock);
+    }
+}
+</code></pre></div><p><img src="/assets/images/posts/048/CorrectPropertyBlocks.png" alt=""></p>
+<p>With this we are setting the MPBs correctly and we can see 3 models with the same material, but different colors. Sadly our material doesn&rsquo;t support instancing yet, so we don&rsquo;t get the performance benefits of using material property blocks and still have to pay with one drawcall per unique MPB.</p>
+<h2 id="making-your-shader-support-instancing">Making your Shader support Instancing</h2>
+<p>First we have to tell Unity that the shader is able to be instanced, to do this we add the line <code>#pragma multi_compile_instancing</code> next to the <code>#pragma</code> declarations for the shader functions, this makes the material inspector show the &ldquo;Enable GPU Instancing&rdquo; option which we want to enable. In the case of surface shaders this shouldn&rsquo;t be needed.</p>
+<p><img src="/assets/images/posts/048/InstancingOption.png" alt=""></p>
+<p>If you don&rsquo;t use MaterialPropertyBlocks this is all you need to do to enable instancing, and if you&rsquo;re using hundreds of thousands of instances of the same model, it can save you a good bit of performance. If we look into the frame debugger we can see that using MaterialPropertyBlocks currently breaks our instancing though because the properties aren&rsquo;t setup for instancing yet. (You can find the frame debugger under <code>Window &gt; Analysis &gt; Frame Debugger</code>)</p>
+<p><img src="/assets/images/posts/048/CantInstanceDebugger.png" alt=""></p>
+<p>First we have to set up the instance id. In Unity theres macros for that, so we&rsquo;ll use those. We add <code>UNITY_VERTEX_INPUT_INSTANCE_ID</code> to both the appdata struct as well as the v2f struct. Then in the vertex function we use <code>UNITY_SETUP_INSTANCE_ID(input_stuct)</code> to do the setup in the appdata input stuct and then pass the ID to the vertex to fragment struct for use in the fragment shader via the <code>UNITY_TRANSFER_INSTANCE_ID(input_stuct, output_stuct)</code> macro. In the fragment shader we add another <code>UNITY_SETUP_INSTANCE_ID</code> to also do the setup there.</p>
+<p>With this work done, we can actually look at the properties to convert. For this we have to add a code block in our hlsl area, but outside of any functions thats framed by the two macros <code>UNITY_INSTANCING_BUFFER_START(name)</code> and <code>UNITY_INSTANCING_BUFFER_END(name)</code>. Inside this block we can then define variables via the <code>UNITY_DEFINE_INSTANCED_PROP(datatype, variable_name)</code> macro. After that is also done, we can finally access the properties of the MPB via the <code>UNITY_ACCESS_INSTANCED_PROP(buffer_name, variable_name)</code> macro.</p>
+<p>I also added the <code>[PerRendererData]</code> attribute to the <code>_Color</code> property in the property definitions at the top, though this should only make it so the property isn&rsquo;t shown in the regular material inspector where it doesn&rsquo;t have any effect anymore when a MPB is used.</p>
+<p>With all of this done, the shader looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">04</span><span style="color:#00d;font-weight:bold">8</span>_Instancing<span style="color:#f00;background-color:#faa">&#34;</span> {
+  <span style="color:#888">//show values to edit in inspector</span>
+  Properties{
+    [PerRendererData] _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+  }
+
+  SubShader{
+    <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Pass{
+      CGPROGRAM
+      <span style="color:#888">//allow instancing</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma multi_compile_instancing
+
+      <span style="color:#888">//shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#888">//use unity shader library</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#888">//per vertex data that comes from the model/parameters</span>
+      <span style="color:#080;font-weight:bold">struct</span> appdata{
+        float4 vertex <span style="color:#333">:</span> POSITION;
+        UNITY_VERTEX_INPUT_INSTANCE_ID
+      };
+
+      <span style="color:#888">//per vertex data that gets passed from the vertex to the fragment function</span>
+      <span style="color:#080;font-weight:bold">struct</span> v2f{
+        float4 position <span style="color:#333">:</span> SV_POSITION;
+        UNITY_VERTEX_INPUT_INSTANCE_ID
+      };
+
+      UNITY_INSTANCING_BUFFER_START(Props)
+        UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+      UNITY_INSTANCING_BUFFER_END(Props)
+
+      v2f vert(appdata v){
+        v2f o;
+
+        <span style="color:#888">//setup instance id</span>
+        UNITY_SETUP_INSTANCE_ID(v);
+        UNITY_TRANSFER_INSTANCE_ID(v, o);
+
+        <span style="color:#888">//calculate the position in clip space to render the object</span>
+        o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+        <span style="color:#080;font-weight:bold">return</span> o;
+      }
+
+      fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+          <span style="color:#888">//setup instance id</span>
+          UNITY_SETUP_INSTANCE_ID(i);
+          <span style="color:#888">//get _Color Property from buffer</span>
+          fixed4 color <span style="color:#333">=</span> UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+        <span style="color:#888">//Return the color the Object is rendered in</span>
+        <span style="color:#080;font-weight:bold">return</span> color;
+      }
+
+      ENDCG
+    }
+  }
+}
+</code></pre></div><p>And when checking the frame debugger we can actually see that all of our objects are drawn in a single drawcall.</p>
+<p><img src="/assets/images/posts/048/CanInstanceDebugger.png" alt=""></p>
+<h2 id="profiling">Profiling</h2>
+<p>If you&rsquo;re asking yourself what the use of all of this was apart from some abstract concept of &ldquo;drawcalls&rdquo; I made a little test. Lots of small meshes with small different changes like color are a best case szenario for instancing, but it can show you what instancing is capable of in theory.</p>
+<p><img src="/assets/images/posts/048/BallPit.png" alt=""></p>
+<p>For profiling I used a new script which assigns a random color instead of a authored one:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">RandomColorPropertySetter</span> : MonoBehaviour
+{
+    <span style="color:#888">//The material property block we pass to the GPU
+</span><span style="color:#888"></span>    MaterialPropertyBlock propertyBlock;
+
+    <span style="color:#888">// OnValidate is called in the editor after the component is edited
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">void</span> OnValidate()
+    {
+        <span style="color:#888">//create propertyblock only if none exists
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span> (propertyBlock == <span style="color:#080;font-weight:bold">null</span>)
+            propertyBlock = <span style="color:#080;font-weight:bold">new</span> MaterialPropertyBlock();
+        <span style="color:#888">//Get a renderer component either of the own gameobject or of a child
+</span><span style="color:#888"></span>        Renderer renderer = GetComponentInChildren&lt;Renderer&gt;();
+        <span style="color:#888">//set the color property
+</span><span style="color:#888"></span>        propertyBlock.SetColor(<span style="background-color:#fff0f0">&#34;_Color&#34;</span>, GetRandomColor());
+        <span style="color:#888">//apply propertyBlock to renderer
+</span><span style="color:#888"></span>        renderer.SetPropertyBlock(propertyBlock);
+    }
+
+    <span style="color:#080;font-weight:bold">static</span> Color GetRandomColor()
+    {
+        <span style="color:#080;font-weight:bold">return</span> Color.HSVToRGB(Random.<span style="color:#080;font-weight:bold">value</span>, <span style="color:#60e;font-weight:bold">1</span>, .<span style="color:#60e;font-weight:bold">9f</span>);
+    }
+}
+</code></pre></div><p>With 4800 Spheres with our newly written shader plus this random color script the whole screen renders with 13 batches and takes about 7-8ms on the CPU while taking 1.1ms on the GPU (That means the frame takes 7-8ms and the program is &ldquo;CPU bound&rdquo; meaning optimisations should focon on how to lessen the CPU load). Taking the CPU into consideration is fair here because the CPU has to figure out which meshes can be batches each frame and dispatch the data. When disabling instancing the batches jump up to 4803 taking around 14-15ms on the CPU and 11ms on the GPU, what I consider a clear improvement. As always if you have performance critical things in your own application theres no magic bullet, the best thing you can have is being aware of the possibilities and trying all of them and seeing the advantages and disadvantages for your use case.</p>
+<p><img src="/assets/images/posts/048/StatsComparison.png" alt=""></p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ColorPropertySetter</span> : MonoBehaviour
+{
+    <span style="color:#888">//The color of the object
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">public</span> Color MaterialColor;
+
+    <span style="color:#888">//The material property block we pass to the GPU
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">private</span> MaterialPropertyBlock propertyBlock;
+
+    <span style="color:#888">// OnValidate is called in the editor after the component is edited
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">void</span> OnValidate()
+    {
+        <span style="color:#888">//create propertyblock only if none exists
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span> (propertyBlock == <span style="color:#080;font-weight:bold">null</span>)
+            propertyBlock = <span style="color:#080;font-weight:bold">new</span> MaterialPropertyBlock();
+        <span style="color:#888">//Get a renderer component either of the own gameobject or of a child
+</span><span style="color:#888"></span>        Renderer renderer = GetComponentInChildren&lt;Renderer&gt;();
+        <span style="color:#888">//set the color property
+</span><span style="color:#888"></span>        propertyBlock.SetColor(<span style="background-color:#fff0f0">&#34;_Color&#34;</span>, MaterialColor);
+        <span style="color:#888">//apply propertyBlock to renderer
+</span><span style="color:#888"></span>        renderer.SetPropertyBlock(propertyBlock);
+    }
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/MPBShader.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/MPBShader.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">04</span><span style="color:#00d;font-weight:bold">8</span>_Instancing<span style="color:#f00;background-color:#faa">&#34;</span> {
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		[PerRendererData] _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+			<span style="color:#888">//allow instancing</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma multi_compile_instancing
+
+            <span style="color:#888">//shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//use unity shader library</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//per vertex data that comes from the model/parameters</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+            <span style="color:#888">//per vertex data that gets passed from the vertex to the fragment function</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
+            UNITY_INSTANCING_BUFFER_END(Props)
+
+			v2f vert(appdata v){
+				v2f o;
+
+				<span style="color:#888">//setup instance id</span>
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
+
+				<span style="color:#888">//calculate the position in clip space to render the object</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+			    <span style="color:#888">//setup instance id</span>
+                UNITY_SETUP_INSTANCE_ID(i);
+			    <span style="color:#888">//get _Color Property from buffer</span>
+			    fixed4 color <span style="color:#333">=</span> UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+				<span style="color:#888">//Return the color the Object is rendered in</span>
+				<span style="color:#080;font-weight:bold">return</span> color;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

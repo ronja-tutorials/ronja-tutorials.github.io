@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Color Interpolation | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
+This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Color Interpolation" />
+<meta property="og:description" content="Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
+This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/009-interpolating-colors/" />
+<meta property="article:published_time" content="2018-05-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-05-03T00:00:00+00:00" />
+<meta itemprop="name" content="Color Interpolation">
+<meta itemprop="description" content="Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
+This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value.">
+<meta itemprop="datePublished" content="2018-05-03T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-05-03T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1841">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Color Interpolation"/>
+<meta name="twitter:description" content="Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
+This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Color Interpolation</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-05-03T00:00:00Z">May 3, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.</p>
+<p>This tutorial will build on the <a href="https://ronja-tutorials.com/post/004-basic/">simple textured shader</a>, but you can use this technique with any shader including surface shaders.
+<img src="/assets/images/posts/009/Result.png" alt="Result"></p>
+<h2 id="interpolate-colors">Interpolate Colors</h2>
+<p>The first version of this shader we’re exploring will just interpolate between two plain colors based on a value. Because of that we don’t need the variables connected to uv coordinates or textures for now, instead we add a second color variable and a simple value which will determine if the material shows the first of the second color. We define that blending property as a “Range” so we get a nice slider in the inspector.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
+
+<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the base color</span>
+		_SecondaryColor (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the color to blend to</span>
+		_Blend (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span> <span style="color:#888">//0 is the first color, 1 the second</span>
+}
+
+<span style="color:#888">//...</span>
+
+<span style="color:#888">//the value that&#39;s used to blend between the colors</span>
+<span style="color:#080;font-weight:bold">float</span> _Blend;
+
+<span style="color:#888">//the colors to blend between</span>
+fixed4 _Color;
+fixed4 _SecondaryColor;
+</code></pre></div><p>Apart from deleting the lines connected to UV coodinates, we can keep the vertex shader as it is. Instead we edit the fragment shader. As a first version we can just add the second color onto the first based on the blend value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    fixed4 col <span style="color:#333">=</span> _Color <span style="color:#333">+</span> _SecondaryColor <span style="color:#333">*</span> _Blend;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/009/BlendColorsAdd.gif" alt="Blend Between two colors in a wrong way"></p>
+<p>We can already see that the color changes, but it doesn’t change to the secondary color. That’s because while the secondary color gets factored in, the primary color is still there (it’s similar to pointing two lights of different colors at one spot).</p>
+<p>To fix this we can lessen the effect of the primary color as we increase the blend value. With a blend value of 0 we don’t see any of the secondary color and all of the primary one and with a blend value of 1 we want to see all of the secondary color and nothing of the primary color. To archive that, we multiply the primary color with one minus the blend value, turning 1 to 0 and 0 to 1.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    fixed4 col <span style="color:#333">=</span> _Color <span style="color:#333">*</span> (<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> _Blend) <span style="color:#333">+</span> _SecondaryColor <span style="color:#333">*</span> _Blend;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/009/BlendColors.gif" alt="Blend Between two colors correctly"></p>
+<p>This process is also called linear interpolation and theres a function built into hlsl that does this for us called lerp. It takes a value to interpolate from, a value to interpolate to and a interpolation value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    fixed4 col <span style="color:#333">=</span> lerp(_Color, _SecondaryColor, _Blend);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>The complete shader for interpolating between two colors looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">00</span><span style="color:#00d;font-weight:bold">9</span>_Color_Blending<span style="color:#333">/</span>Plain<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the base color</span>
+		_SecondaryColor (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>) <span style="color:#888">//the color to blend to</span>
+		_Blend (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span> <span style="color:#888">//0 is the first color, 1 the second</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//the value that&#39;s used to blend between the colors</span>
+			<span style="color:#080;font-weight:bold">float</span> _Blend;
+
+			<span style="color:#888">//the colors to blend between</span>
+			fixed4 _Color;
+			fixed4 _SecondaryColor;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				fixed4 col <span style="color:#333">=</span> lerp(_Color, _SecondaryColor, _Blend);
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><h2 id="interpolate-textures">Interpolate Textures</h2>
+<p>The next version of this shader will involve interpolating between colors we read from textures. For that we remove the color properties and variables to instead add properties and variables for two textures. We also introduce variables for uv coordinates again, but unlike in the texture tutorial we’re not applying the tiling and offset of the texture in the vertex shader. That’s because we have several textures that all use the same uv coodinates and we don’t want to interpolate all of them when we don’t have to.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
+
+<span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the base texture</span>
+    _SecondaryTex (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>black<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the texture to blend to</span>
+    _Blend (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span> <span style="color:#888">//0 is the first color, 1 the second</span>
+}
+
+<span style="color:#888">//...</span>
+
+<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+<span style="color:#080;font-weight:bold">struct</span> appdata{
+    float4 vertex <span style="color:#333">:</span> POSITION;
+    float2 uv <span style="color:#333">:</span> TEXCOORD0;
+};
+
+<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+<span style="color:#080;font-weight:bold">struct</span> v2f{
+    float4 position <span style="color:#333">:</span> SV_POSITION;
+    float2 uv <span style="color:#333">:</span> TEXCOORD0;
+};
+
+<span style="color:#888">//the vertex shader</span>
+v2f vert(appdata v){
+    v2f o;
+    <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+    o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+    o.uv <span style="color:#333">=</span> v.uv;
+    <span style="color:#080;font-weight:bold">return</span> o;
+}
+
+<span style="color:#888">//...</span>
+</code></pre></div><p>Then, in the fragment shader, we can apply the tiling and offset separately for the two textures via the transform tex macro like we’re used to. Next we use those coordinates to read the two textures. After we did that we can use the colors we read from the textures and interpolate between them like we’re used to.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//calculate UV coordinates including tiling and offset</span>
+    float2 main_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+    float2 secondary_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _SecondaryTex);
+
+    <span style="color:#888">//read colors from textures</span>
+    fixed4 main_color <span style="color:#333">=</span> tex2D(_MainTex, main_uv);
+    fixed4 secondary_color <span style="color:#333">=</span> tex2D(_SecondaryTex, secondary_uv);
+
+    <span style="color:#888">//interpolate between the colors</span>
+    fixed4 col <span style="color:#333">=</span> lerp(main_color, secondary_color, _Blend);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/009/BlendTextures.gif" alt="Blend Between two Textures"></p>
+<p>The complete shader for interpolating between two textures looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">00</span><span style="color:#00d;font-weight:bold">9</span>_Color_Blending<span style="color:#333">/</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the base texture</span>
+		_SecondaryTex (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>black<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the texture to blend to</span>
+		_Blend (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Value<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span> <span style="color:#888">//0 is the first color, 1 the second</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//the value that&#39;s used to blend between the colors</span>
+			<span style="color:#080;font-weight:bold">float</span> _Blend;
+
+			<span style="color:#888">//the colors to blend between</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#080;font-weight:bold">sampler2D</span> _SecondaryTex;
+			float4 _SecondaryTex_ST;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				<span style="color:#888">//calculate UV coordinates including tiling and offset</span>
+				float2 main_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+				float2 secondary_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _SecondaryTex);
+
+				<span style="color:#888">//read colors from textures</span>
+				fixed4 main_color <span style="color:#333">=</span> tex2D(_MainTex, main_uv);
+				fixed4 secondary_color <span style="color:#333">=</span> tex2D(_SecondaryTex, secondary_uv);
+
+				<span style="color:#888">//interpolate between the colors</span>
+				fixed4 col <span style="color:#333">=</span> lerp(main_color, secondary_color, _Blend);
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><h2 id="interpolation-based-on-a-texture">Interpolation based on a Texture</h2>
+<p>Lastly I’m going to show you a shader that doesn’t use one uniform variable to blend between the textures, but instead takes the blend value from a texture.</p>
+<p>For this we start by deleting the variable and property we used for blending and instead add another texture.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
+
+<span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the base texture</span>
+    _SecondaryTex (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>black<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the texture to blend to</span>
+    _BlendTex (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>grey<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//black is the first color, white the second</span>
+}
+
+<span style="color:#888">//...</span>
+
+<span style="color:#888">//the texture that&#39;s used to blend between the colors</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _BlendTex;
+float4 _BlendTex_ST;
+
+<span style="color:#888">//the colors to blend between</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+float4 _MainTex_ST;
+
+<span style="color:#080;font-weight:bold">sampler2D</span> _SecondaryTex;
+float4 _SecondaryTex_ST;
+
+<span style="color:#888">//...</span>
+</code></pre></div><p>We then also generate the transformed uv coordinates for that texture. With them, we read the color value from the texture. We now have a full color with red, green, blue and alpha components, but we want a simple 0-1 scalar value. To convert the color into a float we assume the texture is greyscale and just take out the red value of it. We then use this value to interpolate between the other two textures like we did before.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//calculate UV coordinates including tiling and offset</span>
+    float2 main_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+    float2 secondary_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _SecondaryTex);
+    float2 blend_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _BlendTex);
+
+    <span style="color:#888">//read colors from textures</span>
+    fixed4 main_color <span style="color:#333">=</span> tex2D(_MainTex, main_uv);
+    fixed4 secondary_color <span style="color:#333">=</span> tex2D(_SecondaryTex, secondary_uv);
+    fixed4 blend_color <span style="color:#333">=</span> tex2D(_BlendTex, blend_uv);
+
+    <span style="color:#888">//take the red value of the color from the blend texture</span>
+    <span style="color:#080;font-weight:bold">fixed</span> blend_value <span style="color:#333">=</span> blend_color.r;
+
+    <span style="color:#888">//interpolate between the colors</span>
+    fixed4 col <span style="color:#333">=</span> lerp(main_color, secondary_color, blend_value);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/009/BlendWithTexture.png" alt="Blend Between two textures based on a texture"></p>
+<p>The complete shader for interpolating based on a texture looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">00</span><span style="color:#00d;font-weight:bold">9</span>_Color_Blending<span style="color:#333">/</span>TextureBasedBlending<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the base texture</span>
+		_SecondaryTex (<span style="color:#f00;background-color:#faa">&#34;</span>Secondary Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>black<span style="color:#f00;background-color:#faa">&#34;</span> {} <span style="color:#888">//the texture to blend to</span>
+		_BlendTex (<span style="color:#f00;background-color:#faa">&#34;</span>Blend Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>grey<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//black is the first color, white the second</span>
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//the texture that&#39;s used to blend between the colors</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _BlendTex;
+			float4 _BlendTex_ST;
+
+			<span style="color:#888">//the colors to blend between</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#080;font-weight:bold">sampler2D</span> _SecondaryTex;
+			float4 _SecondaryTex_ST;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				<span style="color:#888">//calculate UV coordinates including tiling and offset</span>
+				float2 main_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _MainTex);
+				float2 secondary_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _SecondaryTex);
+				float2 blend_uv <span style="color:#333">=</span> TRANSFORM_TEX(i.uv, _BlendTex);
+
+				<span style="color:#888">//read colors from textures</span>
+				fixed4 main_color <span style="color:#333">=</span> tex2D(_MainTex, main_uv);
+				fixed4 secondary_color <span style="color:#333">=</span> tex2D(_SecondaryTex, secondary_uv);
+				fixed4 blend_color <span style="color:#333">=</span> tex2D(_BlendTex, blend_uv);
+
+				<span style="color:#888">//take the red value of the color from the blend texture</span>
+				<span style="color:#080;font-weight:bold">fixed</span> blend_value <span style="color:#333">=</span> blend_color.r;
+
+				<span style="color:#888">//interpolate between the colors</span>
+				fixed4 col <span style="color:#333">=</span> lerp(main_color, secondary_color, blend_value);
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><p>I hope this tutorial helped you understand how to work with colors in shaders and interpolation in particular.</p>
+<p>You can find the source code to the shaders here:</p>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Plain.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Plain.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Texture.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_Texture.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_TextureBasedBlending.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/009_Color_Blending/ColorBlending_TextureBasedBlending.shader</a></li>
+</ul>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

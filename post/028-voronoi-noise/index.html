@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Voronoi Noise | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Voronoi Noise" />
+<meta property="og:description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/028-voronoi-noise/" />
+<meta property="article:published_time" content="2018-09-29T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-09-29T00:00:00+00:00" />
+<meta itemprop="name" content="Voronoi Noise">
+<meta itemprop="description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders.">
+<meta itemprop="datePublished" content="2018-09-29T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-09-29T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3707">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Voronoi Noise"/>
+<meta name="twitter:description" content="Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Voronoi Noise</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-09-29T00:00:00Z">September 29, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood <a href="/basics.html">the basics of shaders in unity</a> and how to <a href="https://ronja-tutorials.com/post/024-white-noise/">generate random values in shaders</a>.</p>
+<p><img src="/assets/images/posts/028/Result.gif" alt=""></p>
+<p>Also possible trypophobia warning for this tutorial, visualising distances can look a bit messy.</p>
+<h2 id="get-cell-values">Get Cell Values</h2>
+<p>For our implementation of voronoi noise each of our cells will have one point. We start by implementing that in 2d. We start by simply dividing our space into cells by flooring the input value and generating random positions inside of the cells based on that. Then we calculate the distance to the input value based on that and return the distance. Just like in the previous noise tutorials we&rsquo;ll base the noise on the world position so we don&rsquo;t have to worry about scaling and uv mapping. We&rsquo;ll also make the cell size adjustable by dividing the value by a cell size property before passing it to the noise function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> voronoiNoise(float2 value){
+            float2 cell <span style="color:#333">=</span> floor(value);
+            float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+            float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+            <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+            <span style="color:#080;font-weight:bold">return</span> distToCell;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value);
+
+			o.Albedo <span style="color:#333">=</span> noise;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p><img src="/assets/images/posts/028/CellDistances.png" alt=""></p>
+<p>But we need more than just the center of the cell we&rsquo;re in ourselves. We also have to sample the neighboring cells to see which cell center is actually the closest. For that we use for loops which go from -1 to +1. In each iteration we check if the distance to the cell we&rsquo;re checking is smaller than the previous closest cell position, if it is, we replace the distance. The variable we write the distance to has to be declared outside of the shader and has to have a default value that&rsquo;s bigger than any distance between 2 points in the 3x3 grid we check. We tell the compiler to unroll the loops to get better performance in the shader.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> voronoiNoise(float2 value){
+    float2 baseCell <span style="color:#333">=</span> floor(value);
+
+    <span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y<span style="color:#333">++</span>){
+            float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x, y);
+            float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+            float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+            <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+            <span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+                minDistToCell <span style="color:#333">=</span> distToCell;
+            }
+        }
+    }
+    <span style="color:#080;font-weight:bold">return</span> minDistToCell;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/MultiCellDistances.png" alt=""></p>
+<p>But we usually don&rsquo;t just want the distance to the nearest point, we also want to know which point that is. To get that we simply add a new value which we also write to in the if statement. In it we save the position of the nearest cell. After we have the nearest cell we can generate a identifier based on it with the random function and return it. We can return the distance to the cell position as well as the random value if we simply change the function to return a 2d vector. We then return the distance to the position as the x component and the random value as the y component. In the surface function we then simply use the y component of the return value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> voronoiNoise(float2 value){
+    float2 baseCell <span style="color:#333">=</span> floor(value);
+
+    <span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    float2 closestCell;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y<span style="color:#333">++</span>){
+            float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x, y);
+            float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+            float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+            <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+            <span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+                minDistToCell <span style="color:#333">=</span> distToCell;
+                closestCell <span style="color:#333">=</span> cell;
+            }
+        }
+    }
+    <span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand2dTo1d(closestCell);
+    <span style="color:#080;font-weight:bold">return</span> float2(minDistToCell, random);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value).y;
+    o.Albedo <span style="color:#333">=</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/GreyscaleCells.png" alt=""></p>
+<p>Because it&rsquo;s the same value in the same cell we can then use this identifier in the surface function to generate more colorful values if we want to. To do that we simply feed the return value into the 1dTo3d random function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value).y;
+    float3 color <span style="color:#333">=</span> rand1dTo3d(noise);
+    o.Albedo <span style="color:#333">=</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/ColorfulCells.png" alt=""></p>
+<h2 id="getting-the-distance-to-the-border">Getting the distance to the border</h2>
+<p>We already have the distance to the center of the cell, but for many effects, like drawing edges between the cells, we also want the distance to the border. A common way to calculate that is to calculate both the nearest and the second nearest point and then subtract the distance to the nearest point from the distance to the second nearest point. This technique is fast, but doesn&rsquo;t deliver very accurate results. The method we&rsquo;re using instead will calculate the distance to every edge and take the shortest distance.</p>
+<p>To calculate the distance we iterate through the neighboring cells again, this time with the information which cell is the closest. We then calculate the distance to the border by first calculating the center between the two cell positions and then the vector from the sample point to this center. Once we have that, we also calculate the vector from the closest cell to the cell we&rsquo;re calculating the distance to the border to. We then also normalize that difference vector so it has a length of one.</p>
+<p>After we calculated those vectors, we can then calculate the dot product between the cell difference and the vector to the center between the cells. The dot product tells us how far the vector to the center is in the direction and in relation to the vector between the cells. So because we normalized the difference vector it tells us the distance in units (not unity units though, because we changed the value size before passing it to the method by dividing the cell size).</p>
+<p><img src="/assets/images/posts/028/BorderDistanceExplanation.png" alt=""></p>
+<p>For the implementation we also remember the vector to the closest cell in our first pass so we can use it for the calculation later. Then for the second pass we create a new variable to hold the distance to the closest edge. The iterations looks just like in the first pass, two loops from -1 to +1. We&rsquo;ll change the names of the iteration variables in the first loops to x1 and y1 and in the second to x2 and y2, otherwise with unrolling the loops the shader compiler can get confused and give us warnings.</p>
+<p>Then in the inner loop we also calculate the cell, the position of the cell and the vector from the sample point to the cell just like in the first pass. Then the part where we actually calculate the distance to the border will be in a if statement. That&rsquo;s because if we calculate the distance to the border between the nearest cell and itself, that will always tell us the border is 0 units away, which is closer than the borders we actually care about. To check if the cell is the closest cell, we subtract the closest cell from the cell we&rsquo;re checking at the moment to get the difference to the closest cell. Then we take the absolute value of that and add the x and y components. Then we can check if that sum is lower than some threshold and if it is we know that we&rsquo;re in the closest cell and just don&rsquo;t do the comparison with the edge. The reason why we can&rsquo;t just use <code>==</code> to check if the cells are equal is that we&rsquo;re working with floating point numbers because shaders love floating point numbers, but they&rsquo;re often not <em>exactly</em> the same.</p>
+<p>Then in the if statement which checks that we&rsquo;re not in the closest cell, we do the distance calculation. First we calculate the vector from the sample point to the center between the cell points. Since we already have the vectors to the cell we&rsquo;re checking and to the closest cell we can simply take their average by adding them together and dividing the sum by 2. The next variable we need is the normalised difference between the two cells, to get that we simply subtract the vector to the closest cell from the vector to the cell we&rsquo;re checking and then normalise the result.</p>
+<p>The last step to get the distance to the edge is then simply take the dotproduct between the vector to the center and the vector between the cell positions. After getting that successfully we then set the minimum edge distance to the minimum of the distance so far and the distance to the new edge. We also could&rsquo;ve use the minimum in the first loop to just get the distance to the closest cell and it would&rsquo;ve been faster, but the if statement allows us to save more information.</p>
+<p>After calculating the distance to the closest edge we can then expand the output vector to a vector 3 and write the distance to the edge in the z component.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 voronoiNoise(float2 value){
+    float2 baseCell <span style="color:#333">=</span> floor(value);
+
+    <span style="color:#888">//first pass to find the closest cell</span>
+    <span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    float2 toClosestCell;
+    float2 closestCell;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+            float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x1, y1);
+            float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+            float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+            <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+            <span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+                minDistToCell <span style="color:#333">=</span> distToCell;
+                closestCell <span style="color:#333">=</span> cell;
+                toClosestCell <span style="color:#333">=</span> toCell;
+            }
+        }
+    }
+
+    <span style="color:#888">//second pass to find the distance to the closest edge</span>
+    <span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+            float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x2, y2);
+            float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+            float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+            float2 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+            <span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+            <span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+                float2 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                float2 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+                <span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+                minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+            }
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand2dTo1d(closestCell);
+    <span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    float3 noise <span style="color:#333">=</span> implVoronoiNoise(value);
+    o.Albedo <span style="color:#333">=</span> noise.z;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/EdgeDistances.png" alt=""></p>
+<h2 id="visualising-voronoi-noise">Visualising voronoi noise</h2>
+<p>Now we have the 3 variables based on the points. The distance to the point, a random value generated based on the point and the distance to the border to the nearest cell. We already showed how to generate more interresting colors based on the random value. Another thing that&rsquo;s often used is to draw the borders based on the distance to the nearest border. For that we first decide whats a border and what&rsquo;s not. We can do that via the step function, we pass it two values and it&rsquo;ll return 1 if the first argument is greater or equal than the second and 0 if the second one is greater. After we decided what&rsquo;s a border and what isn&rsquo;t, we can interpolate from the color of the cell to a borderColor based on that variable. We&rsquo;ll add the border color as a property so we can change it from the inspector.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+    float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+    <span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> step(noise.z, <span style="color:#60e;font-weight:bold">0.05</span>);
+    float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+    o.Albedo <span style="color:#333">=</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/AliasedBorders.png" alt=""></p>
+<p>One little issue of drawing the borders like this is that border or no border is a binary choice, it&rsquo;s either one of the other. This leads to so aliasing artefacts where the pixels of the rendered image are very obvious. With a simple trick we can blur the line though. We simply get how much the border distance changes in the neighboring pixels and and then do a interpolation based on that, the cutoff value minus the change in value is 0, the cutoff value plus the change in distance is 1 and all values inbetween are interpolated inbetween.</p>
+<p>Because we defined the cell border distance to be in the same scale as the input value we can get the best results by evaluating how much the input changes in the neighboring pixels. We first get the change of the input by passing the variable to <code>fwidth</code>, that function will then return us the change over the neighboring pixels. But because the value is a 2d value, the return value is also 2d, to get the scalar length we need, we simply calculate the length of the difference. Because we use the change value both in the positive and negative direction, we then also half it, otherwise the result can look too blurry (I encourage you to change the multiplier of the change result here and how it looks at different distances).</p>
+<p>After we calculate the value change we can then use it to blur the edges. We replace the <code>step</code> function with the <code>smoothstep</code> function which will allow us to pass 2 values and it&rsquo;ll return a value between 0 and 1 just like described earlier. It&rsquo;s important for us to also calculate 1 minus the result afterwards, because the smoothstep will return 0 if it&rsquo;s a a border and 1 when it isn&rsquo;t and we want our varaiable to indicate if it&rsquo;s a border.</p>
+<p>Because we used a linear interpolation to decide between the border and the cell color we don&rsquo;t have to change anything else to make this work, the values between border and not border automatically correspond to the colors between the border color and the cell color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+	float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+	float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+	float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+	<span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> length(fwidth(value)) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+	<span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+	float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+	o.Albedo <span style="color:#333">=</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/BordersNoAliasing.png" alt=""></p>
+<h2 id="3d-voronoi">3d Voronoi</h2>
+<p>To change the voronoi noise to more dimensions we change the input vector to a 3d vector. Then we also change all directions and cells that were previously 2d to 3d. Next we add another loop to both passes so we can check a 3x3x3 area of cells. We also factor the z component in when checking if the cell we&rsquo;re modifying is the closest cell.</p>
+<p>In the surface shader we change the value to use all directional axes before we pass it into the noise function. Another whing we&rsquo;ll change is that we won&rsquo;t base the valueChange for smoothing the borders from the input value anymore, instead we use the distance from the border directly. That&rsquo;s because now the value isn&rsquo;t 2d like the surface anymore and the borders can run in many angles to the surface which makes the previous way of getting the value result in way too smooth edges sometimes.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 voronoiNoise(float3 value){
+    float3 baseCell <span style="color:#333">=</span> floor(value);
+
+    <span style="color:#888">//first pass to find the closest cell</span>
+    <span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    float3 toClosestCell;
+    float3 closestCell;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+            [unroll]
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">++</span>){
+                float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x1, y1, z1);
+                float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+                float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+                <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+                <span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+                    minDistToCell <span style="color:#333">=</span> distToCell;
+                    closestCell <span style="color:#333">=</span> cell;
+                    toClosestCell <span style="color:#333">=</span> toCell;
+                }
+            }
+        }
+    }
+
+    <span style="color:#888">//second pass to find the distance to the closest edge</span>
+    <span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+            [unroll]
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">++</span>){
+                float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x2, y2, z2);
+                float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+                float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+                float3 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+                <span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">+</span> diffToClosestCell.z <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+                <span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+                    float3 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                    float3 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+                    <span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+                    minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+                }
+            }
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand3dTo1d(closestCell);
+    <span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float3 value <span style="color:#333">=</span> i.worldPos.xyz <span style="color:#333">/</span> _CellSize;
+    float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+    float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+    <span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> fwidth(value.z) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+    float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+    o.Albedo <span style="color:#333">=</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/3dVoronoi.png" alt=""></p>
+<h2 id="scrolling-noise">Scrolling noise</h2>
+<p>Just like the other kinds of noise we&rsquo;re not limited to spacial dimensions here. We can use the the world dimensions for 2 axes and then animate the third based on the time. By going through the noise this way we can see the different cells begin and end.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float3 value <span style="color:#333">=</span> i.worldPos.xyz <span style="color:#333">/</span> _CellSize;
+    value.y <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> _TimeScale;
+    float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+    float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+    <span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> fwidth(value.z) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+    float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+    o.Albedo <span style="color:#333">=</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/028/Result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="2d-voronoi">2d Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_BorderColor (<span style="color:#f00;background-color:#faa">&#34;</span>Border Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		float3 _BorderColor;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		float3 voronoiNoise(float2 value){
+			float2 baseCell <span style="color:#333">=</span> floor(value);
+
+			<span style="color:#888">//first pass to find the closest cell</span>
+			<span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			float2 toClosestCell;
+			float2 closestCell;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+					float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x1, y1);
+					float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+					float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+					<span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+					<span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+						minDistToCell <span style="color:#333">=</span> distToCell;
+						closestCell <span style="color:#333">=</span> cell;
+						toClosestCell <span style="color:#333">=</span> toCell;
+					}
+				}
+			}
+
+			<span style="color:#888">//second pass to find the distance to the closest edge</span>
+			<span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+					float2 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float2(x2, y2);
+					float2 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand2dTo2d(cell);
+					float2 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+					float2 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+					<span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+					<span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+						float2 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+						float2 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+						<span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+						minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+					}
+				}
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand2dTo1d(closestCell);
+    		<span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+			float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+			float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+			<span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> length(fwidth(value)) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			<span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+			float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+			o.Albedo <span style="color:#333">=</span> color;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="3d-voronoi-1">3d Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">3</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_BorderColor (<span style="color:#f00;background-color:#faa">&#34;</span>Border Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		float3 _BorderColor;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		float3 voronoiNoise(float3 value){
+			float3 baseCell <span style="color:#333">=</span> floor(value);
+
+			<span style="color:#888">//first pass to find the closest cell</span>
+			<span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			float3 toClosestCell;
+			float3 closestCell;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x1, y1, z1);
+						float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+						float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+						<span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+						<span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+							minDistToCell <span style="color:#333">=</span> distToCell;
+							closestCell <span style="color:#333">=</span> cell;
+							toClosestCell <span style="color:#333">=</span> toCell;
+						}
+					}
+				}
+			}
+
+			<span style="color:#888">//second pass to find the distance to the closest edge</span>
+			<span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x2, y2, z2);
+						float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+						float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+						float3 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+						<span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">+</span> diffToClosestCell.z <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+						<span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+							float3 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+							float3 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+							<span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+							minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+						}
+					}
+				}
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand3dTo1d(closestCell);
+    		<span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float3 value <span style="color:#333">=</span> i.worldPos.xyz <span style="color:#333">/</span> _CellSize;
+			float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+			float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+			<span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> fwidth(value.z) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			<span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+			float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+			o.Albedo <span style="color:#333">=</span> color;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="scrolling-voronoi">Scrolling Voronoi</h3>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader</a></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span>scrolling<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_BorderColor (<span style="color:#f00;background-color:#faa">&#34;</span>Border Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+		_TimeScale (<span style="color:#f00;background-color:#faa">&#34;</span>Scrolling Speed<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _TimeScale;
+		float3 _BorderColor;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		float3 voronoiNoise(float3 value){
+			float3 baseCell <span style="color:#333">=</span> floor(value);
+
+			<span style="color:#888">//first pass to find the closest cell</span>
+			<span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			float3 toClosestCell;
+			float3 closestCell;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x1, y1, z1);
+						float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+						float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+						<span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+						<span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+							minDistToCell <span style="color:#333">=</span> distToCell;
+							closestCell <span style="color:#333">=</span> cell;
+							toClosestCell <span style="color:#333">=</span> toCell;
+						}
+					}
+				}
+			}
+
+			<span style="color:#888">//second pass to find the distance to the closest edge</span>
+			<span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x2, y2, z2);
+						float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(cell);
+						float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+						float3 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+						<span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">+</span> diffToClosestCell.z <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+						<span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+							float3 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+							float3 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+							<span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+							minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+						}
+					}
+				}
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand3dTo1d(closestCell);
+    		<span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float3 value <span style="color:#333">=</span> i.worldPos.xyz <span style="color:#333">/</span> _CellSize;
+			value.y <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> _TimeScale;
+			float3 noise <span style="color:#333">=</span> voronoiNoise(value);
+
+			float3 cellColor <span style="color:#333">=</span> rand1dTo3d(noise.y); 
+			<span style="color:#080;font-weight:bold">float</span> valueChange <span style="color:#333">=</span> fwidth(value.z) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+			<span style="color:#080;font-weight:bold">float</span> isBorder <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> smoothstep(<span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">-</span> valueChange, <span style="color:#60e;font-weight:bold">0.05</span> <span style="color:#333">+</span> valueChange, noise.z);
+			float3 color <span style="color:#333">=</span> lerp(cellColor, _BorderColor, isBorder);
+			o.Albedo <span style="color:#333">=</span> color;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>I hope that I was able to explain voronoi noise clearly and that you&rsquo;ll be able to create cool stuff with it.✨</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

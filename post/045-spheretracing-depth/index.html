@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Handling Depth for Spheretracing | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Handling Depth for Spheretracing" />
+<meta property="og:description" content="In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/045-spheretracing-depth/" />
+<meta property="article:published_time" content="2019-10-14T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-10-14T00:00:00+00:00" />
+<meta itemprop="name" content="Handling Depth for Spheretracing">
+<meta itemprop="description" content="In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking.">
+<meta itemprop="datePublished" content="2019-10-14T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-10-14T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1196">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Handling Depth for Spheretracing"/>
+<meta name="twitter:description" content="In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Handling Depth for Spheretracing</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2019-10-14T00:00:00Z">October 14, 2019</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In the last 2 tutorials of the volumetric rendering series I showed how
+to trace 3d signed distance fields and how to shade the result. In my
+opinion the biggest drawback of the state of the shader so far is the
+way that independent objects interact with each other and with regular
+meshes. They either don&rsquo;t write to the depth buffer at all, or with the
+shape of the mesh that&rsquo;s used for them and the depth check is similarly
+lacking. In this tutorial I want to show you how to make volumetric
+rendering work with the depth buffer just as you expect it to.</p>
+<p>This tutorial starts with the code of the [shaded spheretracing
+tutorial]({{ site.baseurl }}{% post_url
+2019-08-15-spheretracing-shading %}) and you should at least understand
+[spheretracing basics]({{ site.baseurl }}{% post_url
+2019-06-21-spheretracing-basics %}) before you try to understand it.</p>
+<p><img src="/assets/images/posts/045/Result.png" alt=""></p>
+<h2 id="minor-adjustments">Minor adjustments</h2>
+<p>If you followed my previous tutorials on volumetric rendering tutorials
+I want to change a few small things for this one. Since we&rsquo;re fixing the
+depth, we can now enable the depth writing for the shader by adding
+<code>ZWrite On</code> to the SubShader or Pass section. I also set the Render Type
+to Opaque as well as define the render queue to render the object just
+after regular geometry in the Tags of the SubShader.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the material is completely non-transparent and is rendered just after opaque geometry</span>
+Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#333">+</span><span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>DisableBatching<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>IgnoreProjector<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+</code></pre></div><p>Additionally I want to change the setup of the tracing loop since the
+color of the material is decided in a function call inside a
+conditional(if) statement in the loop. I&rsquo;m not 100% sure what operations
+affect performance in which ways, but my gut feeling tells me that it&rsquo;s
+more efficient to do the heavy operations outside of the loop. And keep
+calculations in conditional blocks as lightweight as possible. I
+archived this by defining a <code>hitsurface</code> variable before the loop starts
+and set it to false and if we actually hit a surface, it&rsquo;s set to true
+and the loop is aborted. This way we can then discard all pixels which
+rays didn&rsquo;t result in a surface hit after the loop and then return the
+color. Another small change was that I renamed the function which
+calculates the color to <code>renderSurface</code> and defined the samplePoint
+variable before the loop so we still have access to it after it
+finished. With this the new fragment function should look like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i){
+    <span style="color:#888">//ray information</span>
+    float3 pos <span style="color:#333">=</span> i.localPosition;
+    float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
+    <span style="color:#080;font-weight:bold">float</span> progress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    float3 samplePoint <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    
+    <span style="color:#080;font-weight:bold">bool</span> hitsurface <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">false</span>;
+    <span style="color:#888">//tracing loop</span>
+    <span style="color:#080;font-weight:bold">for</span> (uint iter <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; iter <span style="color:#333">&lt;</span> MAX_STEPS; iter<span style="color:#333">++</span>) {
+        <span style="color:#888">//get current location on ray</span>
+        samplePoint <span style="color:#333">=</span> pos <span style="color:#333">+</span> dir <span style="color:#333">*</span> progress;
+        <span style="color:#888">//get distance to closest shape</span>
+        <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> scene(samplePoint);
+        <span style="color:#888">//return color if inside shape</span>
+        <span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+            hitsurface <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">true</span>;
+            <span style="color:#080;font-weight:bold">break</span>;
+        }
+        <span style="color:#888">//go forwards</span>
+        progress <span style="color:#333">=</span> progress <span style="color:#333">+</span> distance;
+    }
+    <span style="color:#888">//discard pixel if no shape was hit</span>
+    clip(hitsurface <span style="color:#333">?</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">:</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+    
+    <span style="color:#888">//return surface color</span>
+    <span style="color:#080;font-weight:bold">return</span> renderSurface(samplePoint);
+}
+</code></pre></div><p><img src="/assets/images/posts/045/TracedBeforeDepth.png" alt=""></p>
+<h2 id="output-custom-depth">Output Custom Depth</h2>
+<p>If we don&rsquo;t worry about the depth of our surface, the shader pipeline
+automatically uses the depth of the triangles of the mesh. But we also
+have the possibility on many platforms to write and compare whatever
+depth value we want to. To write custom depth values we can either
+return a struct from the fragment function with variables for both color
+and depth or what I opted to do, remove the output type of the function
+by changing it to void and instead define output variables for the color
+and depth values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> frag(v2f i, <span style="color:#080;font-weight:bold">out</span> fixed4 color <span style="color:#333">:</span> SV_TARGET, <span style="color:#080;font-weight:bold">out</span> <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">:</span> SV_Depth){
+</code></pre></div><p>The color variable we can set to the value we returned previously. For
+the depth value we have to calculate the distance to the camera, the
+most forward way to do that is to get it from the clip space position.
+We calculate the clip space position in a similar way we transform
+vertices into clip space in the vertex shader, via the
+<code>UnityObjectToClipPos</code> macro. The <code>float4</code> result of this also has the
+<code>w</code> component which we have to divide by to get regular 3d values. Since
+we only care about the depth, we only divide the <code>z</code> component by the
+<code>w</code> component and assign the result to the depth output value. Because
+we changed the function type to void we don&rsquo;t have to return anything.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate surface color</span>
+color <span style="color:#333">=</span> renderSurface(samplePoint);
+<span style="color:#888">//calculate surface depth</span>
+float4 tracedClipPos <span style="color:#333">=</span> UnityObjectToClipPos(float4(samplePoint, <span style="color:#60e;font-weight:bold">1.0</span>));
+depth <span style="color:#333">=</span> tracedClipPos.z <span style="color:#333">/</span> tracedClipPos.w;
+</code></pre></div><p><img src="/assets/images/posts/045/Result.png" alt=""></p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/045_SphereTracingDepth/SphereTracingDepth.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/045_SphereTracingDepth/SphereTracingDepth.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">045</span>_SphereTracingDepth<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    }
+    
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered just after opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#333">+</span><span style="color:#00d;font-weight:bold">1</span><span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>DisableBatching<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>IgnoreProjector<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+    
+        Pass{
+            ZWrite On
+    
+            CGPROGRAM
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Lighting.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+    
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+    
+            <span style="color:#888">//surface color</span>
+            fixed4 _Color;
+    
+            <span style="color:#888">//maximum amount of steps</span>
+            <span style="color:#f00;background-color:#faa">#</span>define MAX_STEPS <span style="color:#00d;font-weight:bold">32</span>
+            <span style="color:#888">//furthest distance that&#39;s accepted as inside surface</span>
+            <span style="color:#f00;background-color:#faa">#</span>define THICKNESS <span style="color:#60e;font-weight:bold">0.001</span>
+            <span style="color:#888">//distance from rendered point to sample SDF for normal calculation</span>
+            <span style="color:#f00;background-color:#faa">#</span>define NORMAL_EPSILON <span style="color:#60e;font-weight:bold">0.01</span>
+    
+            <span style="color:#888">//input data</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+    
+            <span style="color:#888">//data that goes from vertex to fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION; <span style="color:#888">//position in clip space</span>
+                float4 localPosition <span style="color:#333">:</span> TEXCOORD0; <span style="color:#888">//position in local space</span>
+                float4 viewDirection <span style="color:#333">:</span> TEXCOORD1; <span style="color:#888">//view direction in local space (not normalized!)</span>
+            };
+    
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//position for rendering</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//save local position for origin</span>
+                o.localPosition <span style="color:#333">=</span> v.vertex;
+                <span style="color:#888">//get camera position in local space</span>
+                float4 objectSpaceCameraPos <span style="color:#333">=</span> mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, <span style="color:#00d;font-weight:bold">1</span>));
+                <span style="color:#888">//get local view vector</span>
+                o.viewDirection <span style="color:#333">=</span> v.vertex <span style="color:#333">-</span> objectSpaceCameraPos;
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+    
+    
+            <span style="color:#080;font-weight:bold">float</span> scene(float3 pos){
+                <span style="color:#080;font-weight:bold">return</span> length(pos) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+            }
+    
+            float3 normal(float3 pos){
+                <span style="color:#888">//determine change in signed distance</span>
+                <span style="color:#080;font-weight:bold">float</span> changeX <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> changeY <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> changeZ <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON));
+                <span style="color:#888">//construct normal vector</span>
+                float3 surfaceNormal <span style="color:#333">=</span> float3(changeX, changeY, changeZ);
+                <span style="color:#888">//convert normal vector into worldspace and make it uniform length</span>
+                surfaceNormal <span style="color:#333">=</span> mul(unity_ObjectToWorld, float4(surfaceNormal, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">return</span> normalize(surfaceNormal);
+            }
+    
+            float4 lightColor(float3 position){
+                <span style="color:#888">//calculate needed surface and light data</span>
+                float3 surfaceNormal <span style="color:#333">=</span> normal(position);
+                float3 lightDirection <span style="color:#333">=</span> _WorldSpaceLightPos0.xyz;
+    
+                <span style="color:#888">//calculate simple shading</span>
+                <span style="color:#080;font-weight:bold">float</span> lightAngle <span style="color:#333">=</span> saturate(dot(surfaceNormal, lightDirection));
+                <span style="color:#080;font-weight:bold">return</span> lightAngle <span style="color:#333">*</span> _LightColor0;
+            }
+    
+            float4 renderSurface(float3 position){
+                <span style="color:#888">//get light color</span>
+                float4 light <span style="color:#333">=</span> lightColor(position);
+    
+                <span style="color:#888">//combine base color and light color</span>
+                float4 color <span style="color:#333">=</span> _Color <span style="color:#333">*</span> light;
+    
+                <span style="color:#080;font-weight:bold">return</span> color;
+            }
+            
+            <span style="color:#080;font-weight:bold">void</span> frag(v2f i, <span style="color:#080;font-weight:bold">out</span> fixed4 color <span style="color:#333">:</span> SV_TARGET, <span style="color:#080;font-weight:bold">out</span> <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">:</span> SV_Depth){
+                <span style="color:#888">//ray information</span>
+                float3 pos <span style="color:#333">=</span> i.localPosition;
+                float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
+                <span style="color:#080;font-weight:bold">float</span> progress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+                float3 samplePoint <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+                
+                <span style="color:#080;font-weight:bold">bool</span> hitsurface <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">false</span>;
+                <span style="color:#888">//tracing loop</span>
+                <span style="color:#080;font-weight:bold">for</span> (uint iter <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; iter <span style="color:#333">&lt;</span> MAX_STEPS; iter<span style="color:#333">++</span>) {
+                    <span style="color:#888">//get current location on ray</span>
+                    samplePoint <span style="color:#333">=</span> pos <span style="color:#333">+</span> dir <span style="color:#333">*</span> progress;
+                    <span style="color:#888">//get distance to closest shape</span>
+                    <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> scene(samplePoint);
+                    <span style="color:#888">//return color if inside shape</span>
+                    <span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+                        hitsurface <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">true</span>;
+                        <span style="color:#080;font-weight:bold">break</span>;
+                    }
+                    <span style="color:#888">//go forwards</span>
+                    progress <span style="color:#333">=</span> progress <span style="color:#333">+</span> distance;
+                }
+                <span style="color:#888">//discard pixel if no shape was hit</span>
+                clip(hitsurface <span style="color:#333">?</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">:</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+                
+                <span style="color:#888">//calculate surface color</span>
+                color <span style="color:#333">=</span> renderSurface(samplePoint);
+                <span style="color:#888">//calculate surface depth</span>
+                float4 tracedClipPos <span style="color:#333">=</span> UnityObjectToClipPos(float4(samplePoint, <span style="color:#60e;font-weight:bold">1.0</span>));
+                depth <span style="color:#333">=</span> tracedClipPos.z <span style="color:#333">/</span> tracedClipPos.w;
+            }
+    
+            ENDCG
+        }
+    }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>2D Signed Distance Field Basics | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="2D Signed Distance Field Basics" />
+<meta property="og:description" content="So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/034-2d-sdf-basics/" />
+<meta property="article:published_time" content="2018-11-10T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-11-10T00:00:00+00:00" />
+<meta itemprop="name" content="2D Signed Distance Field Basics">
+<meta itemprop="description" content="So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.">
+<meta itemprop="datePublished" content="2018-11-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-11-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="4279">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="2D Signed Distance Field Basics"/>
+<meta name="twitter:description" content="So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">2D Signed Distance Field Basics</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-11-10T00:00:00Z">November 10, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.</p>
+<p>We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d. I&rsquo;m going to use the worldspace coordinates to make everything as independent from scaling and uv coordinates as possible, so if you&rsquo;re unsure how that works, look at <a href="https://ronja-tutorials.com/post/008-planar-mapping/">this tutorial about planar mapping</a> which explains what&rsquo;s happening.</p>
+<p><img src="/assets/images/posts/034/Result.gif" alt=""></p>
+<h2 id="base-setup">Base Setup</h2>
+<p>From the base of the planar mapping shader we throw out the properties for now because we&rsquo;ll do the technical base for now. Then we&rsquo;ll write the world position to the vertex to fragment struct directly instead of transforming it to the uvs first. As a last point for preparation we&rsquo;ll write a new function which will calculate the scene and return the distance to the nearest surface. Then we&rsquo;ll call the function and use the result as the color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#f00;background-color:#faa">&#34;</span>{
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                <span style="color:#888">// calculate distance to nearest surface</span>
+                <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> fixed4(dist, dist, dist, <span style="color:#00d;font-weight:bold">1</span>);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>I&rsquo;ll write all of the functions we write for signed distance fields in their own file, so we can easily reuse them later. For that we create a new file. In it we add include guards by first checking if a preprocessor varible isn&rsquo;t defined yet, if it isn&rsquo;t we define it and end the if condition after the functions we want to include. The advantage of adding this is that if we include the file twice (for example if we include two different files which both have functions we want and they both include the same file) it doesn&rsquo;t break the shader. If you&rsquo;re sure that&rsquo;s never going to happen, feel free to not add them.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// in include file</span>
+
+<span style="color:#888">// include guards that keep the functions from being included more than once</span>
+<span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+<span style="color:#888">// functions</span>
+
+<span style="color:#579">#endif</span>
+</code></pre></div><p>As long as the include file in the same directory as the main shader, we can then simply include it with a pragma statement.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// in main shader</span>
+
+<span style="color:#579">#include &#34;2D_SDF.cginc&#34;</span>
+</code></pre></div><p>With this we just see a black surface on our rendered surface and are ready to display the signed distance on it.</p>
+<p><img src="/assets/images/posts/034/NoSdf.png" alt=""></p>
+<h2 id="circle">Circle</h2>
+<p>The simplest signed distance field function is the one for a circle. The function will only take a sample position and a radius of the circle. We start by simply taking the length of the sample position vector. With this we have a point at the (0, 0) position, which is the same as a circle with the radius of 0.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition);
+}
+</code></pre></div><p>We then call the circle function in the scene function and return the distance it returns.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> circle(position, <span style="color:#00d;font-weight:bold">2</span>);
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/Dot.png" alt=""></p>
+<p>Then we include the radius into the calculation. A important thing about signed distance functions is that when inside a object we get the negative distance to the surface (that&rsquo;s what the &ldquo;signed&rdquo; in signed distance field stands for). To grow the circle to the radius we specify we simply subtract the radius from the length. This way the surface, which is everywhere where the function returns 0, moves outward the higher it is. What&rsquo;s 2 units away from the surface for a circle with the size of 0 is only 1 unit away for a circle with the radius of 1 and is 1 unit inside the circle (value of -1) for a circle with a radius of 3;</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/Circle.png" alt=""></p>
+<p>Now the only thing we can&rsquo;t do is to move the circle away from the center. To fix that we can either add a new argument to the circle function to calculate the distance between the sample position and the circle center and subtract the radius from that to define our circle. Or we can redefine the origin by moving the space of the sample point and then get the circle in that space. The later option seems a lot more complex, but because moving things is a operation we want to use on all shapes it&rsquo;s a lot more flexible and is the way I&rsquo;m going to explain here.</p>
+<h2 id="moving">Moving</h2>
+<p>&ldquo;Transforming the space of a point&rdquo; sounds a lot more scary than it is. It means that we pass the point into a function and the function changes it so we can still use it afterwards. In the case of translation we simply subtract the offset from the point. The reason we subtract the position when we want to move the shapes in the positive direction is that the shapes we render in a space move in the opposite direction than we move the space into.</p>
+<p>For example if we want to draw a sphere at the position <code>(3, 4)</code> we have to change the space so <code>(3, 4)</code> becomes <code>(0, 0)</code> and the operation to do that is to subtract <code>(3, 4)</code>. Now if we draw a sphere around the NEW origin it&rsquo;s at the OLD <code>(3, 4)</code> point.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// in sdf functions include file</span>
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> translate(position, float2(<span style="color:#00d;font-weight:bold">3</span>, <span style="color:#00d;font-weight:bold">2</span>));
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> circle(circlePosition, <span style="color:#00d;font-weight:bold">2</span>);
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/TranslatedCircle.png" alt=""></p>
+<h2 id="rectangle">Rectangle</h2>
+<p>Another simple shape is a rectangle. We start by seeing the components independently. First we get the distance from the center by taking the absolute value. Then, similarly to the circle, we subtract the half size (which is basically like the radius for rectangles). For simply showing how the result looks like we&rsquo;ll then return one of the components for now.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">return</span> componentWiseEdgeDistance.x;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/RectangleXDistance.png" alt=""></p>
+<p>We can now get a cheap version of a rectangle by simply returning the bigger component of the 2. This works for many cases, but is wrong because it will not show the correct distance around the corners.</p>
+<p><img src="/assets/images/posts/034/CheapRectangle.png" alt=""></p>
+<p>We can get the correct values for the rectangle outside of the shape by first taking the maximum between the edge distances and 0 and then taking the length of that.</p>
+<p>If we wouldn&rsquo;t limit the distance to 0 at the lower bound we would just calculate the distance to the corners (where the edgeDistances are <code>(0, 0)</code>), but this way the coordinates between the corners don&rsquo;t go below 0 so it uses the whole edge. The downside of this is that it uses 0 as the distance from the edge for the whole inside of the shape.</p>
+<p>The fix to the distance being 0 on the inside of the shape is to generate the inside distance by simply using the formula for the cheap rectangle (taking the maximum value between x and y component) and then ensuring that it&rsquo;s never above 0 by taking the minimum value between it and 0. Then we can add the outside distance that&rsquo;s never below 0 and the inside distance that&rsquo;s never above 0 to get the complete distance function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+</code></pre></div><p>Because we wrote the translation function in a flexible way previously we can now also use it to move the rectangle whereever we want it&rsquo;s center to be.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> translate(position, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/Rectangle.png" alt=""></p>
+<h2 id="rotating">Rotating</h2>
+<p>Rotating shapes works similarly to moving them. We rotate the coordinate in the opposite direction before calculating the distance to the shape. To make rotations as easy to understand as possible, we multiply the rotation by 2 times pi to get the angle in radians. This way the rotation we pass the function is in rotations, 0.25 is a quarter rotation, 0.5 is half a rotation and 1 is a full rotation (Feel free to convert in another way if that comes more natural to you). Then we also invert it because we have to rotate the position in the inverse direction as the direction we want to rotate the shape in for the same reason we move the position into the negative direction to move the object into the positive direction for the translation.</p>
+<p>To calculate the rotated coordinates we first calculate the sine and cosine based on our angle. Hlsl provides the sincos function which calculates both of those values quicker than if we would calculate them independently.</p>
+<p>Then we build a new vector, for the x component we use the original x component multiplied by the cosine and the y component multiplied by the sine. We can easily remember this by remembering that the cosine of 0 is 1 and with a rotation of 0 we want the x component of the new vector to be exactly the same as before (multiplying it by 1). The y part that points upwards previously, not contributing anything to the x component of the vector gets rotated to the right, starting at 0 and becoming bigger at first, so that&rsquo;s exactly the motion a sine describes.</p>
+<p>For the y component of the new vector we multiply the cosine with the y component of the old vector and subtract the sine multiplied with the old x comonent. To understand why we subtract here instead of adding the sine multiplied with the x component it&rsquo;s best to imagine how how a <code>(1, 0)</code> vector changes when it rotates clockwise. The y component of the result starts at 0 and then goes down below 0. That&rsquo;s exactly the opposite behaviour of what a sine does, that&rsquo;s why we invert it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+</code></pre></div><p>Now that we wrote the rotation method we can use it in combination with the translation to make the shape move and rotate.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> position;
+    circlePosition <span style="color:#333">=</span> rotate(circlePosition, _Time.y);
+    circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/RotateScene.gif" alt=""></p>
+<p>In this case we first rotate the object around the center of the whole scene, so the translation is also affected by that rotation. To rotate the shape around it&rsquo;s own center we first have to move it and then rotate it. With this corrected order we made the center of the shape the center of our coordinate system by the time we rotate it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> position;
+    circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    circlePosition <span style="color:#333">=</span> rotate(circlePosition, _Time.y);
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/RotateShape.gif" alt=""></p>
+<h2 id="scaling">Scaling</h2>
+<p>Scaling works in a similar way to the other ways of transforming shapes. We divide the coordinates by the scale and by drawing the shape in a scaled down space, they look bigger in the base coordinate system.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> position;
+    circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    circlePosition <span style="color:#333">=</span> rotate(circlePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+    <span style="color:#080;font-weight:bold">float</span> pulseScale <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span><span style="color:#333">*</span>sin(_Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">3.14</span>);
+    circlePosition <span style="color:#333">=</span> scale(circlePosition, pulseScale); 
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/ScaleDistance.gif" alt=""></p>
+<p>While this scales the shape property, it also scales the distance. The main advantage of a signed distance field is that we always know the distance to the nearest surface, but this destroys this property completely. We can fix it easily though by multiplying the distance field we get from the signed distance function (<code>rectangle</code> in this case) with the scale. This is also the reason why we can&rsquo;t easily scale the shape non-uniformly (different scale for x and y axis).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+    float2 circlePosition <span style="color:#333">=</span> position;
+    circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    circlePosition <span style="color:#333">=</span> rotate(circlePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+    <span style="color:#080;font-weight:bold">float</span> pulseScale <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span><span style="color:#333">*</span>sin(_Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">3.14</span>);
+    circlePosition <span style="color:#333">=</span> scale(circlePosition, pulseScale); 
+    <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">*</span> pulseScale;
+    <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/ScaleShape.gif" alt=""></p>
+<h2 id="visualisation">Visualisation</h2>
+<p>Signed distance fields can be used for a lot of things, for example shadows, 3d scene rendering, physics and text rendering. But we don&rsquo;t want to get into too complex stuff right now, so I&rsquo;ll just explain two techniques of visualising them. One a hard shape with antialiasing and the other one renders lines based on the distance.</p>
+<h3 id="hard-shape">Hard Shape</h3>
+<p>This is a method similar to what&rsquo;s often used in text rendering and produces a clean shape. If we don&rsquo;t generate the distance field from a function and instead read it from a texture instead this allows us to use textures with way less resolution than usual and still have a nice result. TextMesh Pro uses this technique for text rendering.</p>
+<p>For this technique we use the fact that the data in signed distance fields is continuous and we know the cutoff point. We start by calculating how much the distance field changes to the next pixel. This should be the same amount as the length of the change of the coordinates, but it&rsquo;s easier and more reliable to evaluate the signed distance.</p>
+<p>After we have the change in distance, we can do a smoothstep from half the change in distance to minus plus half the change in distance. That will do a simple cutoff around 0, but with antialiasing. We can then use this antialiased value for whatever we binary value we need. In this example I&rsquo;m going to change the shader to a transparent shader and use it for the alpha channel. The reason why we do the smoothstep from the positive to the negative value is that we want the negative value of the distance field to be visible. And if you don&rsquo;t completely understand how the transparent rendering works here, I recommend you read <a href="https://ronja-tutorials.com/post/006-simple-transparency/">this tutorial</a> I made about transparent rendering.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//properties</span>
+Properties{
+    _Color(<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in subshader outside of pass</span>
+Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+Blend SrcAlpha OneMinusSrcAlpha
+ZWrite Off
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+    <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> antialiasedCutoff <span style="color:#333">=</span> smoothstep(distanceChange, <span style="color:#333">-</span>distanceChange, dist);
+    fixed4 col <span style="color:#333">=</span> fixed4(_Color, antialiasedCutoff);
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/Cutoff.gif" alt=""></p>
+<h3 id="height-lines">Height Lines</h3>
+<p>Another common techique of visualising distance fields is to show the distances as lines. In our implementation I&rsquo;m going to add thick lines and a few smaller ones inbetween. I&rsquo;m also going to tint the inside and outside of the shape in different colors to make clear where the object is.</p>
+<p>We start by showing the difference between the inside and outside of the shape. The colors will be adjustable in the material, so we add new properties as well as shader variables for the inner and outer color of the shape.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties{
+    _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+
+float4 _InsideColor;
+float4 _OutsideColor;
+</code></pre></div><p>Then in the fragment shader we check whether the pixel we&rsquo;re rendering is inside or outside the shape by comparing the signed distance to 0 with the <code>step</code> function. We use this variable to interpolate from the inner to the outer color and render it to the screen.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+    fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/InOut.gif" alt=""></p>
+<p>To render the lines we first specify how often we render the lines and how thick they are with properties and corresponding shader variables.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//Properties</span>
+_LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+_LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//shader variables</span>
+<span style="color:#080;font-weight:bold">float</span> _LineDistance;
+<span style="color:#080;font-weight:bold">float</span> _LineThickness;
+</code></pre></div><p>Then to render the lines, we start by calculating the change in distance to use it for antialiasing later. We also already divide it by 2 because we will add half and subtract half of it later to cover a range of the change of 1 pixel.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+</code></pre></div><p>Then we take the distance and transform it in a way to make it have similar behaviour at repeating points. To do this we first divide it by the distance between lines, this way we don&rsquo;t have full numbers every 1 step, instead we have full numbers based on the distance we set.</p>
+<p>Then we add 0.5 to the number, take the fractional part and subtract 0.5 again. The fractional part and the subtraction are there to make the line go through zero in a repeating pattern. The reason we add 0.5 before taking the fractional part is to counteract the subtraction of 0.5 later - the offset makes it so the values where our graph is 0 are at 0, 1, 2, etc.. and not 0.5, 1.5, etc&hellip; .</p>
+<p>The last steps we use to transform the value are to take the absolute value and multiply it by the distance between lines again. The absolute value makes the areas before and after the line points look the same which makes the cutoff for the lines easier to make. The last operation where we multiply the value by the distance between lines again is to counteract the division at the start of the equation, with it the change in the value is the same as at the beginning again and the change in distance we calculated earlier is still valid.</p>
+<p><img src="/assets/images/posts/034/LinesGraph.png" alt=""></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+</code></pre></div><p>Now that we calculated the distance to the lines based on the distance to the shape we can draw the lines. We do a smoothstep from the linethickness minus half of the distance change to the linethickness plus half the change in distance and use the line distance we just calculated as the value to compare to. After we have calculated this value we multiply it with the color to make black lines (you could also lerp to another color if you want different colored lines).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+    fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+    <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+    <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+    <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/MajorLines.gif" alt=""></p>
+<p>The way we implement the sublines between the thick ones is similar, we add a property to specify how many thin lines are inbetween every thick one and then do the same thing we did with the thick lines, but as the distance between thin lines we divide the distance between thick lines with the amount of thin lines inbetween. We&rsquo;ll also make the thin line amount an <code>IntRange</code>, this way we can only assign it whole values and don&rsquo;t get thin lines that don&rsquo;t match the thicker ones. After we have calculated the thin lines we multiply them into the color just like the thick ones.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//properties</span>
+[IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+_SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//shader variables</span>
+<span style="color:#080;font-weight:bold">float</span> _SubLines;
+<span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+    fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+    <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+    <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+    <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+    <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+    <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+    <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+    <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+}
+</code></pre></div><p><img src="/assets/images/posts/034/Result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="2d-sdf-functions">2d SDF Functions</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/2D_SDF.cginc</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#888">//move samplepoint in the opposite direction that we want to move shapes in</span>
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+
+float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+
+<span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#888">//get distance from center and grow it according to radius</span>
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><h3 id="circle-example">Circle Example</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Circle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Circle.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#333">/</span>Circle<span style="color:#f00;background-color:#faa">&#34;</span>{
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                float2 circlePosition <span style="color:#333">=</span> translate(position, float2(<span style="color:#00d;font-weight:bold">3</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> circle(circlePosition, <span style="color:#00d;font-weight:bold">2</span>);
+                <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> fixed4(dist, dist, dist, <span style="color:#00d;font-weight:bold">1</span>);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><h3 id="rectangle-example">Rectangle Example</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Rectangle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Rectangle.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#333">/</span>Rectangle<span style="color:#f00;background-color:#faa">&#34;</span>{
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> rotate(circlePosition, _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>);
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> fixed4(dist, dist, dist, <span style="color:#00d;font-weight:bold">1</span>);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><h3 id="cutoff">Cutoff</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Cutoff.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Cutoff.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#333">/</span>Cutoff<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _Color(<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+    }
+    SubShader{
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+
+        Pass{
+            CGPROGRAM
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            fixed3 _Color;
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> rotate(circlePosition, _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>);
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> antialiasedCutoff <span style="color:#333">=</span> smoothstep(distanceChange, <span style="color:#333">-</span>distanceChange, dist);
+                fixed4 col <span style="color:#333">=</span> fixed4(_Color, antialiasedCutoff);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><h3 id="distance-lines">Distance Lines</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/DistanceLines.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/DistanceLines.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#333">/</span>DistanceLines<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+
+        _LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+
+        [IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+        _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> rotate(circlePosition, _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.2</span>);
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> sceneDistance <span style="color:#333">=</span> rectangle(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                <span style="color:#080;font-weight:bold">return</span> sceneDistance;
+            }
+
+            float4 _InsideColor;
+            float4 _OutsideColor;
+
+            <span style="color:#080;font-weight:bold">float</span> _LineDistance;
+            <span style="color:#080;font-weight:bold">float</span> _LineThickness;
+
+            <span style="color:#080;font-weight:bold">float</span> _SubLines;
+            <span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+                <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+                <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+                <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>I hope I was able to explain the basics of signed distance fields to you and that you&rsquo;re exited for the next few tutorials where I explain more ways to do things with them.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

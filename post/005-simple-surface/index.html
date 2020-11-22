@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Surface Shader Basics | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &ldquo;surface shaders&rdquo;.
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
+Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Surface Shader Basics" />
+<meta property="og:description" content="Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &ldquo;surface shaders&rdquo;.
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
+Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/005-simple-surface/" />
+<meta property="article:published_time" content="2018-03-30T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-03-30T00:00:00+00:00" />
+<meta itemprop="name" content="Surface Shader Basics">
+<meta itemprop="description" content="Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &ldquo;surface shaders&rdquo;.
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
+Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us.">
+<meta itemprop="datePublished" content="2018-03-30T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-03-30T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2070">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Surface Shader Basics"/>
+<meta name="twitter:description" content="Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &ldquo;surface shaders&rdquo;.
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
+Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Surface Shader Basics</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-03-30T00:00:00Z">March 30, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>In addition to writing shaders almost from the ground up, unity also
+allows us to define some parameters and let unity generate the code
+which does the complex light calculations. Those shaders are called
+&ldquo;surface shaders&rdquo;.</p>
+<p>To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them <a href="https://ronja-tutorials.com/post/004-basic/">here</a>.</p>
+<p><img src="/assets/images/posts/005/Result.png" alt="Result"></p>
+<h2 id="conversion-to-simple-surface-shader">Conversion to simple Surface Shader</h2>
+<p>When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us. For the conversion to a surface shader we can delete our vertex shader completely. We can delete the pragma definitions of the vertex and fragment function. We can delete the input as well as the vertex to fragment struct. We can delete the MainTex_ST variable for texture scaling and we can delete the inclusion of the UnityCG include file. And we remove the pass beginning and end, Unity will generate passes for us. After all of that our emptied Shader should look like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">005</span>_surface<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+		fixed4 _Color;
+
+		fixed4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET {
+			fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+			col <span style="color:#333">*=</span> _Color;
+			<span style="color:#080;font-weight:bold">return</span> col;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>Now that we broke our shader, we can add a few things to make it work again as a surface shader.</p>
+<p>First we add a new struct and call it Input, this will hold all of the
+information that we need to set the color of our surface. For this
+simple shader, this is just the UV coordinates. The data type for our
+coordinates will be a 2-dimensional float like in the previous shader.
+Here the naming is important though, we’ll name it uv_MainTex, this way it will already have the tiling and offset of the
+MainTex texture. If the texture had a different name, we’d have to use
+uvTextureName to get the coordinates which fit that texture.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> Input {
+	float2 uv_MainTex;
+};
+</code></pre></div><p>Next we’ll change our fragment function to a surface function. To make that change obvious we’ll rename it to surf. Then we replace the return type (the data type in front of the function name) with void, so the function doesn’t return anything.</p>
+<p>Next we extend it to take 2 arguments. First, a instance of the input
+struct we just defined so we have access to information that’s defined
+on a per-vertex basis. And second, a struct called SurfaceOutputStandard. As the name makes you assume we will use it for
+returning information to the generated part of the shader. For that
+“returning” to work, we have to write the inout keyword in front of it. That second struct is all of the data which unity will use for it’s lighting calculations. The lighting calculations are physically based (I’ll explain the parameters later in this post).</p>
+<p>Next we’ll delete the sv_target attribute from the method, because like the rest, it’s done somewhere else by unity.</p>
+<p>The last change we have to make to make the surface method work is to
+remove the return statement (that’s why we changed the return type to
+void). Instead we set the albedo part of the output struct to our color value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+	col <span style="color:#333">*=</span> _Color;
+	o.Albedo <span style="color:#333">=</span> col.rgb;
+}
+</code></pre></div><p>The final step to make the shader work again and to make it correctly
+handle light is to add a pragma statement, declaring the kind of shader and the methods used. (similar to how we declared the vertex and fragment methods in the basic shader).</p>
+<p>The statement starts with #pragma, followed by the kind of shader we’re declaring (surface), then the name of the surface method (surf) and last the lighting model we want it to use (Standard).</p>
+<p>With all of that our shader should work again and show correct lighting.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">005</span>_surface<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+
+		<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+		fixed4 _Color;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float2 uv_MainTex;
+		};
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+			col <span style="color:#333">*=</span> _Color;
+			o.Albedo <span style="color:#333">=</span> col.rgb;
+		}
+		ENDCG
+	}
+}
+</code></pre></div><p><img src="/assets/images/posts/005/SimpleAlbedo.png" alt="Simple Albedo Material"></p>
+<h2 id="standard-lighting-properties">Standard Lighting Properties</h2>
+<p>To expand the shader we can now make more use of the material properties. The different values in the output struct are:</p>
+<ul>
+<li>Albedo - Albedo is the base color of the material. It will be tinted by the light color of the lights that illuminate it and is dark in the shadows as weexpectthings to be. The albedo color will not affect the specularlighting, soyou can make a black material which is still visiblyglossy. It’s storedas a 3-dimensional color vector.</li>
+</ul>
+<ul>
+<li>
+<p>Normal * This is the normal of the material. The normals are in “tangent space”, that means that after returning them, they will be changed into normals that are relative to the world. Having the normals in tangent space meansthat if we write up (0,1,0) into that variable, the normals won’tactuallypoint up, but away from the surface (that’s the way normals are encoded into normal maps so we can copy information directly fromnormalmaps to this variable). Normals are stored as a 3-dimensional directional vector.</p>
+</li>
+<li>
+<p>Emission * With this you can makeyour materials glow. If you only write into this,you shader will looklike the unlit shader we made previously, but is way more expensive.Emissive colors are not affected by light and as suchyou can make spots that are always bright. You can write values with a value higher than 1 into the emission channel if you render with HDR color (you can setthatin the camera settings) which allows you to make things look really bright and make things bloom out more when you use a bloom postprocessing effect. The emissive color is also stored as a 3d color vector.</p>
+</li>
+<li>
+<p>Metallic * Materials look differently when they are metals than when when they aren’t. To make Materials look metallic, you can turn up this value. It will make the object reflect in a different way and the albedo value will tint the reflections instead of the diffuse lighting you get with non-metals. The metallic value is stored as a scalar(1-dimensional) value, where 0 represents a non-metallic material and 1 a completely metallic one.</p>
+</li>
+<li>
+<p>Smoothness * With this value we can specify how smooth a material is. A material with 0 smoothness looks rough, the light will be reflected to alldirectionsand we can’t see a specular highlight or environmental reflections. A material with 1 smoothness looks super polished. &ldquo;hen you set up your environment correctly you can see it reflected on your material. It’s also so polished that you can’t see specular highlights either, because the specular highlights become infintely small. When you set the smoothness to a value a bit under 1, you begin to see the specular highlights of the surrounding lights. The highlights grow insize andbecome less strong as you lower the smoothness. The smoothness is also stored as a scalar value.</p>
+</li>
+<li>
+<p>Occlusion * Occlusion will remove light from your material. With it you can fake light not getting into cracks of the model, but you will probably barely use it, except if you’re going for a hyperrealistic style. Occlusion is also stored as a scalar value, but counterintuitively 1 means the pixel has it’s full brightness and 0 means it’s in the dark</p>
+</li>
+<li>
+<p>Alpha * Alpha is the transparency of out material. Our current material is “opaque”,that means there can’t be any transparent pixels and the alpha valuewon’t do anything. When making a transparent shader, alpha will define how much we can see the material at that pixel, 1 is completely visible while 0 is completely see-through. Alpha is also stored as a scalar value.</p>
+</li>
+</ul>
+<h2 id="implement-a-few-lighting-properties">Implement a few Lighting Properties</h2>
+<p>We can now add a few of those features into our shader. I’ll use the
+emission, metallic and smoothness values for now, but you can obviously also implement the other values.</p>
+<p>First we add the 2 scalar values,
+smoothness and metalness. We start by adding the values as half
+values(that’s the data type used in the surface output struct) to our
+global scope (outside of functions or structs).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">half</span> _Smoothness;
+<span style="color:#080;font-weight:bold">half</span> _Metallic;
+</code></pre></div><p>Then
+we also add the values to our properties, to be able change them in the
+inspector. Properties don’t know the half type, so we tell them the
+variable are of the type float. That’s enough to make the variables show
+up in the inspector, but we’re not using them yet.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+	_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+	_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	_Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+	_Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+}
+</code></pre></div><p>Similar to how we assigned the color variable to the albedo of the material, we can now assign the smoothness to the smoothness of the output struct and the metalness to the metallic output variable.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+	col <span style="color:#333">*=</span> _Color;
+	o.Albedo <span style="color:#333">=</span> col.rgb;
+	o.Metallic <span style="color:#333">=</span> _Metallic;
+	o.Smoothness <span style="color:#333">=</span> _Smoothness;
+}
+</code></pre></div><p>This works fine, but it’s easy to assign values higher than 1 or lower than 0 to the values and get very wrong results and it’s hard to see how high a value is. To fix that we can assign the values as range properties instead of float properties. Range properties allow us to define a minimum and a maximum and unity will display us a slider between them.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+	_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+	_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	_Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+	_Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+}
+</code></pre></div><p><img src="/assets/images/posts/005/Inspector.png" alt="Inspector and Material with smoothness und metalness"></p>
+<p>Next we add the emissive color. First as a variable in the hlsl code and then as a property. We use the color property type, just like we did for the tint. We store a half3 as a type because it’s a RGB color without alpha and it can have values bigger than 1 (also the output struct uses a half3). Then we also assign the value in the surface output like we did with the others.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// ...</span>
+
+_Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+
+<span style="color:#888">// ...</span>
+
+half3 _Emission;
+
+<span style="color:#888">// ...</span>
+
+o.Emission <span style="color:#333">=</span> _Emission;
+</code></pre></div><p><img src="/assets/images/posts/005/Emissive.png" alt="Emissive Material"></p>
+<p>Apart from the fact that a object that glows everywhere looks kinda weird, we also only can assign normal colors to our material, not HDR colors with values over 1. To fix that, we add the hdr tag in front of the emission property. With those changes we can now set the brightness to higher values. To make better use of emission, you should probably use textures, you can implement other textures the same way we implemented the main texture we use for the albedo value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">[HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+</code></pre></div><p><img src="/assets/images/posts/005/HdrInspector.png" alt="HDR Inspector"></p>
+<h2 id="minor-improvements">Minor Improvements</h2>
+<p>Finally I’m gonna show you two small things that make your shader look a bit better. Firstly you can add a fallback shader under the subshader. This allows unity to use functions of that other shader and we don’t have to implement them ourselves. For this we will set the standard shader as a fallback and unity will borrow the “shadow pass” from it, making our material throw shadows on other objects. Next we can extend our pragma directives. We add the fullforwardshadows parameter to the surface shader directive, that way we get better shadows. Also we add a directive setting the build target to 3.0, that means unity will use higher precision values that should lead to a bit prettier lighting.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">005</span>_surface<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+		_Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		_Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		[HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+		fixed4 _Color;
+
+		<span style="color:#080;font-weight:bold">half</span> _Smoothness;
+		<span style="color:#080;font-weight:bold">half</span> _Metallic;
+		half3 _Emission;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float2 uv_MainTex;
+		};
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+			col <span style="color:#333">*=</span> _Color;
+			o.Albedo <span style="color:#333">=</span> col.rgb;
+			o.Metallic <span style="color:#333">=</span> _Metallic;
+			o.Smoothness <span style="color:#333">=</span> _Smoothness;
+			o.Emission <span style="color:#333">=</span> _Emission;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p><img src="/assets/images/posts/005/Result.png" alt="Result"></p>
+<p>I hope I was able to show you how to make shaders with good looking lighting with simple tools.</p>
+<p>You can find the source code here: <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/005_Surface_Basics/simple_surface.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/005_Surface_Basics/simple_surface.shader</a></p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

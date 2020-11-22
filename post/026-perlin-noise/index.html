@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Perlin Noise | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Perlin Noise" />
+<meta property="og:description" content="Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/026-perlin-noise/" />
+<meta property="article:published_time" content="2018-09-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-09-15T00:00:00+00:00" />
+<meta itemprop="name" content="Perlin Noise">
+<meta itemprop="description" content="Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first.">
+<meta itemprop="datePublished" content="2018-09-15T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-09-15T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3033">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Perlin Noise"/>
+<meta name="twitter:description" content="Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Perlin Noise</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-09-15T00:00:00Z">September 15, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="perlin-noise">Perlin Noise</h2>
+<p>One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on <a href="https://ronja-tutorials.com/post/024-white-noise/">white noise</a> and <a href="https://ronja-tutorials.com/post/025-value-noise/">value noise</a> first.</p>
+<p><img src="/assets/images/posts/026/Result.gif" alt=""></p>
+<h2 id="gradient-noise-in-one-dimension">Gradient Noise in one Dimension</h2>
+<p>Perlin noise is a specific implementation of gradient noise for multiple dimensions. But generating gradient noise in one dimension is also pretty simple, so we&rsquo;ll start with that.</p>
+<p>This first implementation will, just like in the previous noise tutorials, be just in one dimension. We start with the 1d value noise shader. First we move the code of the noise function in it&rsquo;s own function for more readability.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> gradientNoise(<span style="color:#080;font-weight:bold">float</span> value){
+    <span style="color:#080;font-weight:bold">float</span> previousCellNoise <span style="color:#333">=</span> rand1dTo1d(floor(value));
+    <span style="color:#080;font-weight:bold">float</span> nextCellNoise <span style="color:#333">=</span> rand1dTo1d(ceil(value));
+    <span style="color:#080;font-weight:bold">float</span> interpolator <span style="color:#333">=</span> frac(value);
+    interpolator <span style="color:#333">=</span> easeInOut(interpolator);
+    <span style="color:#080;font-weight:bold">return</span> lerp(previousCellNoise, nextCellNoise, interpolator);
+}
+
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    <span style="color:#080;font-weight:bold">float</span> value <span style="color:#333">=</span> i.worldPos.x <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value);
+    
+    <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> abs(noise <span style="color:#333">-</span> i.worldPos.y);
+    <span style="color:#080;font-weight:bold">float</span> pixelHeight <span style="color:#333">=</span> fwidth(i.worldPos.y);
+    <span style="color:#080;font-weight:bold">float</span> lineIntensity <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>pixelHeight, pixelHeight, dist);
+    o.Albedo <span style="color:#333">=</span> lerp(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, lineIntensity);
+}
+</code></pre></div><p>Like mentioned previously, perlin noise doesn&rsquo;t interpolate the values, it interpolates between directions. That means we start by generating a random inclination. This inclination can both go up and down, so we multiply our random value by 2 to move it to the 0 to 2 range and then subtract 1 to move it between -1 and +1.</p>
+<p>After generating the inclination we get the value of the line with the chosen generated inclination based on the fractional part of our value. Because the typical equation of a line is <code>base + inclination * variable</code> and when we use the fractional part as a variable the line originates at 0 so our line equation is simply <code>inclination * fractional part</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> gradientNoise(<span style="color:#080;font-weight:bold">float</span> value){
+    <span style="color:#080;font-weight:bold">float</span> fraction <span style="color:#333">=</span> frac(value);
+
+    <span style="color:#080;font-weight:bold">float</span> previousCellInclination <span style="color:#333">=</span> rand1dTo1d(floor(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> previousCellLinePoint <span style="color:#333">=</span> previousCellInclination <span style="color:#333">*</span> fraction;
+    
+    <span style="color:#080;font-weight:bold">return</span> previousCellLinePoint;
+}
+</code></pre></div><p><img src="/assets/images/posts/026/Inclinations.png" alt=""></p>
+<p>For proper smoothing, we have to generate the line for the next cell too. The line is then on the left of the cell center, so we have to use negative values approaching zero for our variable. To get those values, we simply subtract 1 from our fractional part. That way when we generate values on the left of the segment we start with 0 - 1 which equals -1 and approach 1 - 1 which equals 0. Similar to previous noise generation, we can get the random inclination of the next cell with <code>floor(value)+1</code> or <code>ceil(value)</code></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> nextCellInclination <span style="color:#333">=</span> rand1dTo1d(ceil(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+<span style="color:#080;font-weight:bold">float</span> nextCellLinePoint <span style="color:#333">=</span> nextCellInclination <span style="color:#333">*</span> (fraction <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>);
+</code></pre></div><p>The next step is similar to what we did for easing the interpolation, we want the value of the line of the previous cell at the beginning of the segment and the line of the next segment at the end. So we simply interpolate between those values based on where on the segment we are. We&rsquo;ll still use the easing, just to make it look smoother.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> gradientNoise(<span style="color:#080;font-weight:bold">float</span> value){
+    <span style="color:#080;font-weight:bold">float</span> fraction <span style="color:#333">=</span> frac(value);
+    <span style="color:#080;font-weight:bold">float</span> interpolator <span style="color:#333">=</span> easeInOut(fraction);
+
+    <span style="color:#080;font-weight:bold">float</span> previousCellInclination <span style="color:#333">=</span> rand1dTo1d(floor(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> previousCellLinePoint <span style="color:#333">=</span> previousCellInclination <span style="color:#333">*</span> fraction;
+
+    <span style="color:#080;font-weight:bold">float</span> nextCellInclination <span style="color:#333">=</span> rand1dTo1d(ceil(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> nextCellLinePoint <span style="color:#333">=</span> nextCellInclination <span style="color:#333">*</span> (fraction <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>);
+
+    <span style="color:#080;font-weight:bold">return</span> lerp(previousCellLinePoint, nextCellLinePoint, interpolator);
+}
+</code></pre></div><p>Another small thing I&rsquo;d like to change before calling the 1d gradient noise done is that right now our <code>rand1dTo1d</code> function always returns exactly 0 when we input zero, because of the calculations we do in it. What I&rsquo;ll do for now to fix that is to change the mutator variable from a multiplication to a simple addition with a unusual number, so we don&rsquo;t have that abnormal looking value at the origin. (Those changes are in the Random.cginc library file)(for every one looking at this later, I might have already changed that in the white noise tutorial💖)</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> rand1dTo1d(float3 value, <span style="color:#080;font-weight:bold">float</span> mutator <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.546</span>){
+	<span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> frac(sin(value <span style="color:#333">+</span> mutator) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">143758.5453</span>);
+	<span style="color:#080;font-weight:bold">return</span> random;
+}
+</code></pre></div><p><img src="/assets/images/posts/026/1dGradient.png" alt=""></p>
+<h2 id="2d-perlin-noise">2d Perlin Noise</h2>
+<p>For multidimensional perlin noise we can&rsquo;t simply use a normal formula for a 1d line. Instead we interpolate the fraction in multiple dimensions and take the dot product with generated vectors of cells. To make the lines we generate with the dot product go to zero near the cell point itself, we scale the vector. That&rsquo;s because of how the dot product works, a dot product with a <code>(0, 0)</code> vector will always be zero and a dot product with any vector and <code>(1, 0)</code> will always be twice as big as a dot product between <code>(0.5, 0)</code> and the same vector. Using the dot product this way means that we can use multiple dimensions as input well, but output will always be limited to one dimension.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value){
+    <span style="color:#080;font-weight:bold">float</span> fraction <span style="color:#333">=</span> frac(value);
+    <span style="color:#080;font-weight:bold">float</span> interpolator <span style="color:#333">=</span> easeInOut(fraction);
+
+    <span style="color:#080;font-weight:bold">float</span> previousCellInclination <span style="color:#333">=</span> rand1dTo1d(floor(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> previousCellLinePoint <span style="color:#333">=</span> previousCellInclination <span style="color:#333">*</span> fraction;
+
+    <span style="color:#080;font-weight:bold">float</span> nextCellInclination <span style="color:#333">=</span> rand1dTo1d(ceil(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> nextCellLinePoint <span style="color:#333">=</span> nextCellInclination <span style="color:#333">*</span> (fraction <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>);
+
+    <span style="color:#080;font-weight:bold">return</span> lerp(previousCellLinePoint, nextCellLinePoint, interpolator);
+}
+</code></pre></div><p>The first step of the implementation is generating 4 vectors in the 4 nearest cells, similarly to value noise. For that we can simply use the <code>rand2dTo2d</code> function we wrote in the white noise tutorial. Similarly to the 1d gradient noise, we want those vectors to point into all directions, not just to the top right in the 0 to 1 range like the random function returns. To fix that, we simply take the output of the random function, multiply it by 2 and subtract 1 again, the operations will automatically be applied to all components of the vector even though we only write down the scalar values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+</code></pre></div><p>Then we generate the values again. They start at 0 at the cell, and then become bigger the further away they go.</p>
+<p>For the lower left cell, which is equivalent to the previous cell in the 1d example, we can simply use the fraction as a vector as it is 0 at the cell and the y component becomes bigger the more we go up and the x component grows as we look further to the right, both increasing the absolute value of the result. On the lower right cell, we subtract <code>(1, 0)</code> from the value, so the vector will be smallest in the lower right corner and grow as we go left or up. Similarly to the 1d example we can also see here, that the value is negative when we approach the cell from the lower side, giving us continuous functions passing 0 at the cell position. And in the same matter we subtract <code>(0, 1)</code> from the fraction before taking the dot product with the upper left corner and subtract <code>(1, 1)</code> in case of the upper right corner.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 fraction <span style="color:#333">=</span> frac(value);
+
+float2 lowerLeftFunctionValue <span style="color:#333">=</span> dot(lowerLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+float2 lowerRightFunctionValue <span style="color:#333">=</span> dot(lowerRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>));
+float2 upperLeftFunctionValue <span style="color:#333">=</span> dot(upperLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+float2 upperRightFunctionValue <span style="color:#333">=</span> dot(upperRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+</code></pre></div><p>Now that we generated all of our function values based on the random vectors we can interpolate between them like we&rsquo;re used to. First the upper and lower pairs and then between the interpolated results.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+
+<span style="color:#080;font-weight:bold">float</span> lowerCells <span style="color:#333">=</span> lerp(lowerLeftFunctionValue, lowerRightFunctionValue, interpolatorX);
+<span style="color:#080;font-weight:bold">float</span> upperCells <span style="color:#333">=</span> lerp(upperLeftFunctionValue, upperRightFunctionValue, interpolatorX);
+
+<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(lowerCells, upperCells, interpolatorY);
+<span style="color:#080;font-weight:bold">return</span> noise;
+</code></pre></div><p>Now that we have the whole noise function, we can now display it. Because the function fluctuates around 0 and approximately goes up and down by about 0.5, we&rsquo;ll add 0.5 to the result to get noise approximately from 0 to 1.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+    o.Albedo <span style="color:#333">=</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/026/2dPerlin.png" alt=""></p>
+<h2 id="3d-perlin-noise">3d Perlin Noise</h2>
+<p>For 3d we&rsquo;ll implement the readable version with nested loops again. It looks very similar to the 3d value noise shader we wrote, but instead of just writing the random values to the values to interpolate in the innermost loop, we generate a random direction based on the cell. Then we also generate the comparison vector by subtracting the same value we used to get the cell from the fractional vector. After we have both of those vectors, we simply take the dot product between the two vectors and assign it to the noise value we interpolate. The rest of the function looks just like the 3d value noise function we wrote earlier.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> perlinNoise(float3 value){
+    float3 fraction <span style="color:#333">=</span> frac(value);
+
+    <span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+    <span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+    <span style="color:#080;font-weight:bold">float</span> interpolatorZ <span style="color:#333">=</span> easeInOut(fraction.z);
+
+    float3 cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;z<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;z<span style="color:#333">++</span>){
+        float3 cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;y<span style="color:#333">++</span>){
+            float3 cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
+            [unroll]
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;x<span style="color:#333">++</span>){
+                float3 cell <span style="color:#333">=</span> floor(value) <span style="color:#333">+</span> float3(x, y, z);
+                float3 cellDirection <span style="color:#333">=</span> rand3dTo3d(cell) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+                float3 compareVector <span style="color:#333">=</span> fraction <span style="color:#333">-</span> float3(x, y, z);
+                cellNoiseX[x] <span style="color:#333">=</span> dot(cellDirection, compareVector);
+            }
+            cellNoiseY[y] <span style="color:#333">=</span> lerp(cellNoiseX[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseX[<span style="color:#00d;font-weight:bold">1</span>], interpolatorX);
+        }
+        cellNoiseZ[z] <span style="color:#333">=</span> lerp(cellNoiseY[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseY[<span style="color:#00d;font-weight:bold">1</span>], interpolatorY);
+    }
+    float3 noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><p>For the input of the 3d noise, we now have to use 3d values as a input. With this 3d noise, we can then make coherent noise in 3d space without having to worry about generating 2d UVs or anything like that.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+    o.Albedo <span style="color:#333">=</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/026/3dPerlin.png" alt=""></p>
+<h2 id="special-use-case">Special Use Case</h2>
+<p>Perlin noise itself usually just looks like weird clouds, but we can do some interresting effects with it if we know what we want.</p>
+<p>As a first interresting thing, we can visualize lines where the noise has the same height, similar to height lines on maps. To archieve that we multiply the noise to make the noise span a wider range. Then we take the fractional amount of that value and display it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+noise <span style="color:#333">=</span> frac(noise <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">6</span>);
+
+o.Albedo <span style="color:#333">=</span> noise;
+</code></pre></div><p><img src="/assets/images/posts/026/fracNoise.png" alt=""></p>
+<p>Then we can then make smooth lines from that. First we have to find out how how much the noise changes in one pixel distance, for that we simply use the fwidth function. Then we can make a smooth half line at the top of the fractional range, so near 1, by using the smoothstep function.</p>
+<p>We give the smoothstep function 1 minus the amount the noise changes in the neighboring pixels as the first parameter, one as the second parameter and the noise itself as the third parameter. That way the function will return 0 for all values that are more than 1 pixel away, and interpolate to a value of 1 until it reaches 1, which is the maximum value after we appied the frac function. Similarly we do a smoothstep for the lower end of the range. We feed it the change of the noise to the neighboring pixels as a first parameter, 0 as a second one and simply the fraction of the noise as the third parameter. This function will then return 0 for all values over the noise pixel change and then interpolate to 1 towards 0. To get the whole line, we&rsquo;ll simply add the two values and return them.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+    noise <span style="color:#333">=</span> frac(noise <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">6</span>);
+
+    <span style="color:#080;font-weight:bold">float</span> pixelNoiseChange <span style="color:#333">=</span> fwidth(noise);
+
+    <span style="color:#080;font-weight:bold">float</span> heightLine <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>pixelNoiseChange, <span style="color:#00d;font-weight:bold">1</span>, noise);
+    heightLine <span style="color:#333">+=</span> smoothstep(pixelNoiseChange, <span style="color:#40e;font-weight:bold">0</span>, noise);
+
+    o.Albedo <span style="color:#333">=</span> heightLine;
+}
+</code></pre></div><p><img src="/assets/images/posts/026/heightLines.png" alt=""></p>
+<p>And a last nice trick is to use the 3d noise function in situations where you&rsquo;d only need the 2d function. That allows you to factor the time into the 3rd dimension and animate the noise without scrolling. If you made a 4d implementation of perlin noise you could also animate the 4th dimension to get a similar effect in 3 dimensions.</p>
+<p>For that we simply add the time variable to the component we don&rsquo;t need before we pass it to the noise function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    _ScrollSpeed (<span style="color:#f00;background-color:#faa">&#34;</span>Scroll Speed<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global variables</span>
+<span style="color:#080;font-weight:bold">float</span> _CellSize;
+<span style="color:#080;font-weight:bold">float</span> _ScrollSpeed;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+value.y <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> _ScrollSpeed;
+<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+</code></pre></div><p><img src="/assets/images/posts/026/AnimatedLines.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<p><strong>1d gradient noise</strong></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">026</span>_perlin_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">1</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> gradientNoise(<span style="color:#080;font-weight:bold">float</span> value){
+			<span style="color:#080;font-weight:bold">float</span> fraction <span style="color:#333">=</span> frac(value);
+			<span style="color:#080;font-weight:bold">float</span> interpolator <span style="color:#333">=</span> easeInOut(fraction);
+
+			<span style="color:#080;font-weight:bold">float</span> previousCellInclination <span style="color:#333">=</span> rand1dTo1d(floor(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> previousCellLinePoint <span style="color:#333">=</span> previousCellInclination <span style="color:#333">*</span> fraction;
+
+			<span style="color:#080;font-weight:bold">float</span> nextCellInclination <span style="color:#333">=</span> rand1dTo1d(ceil(value)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			<span style="color:#080;font-weight:bold">float</span> nextCellLinePoint <span style="color:#333">=</span> nextCellInclination <span style="color:#333">*</span> (fraction <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>);
+
+			<span style="color:#080;font-weight:bold">return</span> lerp(previousCellLinePoint, nextCellLinePoint, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			<span style="color:#080;font-weight:bold">float</span> value <span style="color:#333">=</span> i.worldPos.x <span style="color:#333">/</span> _CellSize;
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> gradientNoise(value);
+			
+			<span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> abs(noise <span style="color:#333">-</span> i.worldPos.y);
+			<span style="color:#080;font-weight:bold">float</span> pixelHeight <span style="color:#333">=</span> fwidth(i.worldPos.y);
+			<span style="color:#080;font-weight:bold">float</span> lineIntensity <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>pixelHeight, pixelHeight, dist);
+			o.Albedo <span style="color:#333">=</span> lerp(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, lineIntensity);
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p><strong>2d perlin noise</strong></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">026</span>_perlin_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Jitter;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value){
+			<span style="color:#888">//generate random directions</span>
+			float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), floor(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(floor(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+			float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(ceil(value.x), ceil(value.y))) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+			float2 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#888">//get values of cells based on fraction and cell directions</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerLeftFunctionValue <span style="color:#333">=</span> dot(lowerLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> lowerRightFunctionValue <span style="color:#333">=</span> dot(lowerRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperLeftFunctionValue <span style="color:#333">=</span> dot(upperLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>));
+			<span style="color:#080;font-weight:bold">float</span> upperRightFunctionValue <span style="color:#333">=</span> dot(upperRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+
+			<span style="color:#888">//interpolate between values</span>
+			<span style="color:#080;font-weight:bold">float</span> lowerCells <span style="color:#333">=</span> lerp(lowerLeftFunctionValue, lowerRightFunctionValue, interpolatorX);
+			<span style="color:#080;font-weight:bold">float</span> upperCells <span style="color:#333">=</span> lerp(upperLeftFunctionValue, upperRightFunctionValue, interpolatorX);
+
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(lowerCells, upperCells, interpolatorY);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+			<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+			o.Albedo <span style="color:#333">=</span> noise;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p><strong>3d perlin noise</strong></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">026</span>_perlin_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">3</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _Jitter;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float3 value){
+			float3 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorZ <span style="color:#333">=</span> easeInOut(fraction.z);
+
+			float3 cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;z<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;z<span style="color:#333">++</span>){
+				float3 cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;y<span style="color:#333">++</span>){
+					float3 cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;x<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> floor(value) <span style="color:#333">+</span> float3(x, y, z);
+						float3 cellDirection <span style="color:#333">=</span> rand3dTo3d(cell) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+						float3 compareVector <span style="color:#333">=</span> fraction <span style="color:#333">-</span> float3(x, y, z);
+						cellNoiseX[x] <span style="color:#333">=</span> dot(cellDirection, compareVector);
+					}
+					cellNoiseY[y] <span style="color:#333">=</span> lerp(cellNoiseX[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseX[<span style="color:#00d;font-weight:bold">1</span>], interpolatorX);
+				}
+				cellNoiseZ[z] <span style="color:#333">=</span> lerp(cellNoiseY[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseY[<span style="color:#00d;font-weight:bold">1</span>], interpolatorY);
+			}
+			float3 noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+			<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+			o.Albedo <span style="color:#333">=</span> noise;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p><strong>special use tricks</strong></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">026</span>_perlin_noise<span style="color:#333">/</span>special<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+		_ScrollSpeed (<span style="color:#f00;background-color:#faa">&#34;</span>Scroll Speed<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		CGPROGRAM
+
+		<span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+		<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+		<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+		<span style="color:#080;font-weight:bold">float</span> _CellSize;
+		<span style="color:#080;font-weight:bold">float</span> _ScrollSpeed;
+
+		<span style="color:#080;font-weight:bold">struct</span> Input {
+			float3 worldPos;
+		};
+
+		<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+			<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+			<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+			<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+		}
+
+		<span style="color:#080;font-weight:bold">float</span> perlinNoise(float3 value){
+			float3 fraction <span style="color:#333">=</span> frac(value);
+
+			<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+			<span style="color:#080;font-weight:bold">float</span> interpolatorZ <span style="color:#333">=</span> easeInOut(fraction.z);
+
+			float3 cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
+			[unroll]
+			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;z<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;z<span style="color:#333">++</span>){
+				float3 cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;y<span style="color:#333">++</span>){
+					float3 cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;x<span style="color:#333">++</span>){
+						float3 cell <span style="color:#333">=</span> floor(value) <span style="color:#333">+</span> float3(x, y, z);
+						float3 cellDirection <span style="color:#333">=</span> rand3dTo3d(cell) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+						float3 compareVector <span style="color:#333">=</span> fraction <span style="color:#333">-</span> float3(x, y, z);
+						cellNoiseX[x] <span style="color:#333">=</span> dot(cellDirection, compareVector);
+					}
+					cellNoiseY[y] <span style="color:#333">=</span> lerp(cellNoiseX[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseX[<span style="color:#00d;font-weight:bold">1</span>], interpolatorX);
+				}
+				cellNoiseZ[z] <span style="color:#333">=</span> lerp(cellNoiseY[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseY[<span style="color:#00d;font-weight:bold">1</span>], interpolatorY);
+			}
+			float3 noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
+			<span style="color:#080;font-weight:bold">return</span> noise;
+		}
+
+		<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+			float3 value <span style="color:#333">=</span> i.worldPos <span style="color:#333">/</span> _CellSize;
+			value.y <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> _ScrollSpeed;
+			<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+			noise <span style="color:#333">=</span> frac(noise <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">6</span>);
+
+			<span style="color:#080;font-weight:bold">float</span> pixelNoiseChange <span style="color:#333">=</span> fwidth(noise);
+
+			<span style="color:#080;font-weight:bold">float</span> heightLine <span style="color:#333">=</span> smoothstep(<span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>pixelNoiseChange, <span style="color:#00d;font-weight:bold">1</span>, noise);
+			heightLine <span style="color:#333">+=</span> smoothstep(pixelNoiseChange, <span style="color:#40e;font-weight:bold">0</span>, noise);
+
+			o.Albedo <span style="color:#333">=</span> heightLine;
+		}
+		ENDCG
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>It took me a long time to understand how perlin noise works and I hope that by putting it into words here I made it easier for you, and that you&rsquo;ll be able to create amazing effects with it.</p>
+<p>You can also find the sources to the shaders of this tutorial here:</p>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_1d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_1d.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_2d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_2d.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_3d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_3d.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_special.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/026_Perlin_Noise/perlin_noise_special.shader</a></li>
+</ul>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

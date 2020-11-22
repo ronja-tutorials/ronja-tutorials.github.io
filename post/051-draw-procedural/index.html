@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Graphics.DrawProcedural | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Graphics.DrawProcedural" />
+<meta property="og:description" content="The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/051-draw-procedural/" />
+<meta property="article:published_time" content="2020-09-16T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="name" content="Graphics.DrawProcedural">
+<meta itemprop="description" content="The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?">
+<meta itemprop="datePublished" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1706">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Graphics.DrawProcedural"/>
+<meta name="twitter:description" content="The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?"/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Graphics.DrawProcedural</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-09-16T00:00:00Z">September 16, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>The <a href="https://ronja-tutorials.com/post/050-compute-shader/">last tutorial</a> was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around? Thats where Graphics.DrawProcedural and similar methods come into play, they allow us to do exactly that. So lets build on the result of that tutorial but without using GameObjects for rendering.</p>
+<video controls preload="auto" width="300" autoplay loop class="html-video">
+  <source src="/assets/images/posts/051/result.mp4" type="video/webm" }}><p></p>
+</video>
+
+<h2 id="buffer-handling-in-c">Buffer handling in C#</h2>
+<p>First lets remove all code connected to rendering using GameObjects. We don&rsquo;t need the output array anymore, not the GameObject instances where we stored the Transforms, we don&rsquo;t need to create them in the start method and don&rsquo;t need to update their positions in the Update method.</p>
+<p>The way Graphics.DrawProcedural works is that all the shader gets as information is the index of the current vertex. That also means we&rsquo;ll have to make the vertices available to shader ourselves via more compute buffers and then write a custom shader to read from those buffers. Lets add a mesh and a material to our public class variables so we can set them from the inspector and use their data for rendering. Since we&rsquo;re filling the mentioned buffers ourselves its not nessecary for that data to come from a mesh or even exist in the ram at any point.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">/// class variables
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> Mesh Mesh;
+<span style="color:#080;font-weight:bold">public</span> Material Material;
+</code></pre></div><p>In this case we don&rsquo;t need uv coordinates or normals, so we&rsquo;ll just create 2 buffers, one for the triangles and one for the positions. The way those work is that each pair of 3 integers in the triangles array define a triangle to be rendered by its index positions in the vertex position array. Just like the previous result array we also need to discard this one at some point (In our case in the <code>OnDestroy</code> method).</p>
+<p>The stride (size of a single variable in the buffer) is simply the size of the base type times the components (1 for scalar values and 3 for 3d vectors). And after creating the buffers we already fill them once at the start.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">/// class variables
+</span><span style="color:#888"></span>ComputeBuffer meshTriangles;
+ComputeBuffer meshPositions;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">///in Start method
+</span><span style="color:#888"></span>
+<span style="color:#888">//gpu buffers for the mesh
+</span><span style="color:#888"></span><span style="color:#339;font-weight:bold">int</span>[] triangles = Mesh.triangles;
+meshTriangles = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(triangles.Length, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">int</span>));
+meshTriangles.SetData(triangles);
+Vector3[] positions = Mesh.vertices;
+meshPositions = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(positions.Length, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+meshPositions.SetData(positions);
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> OnDestroy()
+{
+    resultBuffer.Dispose();
+    meshTriangles.Dispose();
+    meshPositions.Dispose();
+}
+</code></pre></div><p>To allow the material to read from the buffers we just call <code>SetBuffer</code> just like we&rsquo;d call <code>SetColor</code> or <code>SetTexture</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">///in Start method
+</span><span style="color:#888"></span>
+<span style="color:#888">//give data to shaders
+</span><span style="color:#888"></span>Material.SetBuffer(<span style="background-color:#fff0f0">&#34;SphereLocations&#34;</span>, resultBuffer);
+Material.SetBuffer(<span style="background-color:#fff0f0">&#34;Triangles&#34;</span>, meshTriangles);
+Material.SetBuffer(<span style="background-color:#fff0f0">&#34;Positions&#34;</span>, meshPositions);
+</code></pre></div><p>Now we have most things we need to call the DrawProcedural method, but if you take a look at it one of the non-optional arguments we havent accounted for is still the bounds of what we&rsquo;re drawing. This is here for frustum culling and in our case we can quickly calculate them by creating 40x40 units bounds at the origin and passing them. The reason for the bounds in this case are the compute shader spits out positions in a sphere with a 20 unit radius around the origin.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">///class variable
+</span><span style="color:#888"></span>
+Bounds bounds;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">///in start method
+</span><span style="color:#888"></span>
+<span style="color:#888">//bounds for frustum culling (20 is a magic number (radius) from the compute shader)
+</span><span style="color:#888"></span>bounds = <span style="color:#080;font-weight:bold">new</span> Bounds(Vector3.zero, Vector3.one * <span style="color:#60e;font-weight:bold">20</span>);
+</code></pre></div><p>After the material and the bounds are passed the next argument is the topology. Changing that allows us to draw lines, dots or even quads (though they&rsquo;re slow), but in most cases we like to stick to triangles and its also what our mesh data gave us. Then we pass in the length of the triangle array since in this case we want to run the vertex stage once per trangle corner, not once per position. And we pass the amount of spheres as the instance count. We could also queue the triangle amount times the sphere amount and figure out which sphere we&rsquo;re in in the shader but this approach makes writing our shader a whole bit easier.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">///in Update
+</span><span style="color:#888"></span>
+<span style="color:#888">//draw result
+</span><span style="color:#888"></span>Graphics.DrawProcedural(Material, bounds, MeshTopology.Triangles, meshTriangles.count, SphereAmount);
+</code></pre></div><h2 id="the-shader">The Shader</h2>
+<p>The shader is actually pretty straightforward. We can use the the result of <a href="/basics.md">the basics series</a> to start. Then the first few changes are that we throw out the texture rendering and to mark the color property with <code>[HDR]</code> to allow us to go to values beyond 1 and play with bloom up there.</p>
+<p>Next we can just delete the <code>appdata</code> and <code>v2f</code> structs. We&rsquo;re not getting any data from a mesh and we&rsquo;re not passing any data to the fragment stage. Instead we add our 3 buffers, since we don&rsquo;t have to write to them we can just make them StructuredBuffers without the read-write functionality.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//buffers</span>
+StructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> SphereLocations;
+StructuredBuffer<span style="color:#333">&lt;</span><span style="color:#080;font-weight:bold">int</span><span style="color:#333">&gt;</span> Triangles;
+StructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Positions;
+</code></pre></div><p>Then we change the return type of our vertex function to <code>float4</code> and give it the <code>: SV_POSITION</code> attribute, similarly to the <code>SV_TARGET</code> of the fragment function. The arguments our vertex function now takes are the vertex id as well as the instance id, marked via <code>SV_VertexID</code> and <code>SV_InstanceID</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the vertex shader function</span>
+float4 vert(uint vertex_id<span style="color:#333">:</span> SV_VertexID, uint instance_id<span style="color:#333">:</span> SV_InstanceID) <span style="color:#333">:</span> SV_POSITION{
+  <span style="color:#888">//return position?</span>
+}
+</code></pre></div><p>Our first step is now to get the index of the position in the position list thats saved in the triangle buffer, just like in the compute shader we can access the buffer here like we would with an array in most languages. After getting the position index based on the vertex id, we use that to get the actual position from the position buffer. Then we also add the location of the current sphere by using instance id to the position.</p>
+<p>And lastly we transform the position from worldspace to clip space by multiplying the view-projection matrix with it. This isn&rsquo;t anything we haven&rsquo;t done yet, it was just hidden in <code>UnityObjectToClipPos</code> until now, which internally only does <code>mul(UNITY_MATRIX_VP, mul(unity_ObjectToWorld, float4(pos, 1.0)));</code> where the inner <code>mul</code> transforms the position to the world coordinates and the outer one to clip coordinates.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the vertex shader function</span>
+float4 vert(uint vertex_id<span style="color:#333">:</span> SV_VertexID, uint instance_id<span style="color:#333">:</span> SV_InstanceID) <span style="color:#333">:</span> SV_POSITION{
+  <span style="color:#888">//get vertex position</span>
+  <span style="color:#080;font-weight:bold">int</span> positionIndex <span style="color:#333">=</span> Triangles[vertex_id];
+  float3 position <span style="color:#333">=</span> Positions[positionIndex];
+  <span style="color:#888">//add sphere position</span>
+  position <span style="color:#333">+=</span> SphereLocations[instance_id];
+  <span style="color:#888">//convert the vertex position from world space to clip space</span>
+  <span style="color:#080;font-weight:bold">return</span> mul(UNITY_MATRIX_VP, float4(position, <span style="color:#00d;font-weight:bold">1</span>));
+}
+</code></pre></div><p>And with all of that you rendered objects at positions the cpu never knew about! And depending on your situation that can be pretty fast.</p>
+<video controls preload="auto" width="300" autoplay loop class="html-video">
+  <source src="/assets/images/posts/051/result.mp4" type="video/webm" }}><p></p>
+</video>
+
+<h2 id="tiny-tweaks">Tiny Tweaks</h2>
+<p>Because we left the world of GameObjects and Transforms theres no easy way to resize objects in this thing, which is a thing I want to do. So lets add that functionality by just multiplying all positions with a value before putting them into the buffer with a linq function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">Vector3[] positions = Mesh.vertices.Select(p =&gt; p * Scale).ToArray(); <span style="color:#888">//adjust scale here
+</span><span style="color:#888"></span>meshPositions = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(positions.Length, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+meshPositions.SetData(positions);
+</code></pre></div><p>Also as a tiny note microsoft is very clear in their docs that they prefer the content type of structured buffers to have a stride thats a power of 2 (more specifically a value 128 is dividable by), but in my playing around with float3 and float4 they seemed very similar in performance. Do with that information what you will.</p>
+<p>Oh, and I moved the the calculation of the thread group count as well as the setting of the result buffer to the compute kernel to the Start method.</p>
+<h2 id="sources">Sources</h2>
+<h3 id="proceduralcomputespherescs">ProceduralComputeSpheres.cs</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/ProceduralComputeSpheres.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/ProceduralComputeSpheres.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections.Generic</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Linq</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ProceduralComputeSpheres</span> : MonoBehaviour
+{
+    <span style="color:#888">//rough outline for data
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> SphereAmount = <span style="color:#60e;font-weight:bold">17</span>;
+    <span style="color:#080;font-weight:bold">public</span> ComputeShader Shader;
+
+    <span style="color:#888">//what is rendered
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">public</span> Mesh Mesh;
+    <span style="color:#080;font-weight:bold">public</span> Material Material;
+    <span style="color:#080;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">float</span> Scale = <span style="color:#60e;font-weight:bold">1</span>;
+
+    <span style="color:#888">//internal data
+</span><span style="color:#888"></span>    ComputeBuffer resultBuffer;
+    ComputeBuffer meshTriangles;
+    ComputeBuffer meshPositions;
+    <span style="color:#339;font-weight:bold">int</span> kernel;
+    <span style="color:#339;font-weight:bold">uint</span> threadGroupSize;
+    Bounds bounds;
+    <span style="color:#339;font-weight:bold">int</span> threadGroups;
+
+    <span style="color:#080;font-weight:bold">void</span> Start()
+    {
+        <span style="color:#888">//program we&#39;re executing
+</span><span style="color:#888"></span>        kernel = Shader.FindKernel(<span style="background-color:#fff0f0">&#34;Spheres&#34;</span>);
+        Shader.GetKernelThreadGroupSizes(kernel, <span style="color:#080;font-weight:bold">out</span> threadGroupSize, <span style="color:#080;font-weight:bold">out</span> _, <span style="color:#080;font-weight:bold">out</span> _);
+
+        <span style="color:#888">//amount of thread groups we&#39;ll need to dispatch
+</span><span style="color:#888"></span>        threadGroups = (<span style="color:#339;font-weight:bold">int</span>) ((SphereAmount + (threadGroupSize - <span style="color:#60e;font-weight:bold">1</span>)) / threadGroupSize);
+
+        <span style="color:#888">//gpu buffer for the sphere positions
+</span><span style="color:#888"></span>        resultBuffer = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(SphereAmount, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+
+        <span style="color:#888">//gpu buffers for the mesh
+</span><span style="color:#888"></span>        <span style="color:#339;font-weight:bold">int</span>[] triangles = Mesh.triangles;
+        meshTriangles = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(triangles.Length, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">int</span>));
+        meshTriangles.SetData(triangles);
+        Vector3[] positions = Mesh.vertices.Select(p =&gt; p * Scale).ToArray(); <span style="color:#888">//adjust scale here
+</span><span style="color:#888"></span>        meshPositions = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(positions.Length, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+        meshPositions.SetData(positions);
+
+        <span style="color:#888">//give data to shaders
+</span><span style="color:#888"></span>        Shader.SetBuffer(kernel, <span style="background-color:#fff0f0">&#34;Result&#34;</span>, resultBuffer);
+
+        Material.SetBuffer(<span style="background-color:#fff0f0">&#34;SphereLocations&#34;</span>, resultBuffer);
+        Material.SetBuffer(<span style="background-color:#fff0f0">&#34;Triangles&#34;</span>, meshTriangles);
+        Material.SetBuffer(<span style="background-color:#fff0f0">&#34;Positions&#34;</span>, meshPositions);
+
+        <span style="color:#888">//bounds for frustum culling (20 is a magic number (radius) from the compute shader)
+</span><span style="color:#888"></span>        bounds = <span style="color:#080;font-weight:bold">new</span> Bounds(Vector3.zero, Vector3.one * <span style="color:#60e;font-weight:bold">20</span>);
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> Update()
+    {
+        <span style="color:#888">//calculate positions
+</span><span style="color:#888"></span>        Shader.SetFloat(<span style="background-color:#fff0f0">&#34;Time&#34;</span>, Time.time);
+        Shader.Dispatch(kernel, threadGroups, <span style="color:#60e;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">1</span>);
+
+        <span style="color:#888">//draw result
+</span><span style="color:#888"></span>        Graphics.DrawProcedural(Material, bounds, MeshTopology.Triangles, meshTriangles.count, SphereAmount);
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> OnDestroy()
+    {
+        resultBuffer.Dispose();
+        meshTriangles.Dispose();
+        meshPositions.Dispose();
+    }
+}
+</code></pre></div><h3 id="proceduralspheresshader">ProceduralSpheres.shader</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/ProceduralSpheres.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/ProceduralSpheres.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">051</span>_ProceduralSpheres<span style="color:#f00;background-color:#faa">&#34;</span>{
+  <span style="color:#888">//show values to edit in inspector</span>
+  Properties{
+    [HDR] _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+  }
+
+  SubShader{
+    <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+    Pass{
+      CGPROGRAM
+
+      <span style="color:#888">//include useful shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+      <span style="color:#888">//define vertex and fragment shader functions</span>
+      <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+      <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+      <span style="color:#888">//tint of the texture</span>
+      fixed4 _Color;
+
+      <span style="color:#888">//buffers</span>
+      StructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> SphereLocations;
+      StructuredBuffer<span style="color:#333">&lt;</span><span style="color:#080;font-weight:bold">int</span><span style="color:#333">&gt;</span> Triangles;
+      StructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Positions;
+
+      <span style="color:#888">//the vertex shader function</span>
+      float4 vert(uint vertex_id<span style="color:#333">:</span> SV_VertexID, uint instance_id<span style="color:#333">:</span> SV_InstanceID) <span style="color:#333">:</span> SV_POSITION{
+        <span style="color:#888">//get vertex position</span>
+        <span style="color:#080;font-weight:bold">int</span> positionIndex <span style="color:#333">=</span> Triangles[vertex_id];
+        float3 position <span style="color:#333">=</span> Positions[positionIndex];
+        <span style="color:#888">//add sphere position</span>
+        position <span style="color:#333">+=</span> SphereLocations[instance_id];
+        <span style="color:#888">//convert the vertex position from world space to clip space</span>
+        <span style="color:#080;font-weight:bold">return</span> mul(UNITY_MATRIX_VP, float4(position, <span style="color:#00d;font-weight:bold">1</span>));
+      }
+
+      <span style="color:#888">//the fragment shader function</span>
+      fixed4 frag() <span style="color:#333">:</span> SV_TARGET{
+        <span style="color:#888">//return the final color to be drawn on screen</span>
+        <span style="color:#080;font-weight:bold">return</span> _Color;
+      }
+
+      ENDCG
+    }
+  }
+  Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="basiccomputecompute-unchanged">BasicCompute.compute (unchanged)</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/BasicCompute.compute">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/051_DrawProcedural/BasicCompute.compute</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// Each #kernel tells which function to compile; you can have many kernels</span>
+<span style="color:#579">#pragma kernel Spheres</span>
+
+<span style="color:#579">#include &#34;Random.cginc&#34;</span>
+
+<span style="color:#888">//variables</span>
+RWStructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Result;
+<span style="color:#080;font-weight:bold">uniform</span> <span style="color:#080;font-weight:bold">float</span> Time;
+
+[numthreads(<span style="color:#00d;font-weight:bold">64</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)]
+<span style="color:#080;font-weight:bold">void</span> Spheres (uint3 id <span style="color:#333">:</span> SV_DispatchThreadID)
+{
+  <span style="color:#888">//generate 2 orthogonal vectors</span>
+  float3 baseDir <span style="color:#333">=</span> normalize(rand1dTo3d(id.x) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> (rand1dTo1d(id.x)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+  float3 orthogonal <span style="color:#333">=</span> normalize(cross(baseDir, rand1dTo3d(id.x <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">7.1393</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>)) <span style="color:#333">*</span> (rand1dTo1d(id.x<span style="color:#333">+</span><span style="color:#60e;font-weight:bold">3.7443</span>)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+  <span style="color:#888">//scale the time and give it a random offset</span>
+  <span style="color:#080;font-weight:bold">float</span> scaledTime <span style="color:#333">=</span> Time <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">+</span> rand1dTo1d(id.x) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">712.131234</span>;
+  <span style="color:#888">//calculate a vector based on vectors</span>
+  float3 dir <span style="color:#333">=</span> baseDir <span style="color:#333">*</span> sin(scaledTime) <span style="color:#333">+</span> orthogonal <span style="color:#333">*</span> cos(scaledTime);
+  Result[id.x] <span style="color:#333">=</span> float3(dir <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">20</span>);
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Tiling Noise | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Tiling Noise" />
+<meta property="og:description" content="So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/029-tiling-noise/" />
+<meta property="article:published_time" content="2018-10-06T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-10-06T00:00:00+00:00" />
+<meta itemprop="name" content="Tiling Noise">
+<meta itemprop="description" content="So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well.">
+<meta itemprop="datePublished" content="2018-10-06T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-10-06T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3266">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Tiling Noise"/>
+<meta name="twitter:description" content="So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Tiling Noise</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-10-06T00:00:00Z">October 6, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.</p>
+<p>I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well. That being said this tutorial is part of the <a href="/noise.html">noise series</a> so if you have troubles with anything and haven&rsquo;t read earlier noise tutorials yet, I recommend you read them first.</p>
+<p><img src="/assets/images/posts/029/Result.png" alt=""></p>
+<h2 id="tileable-noise">Tileable noise</h2>
+<p>We&rsquo;ll use the layered 2d perlin noise as the first shader to modify to be tilable. We expand the perlin function to take another parameter called the period which is how often the noise tiles, counted in cells. Previously we calculated the cell positions directly before we passed them to the random function to calculate the direction of the cell, but to better be able to repeat the noise we&rsquo;ll calculate the maximum and minimum of the cells before passing it and then choosing the correct parameters out of them. We still get the component minimum of the cells by using floor and get the maximum via ceil. Then we use the x or y component of the minimum vector if we previously used floor and use the x or y component of the maximum vector where we previously used ceil.</p>
+<p>Then we make the cell positions wrap according to our new period variable. We do that by taking the modulo of the cell variables. The problem with the modulo implementation is that it returns the remainder. The difference between the mathematical remainder and modulo is that the modulo of will always be positive while the remainder of a negative number is negative. for example the modulo between <code>-5</code> and <code>3</code> would be <code>1</code> because if we multiply <code>3</code> by <code>-2</code> we get <code>-6</code> and the modulo is the difference, <code>1</code>. In the base of a implementation using the remainder, the result would be <code>-2</code> instead because it assumes that it&rsquo;s allowed to to just use <code>-1</code> as a multiplier and then in that case the difference to our divident is <code>-1</code>. The point of this small journey into mathematics is that we have the remainder, but we want the modulo. The fix for that is to first, get the remainder, then add the divisor again and take the modulo a second time. We know that after the first remainder the value isn&rsquo;t lower than our divisor times -1, so by adding the divisor again, we know the value is positive. And after ensuring we have a positive value we can apply the remainder a second time because we know it behaves exactly the same way as the modulo if we have positive values. We&rsquo;ll add the modulo as a extra function to our shader. The input and output is a <code>float2</code> so we can make the x and y coodinate wrap at the same time.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 modulo(float2 divident, float2 divisor){
+    float2 positiveDivident <span style="color:#333">=</span> divident <span style="color:#333">%</span> divisor <span style="color:#333">+</span> divisor;
+    <span style="color:#080;font-weight:bold">return</span> positiveDivident <span style="color:#333">%</span> divisor;
+}
+</code></pre></div><p>Now that we have this sorted out, we can use this custom modulo function to make make the cells wrap according to the period. The result will be that if we pass <code>(4, 4)</code> as a period, the noise will repeat itself every 4 cells, so in the X direction it&rsquo;ll go <code>(0, 0), (1, 0), (2, 0), (3, 0), (0, 0), (1, 0), (2, 0), etc...</code> and similarly in the y direction <code>(0, 0), (0, 1), (0, 2), (0, 3), (0, 0), (0, 1), (0, 2), etc...</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value, float2 period){
+    float2 cellsMimimum <span style="color:#333">=</span> floor(value);
+    float2 cellsMaximum <span style="color:#333">=</span> ceil(value);
+
+    cellsMimimum <span style="color:#333">=</span> modulo(cellsMimimum, period);
+    cellsMaximum <span style="color:#333">=</span> modulo(cellsMaximum, period);
+
+    <span style="color:#888">//generate random directions</span>
+    float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMimimum.x, cellsMimimum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMaximum.x, cellsMimimum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMimimum.x, cellsMaximum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+    float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMaximum.x, cellsMaximum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+    <span style="color:#888">//rest of the function unchanged</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> perlinNoise(value, float2(<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>)) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+    o.Albedo <span style="color:#333">=</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/029/RepeatingPerlin.png" alt=""></p>
+<h2 id="layered-tileable-noise">Layered tileable noise</h2>
+<p>This is all we need for simple tiling noise, but it doesn&rsquo;t work well for layered noise out of the box. If we double the frequency of the noise to 8 cells in the same area where there were 4 previously, but still repeat the noise every 4 cells, we have a unnessecary amount of repetition and it&rsquo;ll look weird. To counteract that we have to multiply the period by the frequency in our octaves. Double the amount of cells per space means we can repeat half as frequently.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+        noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>, float2(<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>) <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> factor;
+        factor <span style="color:#333">*=</span> _Persistance;
+        frequency <span style="color:#333">*=</span> _Roughness;
+    }
+
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+    o.Albedo <span style="color:#333">=</span> noise;
+}
+</code></pre></div><p>Finally we&rsquo;re going to expose the variable for adjusting the period of the noise to the inspector. The period property is of the type vector. Sadly unity doesn&rsquo;t allow us to expose vectors other than 4-dimensional ones, but if we define the variable in the hlsl part as a 2d vector it&rsquo;ll simply ignore the last two components of the property.</p>
+<p>Another thing I&rsquo;d like to change is that currently the roughness is a completely free slider, but for values with a fractional part the tiling breaks. That&rsquo;s because you can&rsquo;t cleanly wrap after 3.5 cells for example. To simply forbid ourselves from entering values with fractional parts, we can simply precede the property with the <code>[IntRange]</code> attribute.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _CellSize (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+    _Period (<span style="color:#f00;background-color:#faa">&#34;</span>Repeat every X cells<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+    [IntRange]_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+    _Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+float2 _Period;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//sampleLayeredNoise function</span>
+    noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>, _Period <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> factor;
+</code></pre></div><p><img src="/assets/images/posts/029/RepeatingLayeredPerlinSettings.png" alt=""></p>
+<p><img src="/assets/images/posts/029/RepeatingLayeredPerlin.png" alt=""></p>
+<h2 id="noise-in-unlit-uv-space">Noise in unlit UV space</h2>
+<p>So far we always used worldspace coordinates as base values for our noise, specifically to not have to deal with weird scaling or uv mapping on objects. Plus we used surface shaders for super easy access to worldspace coordinates and fancy lighting. But sometimes we want the noise to be in UV space and not use fancy lighting (for example to bake the noise into a texture or to use the cheaper 2d noise on a 3d object). This is how to convert our surface shader into a simpler shader that shows the noise in uv space and doesn&rsquo;t calculate lighting. (To have the noise in UV space and still have a surface shader for fancy lighting it&rsquo;s best to add a custom vertex function to the surface shader and pass the uv coordinates into your input struct from there.)</p>
+<p>For the change to a non-surface shader, we add a shader pass just around the <code>CGPROGRAM</code> hlsl part, we explicitely import UnityCG library file, then we also define the vertex and fragment functions, add the appdata and vertex to fragment structs and lastly we change the surface function to a fragment function and add the vertex function. I copied most of those changes from the code of the <a href="https://ronja-tutorials.com/post/004-basic/">tutorial about textures</a>, so if you have any trouble understanding the changes I recommend you reread <a href="https://ronja-tutorials.com/post/004-basic/">that</a>.</p>
+<p>While doing those changes we can also pass the uv coordinates to the fragment shader and replace the world coordinates with them to have noise in UV space.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">SubShader {
+    Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+    Pass{
+        CGPROGRAM
+
+        <span style="color:#888">//include useful shader functions</span>
+        <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+        <span style="color:#888">//define vertex and fragment shader</span>
+        <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+        <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+        <span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+        <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+        <span style="color:#888">//global shader variables</span>
+        <span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span>
+
+        <span style="color:#080;font-weight:bold">float</span> _CellSize;
+        <span style="color:#080;font-weight:bold">float</span> _Roughness;
+        <span style="color:#080;font-weight:bold">float</span> _Persistance;
+        float2 _Period;
+
+        <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+        <span style="color:#080;font-weight:bold">struct</span> appdata{
+            float4 vertex <span style="color:#333">:</span> POSITION;
+            float2 uv <span style="color:#333">:</span> TEXCOORD0;
+        };
+
+        <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+        <span style="color:#080;font-weight:bold">struct</span> v2f{
+            float4 position <span style="color:#333">:</span> SV_POSITION;
+            float2 uv <span style="color:#333">:</span> TEXCOORD0;
+        };
+
+        <span style="color:#888">//easeIn function</span>
+
+        <span style="color:#888">//easeOut function</span>
+
+        <span style="color:#888">//easeInOut function</span>
+
+        <span style="color:#888">//modulo function</span>
+
+        <span style="color:#888">//perlinNoise function;</span>
+
+        <span style="color:#888">//sampleLayeredNoise function</span>
+
+        <span style="color:#888">//the vertex shader</span>
+        v2f vert(appdata v){
+            v2f o;
+            <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+            o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+            o.uv <span style="color:#333">=</span> v.uv;
+            <span style="color:#080;font-weight:bold">return</span> o;
+        }
+
+        float4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET{
+            float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">/</span> _CellSize;
+            <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+            <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+            <span style="color:#080;font-weight:bold">return</span> noise;
+        }
+        ENDCG
+    }
+}
+</code></pre></div><p>In my opinion, this change if space also changes the context of the size of the cells. It&rsquo;s way more interresting now how many cells fit onto one texture (0 to 1 uv square) than how big one cell is. So I&rsquo;ll change the cell size to a cell amount variable. With this change we also have to multiply the uvs with cell amount instead of dividing it like we did with the cell size.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//parameters</span>
+_CellAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">32</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//global shader variables</span>
+<span style="color:#080;font-weight:bold">float</span> _CellAmount;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//fragment function</span>
+float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</span> _CellAmount;
+</code></pre></div><p>With those changes we have a shader that will show repeating noise in UV space, so we can move the object however we want and the noise will move with it. We get a pattern that will fill the 0 to 1 uv space and repeat afterwards if we use the same value for the cell amount, and the x and y component of the period (and it&rsquo;s a value without a fractional part). We can also use a value twice as high as the period as the cell amount to have the noise repeat once in the 0 to 1 range etc&hellip;</p>
+<p><img src="/assets/images/posts/029/UVNoiseTransformation.gif" alt=""></p>
+<h2 id="tiling-and-uv-space-noise-in-3d">Tiling and UV space noise in 3d</h2>
+<p>For the example how to translate those concepts into 3d, I&rsquo;m going to use voronoi noise. We start deleting the functions and properties that we used for perlin noise and don&rsquo;t need anymore. That&rsquo;s the roughness and persistance properties and the easing, perlin and layered noise functions. Then we add the copy in the code for voronoi noise from the <a href="https://ronja-tutorials.com/post/028-voronoi-noise/">tutorial about voronoi noise</a>.</p>
+<p>Then we need to expand our shader to handle 3d vectors in a few places. First we add a new property called the &ldquo;height&rdquo;. We then use it as the <code>Z</code> factor of the value we pass to the voronoi function. Because we expect the uv space to go from 0 to 1, I&rsquo;ll also limit the height to be between 0 and 1. Then we change the modulo function to accept and return 3d vectors, the operators work the same way on 2d vectors as on 3d vectors, so we don&rsquo;t have to change anything except the types.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">9</span>_material_baking<span style="color:#333">/</span>repeating_3d_voronoi<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Height (<span style="color:#f00;background-color:#faa">&#34;</span>Z coordinate (height)<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		_CellAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">32</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Period (<span style="color:#f00;background-color:#faa">&#34;</span>Repeat every X cells<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#40e;font-weight:bold">0</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//global shader variables</span>
+			<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span>
+
+			<span style="color:#080;font-weight:bold">float</span> _CellAmount;
+			float3 _Period;
+			<span style="color:#080;font-weight:bold">float</span> _Height;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			float3 modulo(float3 divident, float3 divisor){
+				float3 positiveDivident <span style="color:#333">=</span> divident <span style="color:#333">%</span> divisor <span style="color:#333">+</span> divisor;
+				<span style="color:#080;font-weight:bold">return</span> positiveDivident <span style="color:#333">%</span> divisor;
+			}
+
+			<span style="color:#888">//voronoi noise function from voronoi tutorial</span>
+
+			<span style="color:#888">//the vertex function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			float4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET{
+				float3 value <span style="color:#333">=</span> float3(i.uv, _Height) <span style="color:#333">*</span> _CellAmount;
+				<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+				<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value).z;
+
+				<span style="color:#080;font-weight:bold">return</span> noise;
+			}
+			ENDCG
+		}
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>Then we also change the voronoi function to respect the tiling. Because we not only use the cell for the generation of random numbers, but also for distance calculations in voronoi noise, we can&rsquo;t simply make the cell itself tile. Instead we&rsquo;ll make a separate variable which is a tiled version of the cell. Then we can use the cell itself for position calculations and the tiled cell for the random number generation. It&rsquo;s important that we do this for both the cell generation in the first pass as well as the second pass where we calculate the distance from the edge.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 voronoiNoise(float3 value, float3 period){
+    float3 baseCell <span style="color:#333">=</span> floor(value);
+
+    <span style="color:#888">//first pass to find the closest cell</span>
+    <span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    float3 toClosestCell;
+    float3 closestCell;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+            [unroll]
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">++</span>){
+                float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x1, y1, z1);
+                float3 tiledCell <span style="color:#333">=</span> modulo(cell, period);
+                float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(tiledCell);
+                float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+                <span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+                <span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+                    minDistToCell <span style="color:#333">=</span> distToCell;
+                    closestCell <span style="color:#333">=</span> cell;
+                    toClosestCell <span style="color:#333">=</span> toCell;
+                }
+            }
+        }
+    }
+
+    <span style="color:#888">//second pass to find the distance to the closest edge</span>
+    <span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+    [unroll]
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+        [unroll]
+        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+            [unroll]
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">++</span>){
+                float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x2, y2, z2);
+                float3 tiledCell <span style="color:#333">=</span> modulo(cell, period);
+                float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(tiledCell);
+                float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+                float3 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+                <span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">+</span> diffToClosestCell.z <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+                <span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+                    float3 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                    float3 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+                    <span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+                    minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+                }
+            }
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand3dTo1d(closestCell);
+    <span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float3 value <span style="color:#333">=</span> float3(i.uv, _Height) <span style="color:#333">*</span> _CellAmount;
+    <span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+    <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value, _Period).z;
+
+    <span style="color:#080;font-weight:bold">return</span> noise;
+}
+</code></pre></div><p><img src="/assets/images/posts/029/UVVoronoise.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="tiling-2d-layered-perlin">Tiling 2d layered perlin</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/2d_layered.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/2d_layered.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">9</span>_material_baking<span style="color:#333">/</span>layered_repeating_perlin<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_CellAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">32</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Period (<span style="color:#f00;background-color:#faa">&#34;</span>Repeat every X cells<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+		[IntRange]_Roughness (<span style="color:#f00;background-color:#faa">&#34;</span>Roughness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">8</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>
+		_Persistance (<span style="color:#f00;background-color:#faa">&#34;</span>Persistance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.4</span>
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//global shader variables</span>
+			<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span>
+
+			<span style="color:#080;font-weight:bold">float</span> _CellAmount;
+			<span style="color:#080;font-weight:bold">float</span> _Roughness;
+			<span style="color:#080;font-weight:bold">float</span> _Persistance;
+			float2 _Period;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#080;font-weight:bold">float</span> easeIn(<span style="color:#080;font-weight:bold">float</span> interpolator){
+				<span style="color:#080;font-weight:bold">return</span> interpolator <span style="color:#333">*</span> interpolator;
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> easeOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+				<span style="color:#080;font-weight:bold">return</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> easeIn(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> interpolator);
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> easeInOut(<span style="color:#080;font-weight:bold">float</span> interpolator){
+				<span style="color:#080;font-weight:bold">float</span> easeInValue <span style="color:#333">=</span> easeIn(interpolator);
+				<span style="color:#080;font-weight:bold">float</span> easeOutValue <span style="color:#333">=</span> easeOut(interpolator);
+				<span style="color:#080;font-weight:bold">return</span> lerp(easeInValue, easeOutValue, interpolator);
+			}
+
+			float2 modulo(float2 divident, float2 divisor){
+				float2 positiveDivident <span style="color:#333">=</span> divident <span style="color:#333">%</span> divisor <span style="color:#333">+</span> divisor;
+				<span style="color:#080;font-weight:bold">return</span> positiveDivident <span style="color:#333">%</span> divisor;
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> perlinNoise(float2 value, float2 period){
+				float2 cellsMimimum <span style="color:#333">=</span> floor(value);
+				float2 cellsMaximum <span style="color:#333">=</span> ceil(value);
+
+				cellsMimimum <span style="color:#333">=</span> modulo(cellsMimimum, period);
+				cellsMaximum <span style="color:#333">=</span> modulo(cellsMaximum, period);
+
+				<span style="color:#888">//generate random directions</span>
+				float2 lowerLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMimimum.x, cellsMimimum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+				float2 lowerRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMaximum.x, cellsMimimum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+				float2 upperLeftDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMimimum.x, cellsMaximum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+				float2 upperRightDirection <span style="color:#333">=</span> rand2dTo2d(float2(cellsMaximum.x, cellsMaximum.y)) <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+				float2 fraction <span style="color:#333">=</span> frac(value);
+
+				<span style="color:#888">//get values of cells based on fraction and cell directions</span>
+				<span style="color:#080;font-weight:bold">float</span> lowerLeftFunctionValue <span style="color:#333">=</span> dot(lowerLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+				<span style="color:#080;font-weight:bold">float</span> lowerRightFunctionValue <span style="color:#333">=</span> dot(lowerRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+				<span style="color:#080;font-weight:bold">float</span> upperLeftFunctionValue <span style="color:#333">=</span> dot(upperLeftDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>));
+				<span style="color:#080;font-weight:bold">float</span> upperRightFunctionValue <span style="color:#333">=</span> dot(upperRightDirection, fraction <span style="color:#333">-</span> float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+				<span style="color:#080;font-weight:bold">float</span> interpolatorX <span style="color:#333">=</span> easeInOut(fraction.x);
+				<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
+
+				<span style="color:#888">//interpolate between values</span>
+				<span style="color:#080;font-weight:bold">float</span> lowerCells <span style="color:#333">=</span> lerp(lowerLeftFunctionValue, lowerRightFunctionValue, interpolatorX);
+				<span style="color:#080;font-weight:bold">float</span> upperCells <span style="color:#333">=</span> lerp(upperLeftFunctionValue, upperRightFunctionValue, interpolatorX);
+
+				<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(lowerCells, upperCells, interpolatorY);
+				<span style="color:#080;font-weight:bold">return</span> noise;
+			}
+
+			<span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
+				<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+				<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+				<span style="color:#080;font-weight:bold">float</span> factor <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> i<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>; i<span style="color:#333">&lt;</span>OCTAVES; i<span style="color:#333">++</span>){
+					noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>, _Period <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> factor;
+					factor <span style="color:#333">*=</span> _Persistance;
+					frequency <span style="color:#333">*=</span> _Roughness;
+				}
+
+				<span style="color:#080;font-weight:bold">return</span> noise;
+			}
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			float4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET{
+				float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</span> _CellAmount;
+				<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+				<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> sampleLayeredNoise(value) <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+
+				<span style="color:#080;font-weight:bold">return</span> noise;
+			}
+			ENDCG
+		}
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><h3 id="tiling-3d-voronoi">Tiling 3d voronoi</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/3d_voronoi.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/3d_voronoi.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">9</span>_material_baking<span style="color:#333">/</span>repeating_3d_voronoi<span style="color:#f00;background-color:#faa">&#34;</span> {
+	Properties {
+		_Height (<span style="color:#f00;background-color:#faa">&#34;</span>Z coordinate (height)<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		_CellAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">32</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">2</span>
+		_Period (<span style="color:#f00;background-color:#faa">&#34;</span>Repeat every X cells<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#00d;font-weight:bold">4</span>, <span style="color:#40e;font-weight:bold">0</span>)
+	}
+	SubShader {
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Random.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//global shader variables</span>
+			<span style="color:#f00;background-color:#faa">#</span>define OCTAVES <span style="color:#00d;font-weight:bold">4</span>
+
+			<span style="color:#080;font-weight:bold">float</span> _CellAmount;
+			float3 _Period;
+			<span style="color:#080;font-weight:bold">float</span> _Height;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			float3 modulo(float3 divident, float3 divisor){
+				float3 positiveDivident <span style="color:#333">=</span> divident <span style="color:#333">%</span> divisor <span style="color:#333">+</span> divisor;
+				<span style="color:#080;font-weight:bold">return</span> positiveDivident <span style="color:#333">%</span> divisor;
+			}
+
+			float3 voronoiNoise(float3 value, float3 period){
+				float3 baseCell <span style="color:#333">=</span> floor(value);
+
+				<span style="color:#888">//first pass to find the closest cell</span>
+				<span style="color:#080;font-weight:bold">float</span> minDistToCell <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+				float3 toClosestCell;
+				float3 closestCell;
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x1<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y1<span style="color:#333">++</span>){
+						[unroll]
+						<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z1<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z1<span style="color:#333">++</span>){
+							float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x1, y1, z1);
+							float3 tiledCell <span style="color:#333">=</span> modulo(cell, period);
+							float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(tiledCell);
+							float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+							<span style="color:#080;font-weight:bold">float</span> distToCell <span style="color:#333">=</span> length(toCell);
+							<span style="color:#080;font-weight:bold">if</span>(distToCell <span style="color:#333">&lt;</span> minDistToCell){
+								minDistToCell <span style="color:#333">=</span> distToCell;
+								closestCell <span style="color:#333">=</span> cell;
+								toClosestCell <span style="color:#333">=</span> toCell;
+							}
+						}
+					}
+				}
+
+				<span style="color:#888">//second pass to find the distance to the closest edge</span>
+				<span style="color:#080;font-weight:bold">float</span> minEdgeDistance <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>;
+				[unroll]
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; x2<span style="color:#333">++</span>){
+					[unroll]
+					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; y2<span style="color:#333">++</span>){
+						[unroll]
+						<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z2<span style="color:#333">=-</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>; z2<span style="color:#333">++</span>){
+							float3 cell <span style="color:#333">=</span> baseCell <span style="color:#333">+</span> float3(x2, y2, z2);
+							float3 tiledCell <span style="color:#333">=</span> modulo(cell, period);
+							float3 cellPosition <span style="color:#333">=</span> cell <span style="color:#333">+</span> rand3dTo3d(tiledCell);
+							float3 toCell <span style="color:#333">=</span> cellPosition <span style="color:#333">-</span> value;
+
+							float3 diffToClosestCell <span style="color:#333">=</span> abs(closestCell <span style="color:#333">-</span> cell);
+							<span style="color:#080;font-weight:bold">bool</span> isClosestCell <span style="color:#333">=</span> diffToClosestCell.x <span style="color:#333">+</span> diffToClosestCell.y <span style="color:#333">+</span> diffToClosestCell.z <span style="color:#333">&lt;</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+							<span style="color:#080;font-weight:bold">if</span>(<span style="color:#333">!</span>isClosestCell){
+								float3 toCenter <span style="color:#333">=</span> (toClosestCell <span style="color:#333">+</span> toCell) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+								float3 cellDifference <span style="color:#333">=</span> normalize(toCell <span style="color:#333">-</span> toClosestCell);
+								<span style="color:#080;font-weight:bold">float</span> edgeDistance <span style="color:#333">=</span> dot(toCenter, cellDifference);
+								minEdgeDistance <span style="color:#333">=</span> min(minEdgeDistance, edgeDistance);
+							}
+						}
+					}
+				}
+
+				<span style="color:#080;font-weight:bold">float</span> random <span style="color:#333">=</span> rand3dTo1d(closestCell);
+				<span style="color:#080;font-weight:bold">return</span> float3(minDistToCell, random, minEdgeDistance);
+			}
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			float4 frag (v2f i) <span style="color:#333">:</span> SV_TARGET{
+				float3 value <span style="color:#333">=</span> float3(i.uv, _Height) <span style="color:#333">*</span> _CellAmount;
+				<span style="color:#888">//get noise and adjust it to be ~0-1 range</span>
+				<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> voronoiNoise(value, _Period).z;
+
+				<span style="color:#080;font-weight:bold">return</span> noise;
+			}
+			ENDCG
+		}
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>I hope I was able to explain how to make noise tile and that this knowledge will serve you well when you need it.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+      
+        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+        <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+      
+    
+    
+    <meta property="og:title" content="Posts" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/" />
+<meta property="og:updated_time" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="name" content="Posts">
+<meta itemprop="description" content="">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Posts"/>
+<meta name="twitter:description" content=""/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="pb3-m pb6-l bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
+          Posts
+        </h1>
+        
+      </div>
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+
+  <article class="pa3 pa4-ns nested-copy-line-height nested-img">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
+      
+    </section>
+    <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        August 6, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/021-plane-clipping/" class="link black dim">
+        Clipping a Model with a Plane
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary Another cool effect is to make the surface disappear when it’s beyond a certain plane.
+To follow this tutorial, it’s best to know how surface shaders work - you can find a tutorial how they work here.
+Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 21, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/020-hull-outline/" class="link black dim">
+        Hull Outlines
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary So far we only ever wrote a color to the screen once per shader (or let unity generate multiple passes for us via surface shaders). But we have the possibility to draw our mesh multiple times in a single shader. A great way to use this is to draw outlines. First we draw our object as usual and then we draw it again, but we change the vertices a bit so it’s only visible around the original object, drawing a outline.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 15, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/019-postprocessing-outlines/" class="link black dim">
+        Outlines via Postprocessing
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edges than the alternative (inverted hull outlines) and you don’t have to change all of your materials to give them the outline effect.
+To understand how to create outlines via postprocessing it’s best to have understood how to get access to the depth and normals of the scene first.
+Depth Outlines We start with the shader and C# script from the postprocessing with normals tutorial.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 8, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/018-postprocessing-normal/" class="link black dim">
+        Postprocessing with Normal Texture
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary Another piece of information we can easily get our hands on thats very useful for postprocessing is the normals of the scene. They show in which direction the surface at any given pixel is pointing.
+To understand how to get and use the normals of the scene it’s best to know how to access the scene depth first, I made a tutorial on how to do that here.
+Read Depth and Normals We start this tutorials with the files from the depth postprocessing tutorial and expand them as we need.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 1, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/017-postprocessing-depth/" class="link black dim">
+        Postprocessing with the Depth Texture
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 23, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/016-postprocessing-basics/" class="link black dim">
+        Postprocessing Basics
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 16, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/015-wobble-displacement/" class="link black dim">
+        Wobble Displacement
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary So far we only used the vertex shader to move vertices from their object coordinates to their clip space coordinates (or to the world space coordinates which we then used for other things). But there are more things we can do with vertex shaders. As a introduction I’m going to show you how to apply a simple sine wave to a model, making it wobble.
+I will make the shader with a surface shader so you should know the basics of surface shaders, but it works the same with any other type of shader.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 10, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/014-polygon-clipping/" class="link black dim">
+        Polygon Clipping
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary Of course everything we render so far is made of polygons, but someone asked me how to clip a polygon shape based on a list of points in a shader so I’ll explain how to do that now. I will explain how to do that with a single shader pass in a fragment shader, a different way would be to actually generate triangles based on your polygon and use stencil buffers to clip, but I won’t explain that in this tutorial.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 2, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/013-custom-lighting/" class="link black dim">
+        Custom Lighting
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometimes we want to change the way we treat lighting to get a different, often more cartoonish, look. Custom lighting functions allow us to do exactly that.
+This tutorial is about a surface shader specific feature, while the basics of lighting are the same in all shaders, you need a lot more code to archieve the same result from a non-surface shader and I won’t explain it in this tutorial.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        May 26, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/012-fresnel/" class="link black dim">
+        Fresnel
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.
+    </div>
+  </div>
+
+        </div>
+      
+    </aside>
+    
+<ul class="pagination">
+  <li class="page-item">
+    <a href="/post/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/3/" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/">1</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/2/">2</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/3/">3</a>
+  </li>
+  <li class="page-item active">
+    <a class="page-link" href="/post/page/4/">4</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/5/">5</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/6/">6</a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/5/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/6/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+  </li>
+</ul>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

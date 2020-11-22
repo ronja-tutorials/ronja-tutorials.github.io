@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Flowing River | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
+The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
+Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Flowing River" />
+<meta property="og:description" content="This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
+The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
+Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/033-river/" />
+<meta property="article:published_time" content="2018-11-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-11-03T00:00:00+00:00" />
+<meta itemprop="name" content="Flowing River">
+<meta itemprop="description" content="This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
+The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
+Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration.">
+<meta itemprop="datePublished" content="2018-11-03T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-11-03T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2309">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Flowing River"/>
+<meta name="twitter:description" content="This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
+The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
+Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Flowing River</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-11-03T00:00:00Z">November 3, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris <a href="https://twitter.com/Erisdraw3D/status/1056931358185086976">https://twitter.com/Erisdraw3D/status/1056931358185086976</a>.</p>
+<p>The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the <a href="https://ronja-tutorials.com/post/005-simple-surface/">tutorial on surface shaders</a> first.</p>
+<p><img src="/assets/images/posts/033/Result.gif" alt=""></p>
+<h2 id="transparent-surface-shader">Transparent Surface Shader</h2>
+<p>We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the <code>alpha</code> attribute to our surface shader declaration. Then we&rsquo;ll change the tags so the rendertype is <code>&quot;Transparent&quot;</code>, it uses the <code>&quot;Transparent&quot;</code> Queue index and we&rsquo;ll disable shadows for the material by setting <code>&quot;ForceNoShadowCasting&quot;</code> to <code>&quot;True&quot;</code>. Last we set the shader target to 4.0, that will allow us to use more interpolators(variables in the vertex to fragment struct) later that we&rsquo;ll need.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in subshader</span>
+Tags { <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>ForceNoShadowCasting<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+<span style="color:#888">//in CGPROGRAM</span>
+<span style="color:#579">#pragma surface surf Standard fullforwardshadows alpha</span>
+<span style="color:#579">#pragma target 4.0</span>
+</code></pre></div><p>Then we&rsquo;ll just render the base color of the river. We&rsquo;ll set up a property for it. Then in the surface function we&rsquo;ll apply the value to a color variable and write the rgb values to the albedo variable of the output struct and the alpha to the alpha variable of the output struct. We won&rsquo;t touch the metallic or smoothness values, simply because changing them won&rsquo;t fit the style I&rsquo;m trying to archieve, but I encourage you to change them and see how result looks with different values.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Base Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//shader variables</span>
+fixed4 _Color;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input IN, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float4 col <span style="color:#333">=</span> _Color;
+    o.Albedo <span style="color:#333">=</span> col.rgb;
+    o.Alpha <span style="color:#333">=</span> col.a;
+}
+</code></pre></div><p><img src="/assets/images/posts/033/PlainTransparent.png" alt=""></p>
+<h2 id="scrolling-uvs">Scrolling UVs</h2>
+<p>Next we&rsquo;ll add a scrolling texture to the shader. First we&rsquo;ll add the properties we need. The texture itself, the tint of the texture, and the direction it scrolls in. Above those variables we add a header to show to the user that those variables are to regulate the first layer of specs. For the uv coordinates of the texture we&rsquo;ll add a variable that&rsquo;s called <code>uv</code>+<code>TextureName</code> to our input struct.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
+    _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Base Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+
+    [Header(Spec Layer <span style="color:#00d;font-weight:bold">1</span>)]
+    _Specs1 (<span style="color:#f00;background-color:#faa">&#34;</span>Specs<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    _SpecColor1 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+    _SpecDirection1 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_Specs1;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//shader variables</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _Specs1;
+fixed4 _SpecColor1;
+float2 _SpecDirection1;
+</code></pre></div><p>Then after we set that up, we can use the scrolling in the surface shader. First we calculate the spec coordinates by adding the direction of the scrolling multiplied by the time to the base coordinates of the texture. We get the time by accessing the <code>_Time.y</code> variable. In the y parameter is the unscaled time while the x, z, and w paramters store the time scaled by different factors.</p>
+<p>Then we access the specs texture at the calculated coordinates and multiply it by the tint. After we did that we can use mix it with the existing color. First we interpolate from the rgb components of the color so far to the rgb components of the specs based on the alpha channel of the specs and apply it to the rgb components of the color. Then we interpolate from the alpha value of the color so far to 1 based on the alpha channel of the spec color and apply the result to the alpha channel of our color. By interpolating from the base color to the new color based on the alpha value we make it so when the new texture has a alpha value of 0 (is completely transparent), it doesn&rsquo;t change the color at all. If it&rsquo;s completely visible(alpha of 1), we use the new color. The reason that we do the alpha value separately is that if we would interpolate the whole color based on the alpha of the spec color, it could lower the alpha value at some parts, making the surface more see-through, but we always want add to the alpha, so interpolating from the existing value to being completely opaque gives us the results we want.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input IN, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    fixed4 col <span style="color:#333">=</span> _Color;
+
+    float2 specCoordinates1 <span style="color:#333">=</span> IN.uv_Specs1 <span style="color:#333">+</span> _SpecDirection1 <span style="color:#333">*</span> _Time.y;
+    fixed4 specLayer1 <span style="color:#333">=</span> tex2D(_Specs1, specCoordinates1) <span style="color:#333">*</span> _SpecColor1;
+    col.rgb <span style="color:#333">=</span> lerp(col.rgb, specLayer1.rgb, specLayer1.a);
+    col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, specLayer1.a);
+
+    <span style="color:#888">/*fixed4 specLayer2 = tex2D(_Specs2, IN.uv_Specs2 + _SpecDirection2 * _Time.y);
+</span><span style="color:#888">    col.rgb = lerp(col.rgb, specLayer2.rgb * _SpecColor2, specLayer2.a);
+</span><span style="color:#888">    col.a = col.a + specLayer2.a;
+</span><span style="color:#888">
+</span><span style="color:#888">    float4 projCoords = UNITY_PROJ_COORD(IN.screenPos);
+</span><span style="color:#888">    float rawZ = SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, projCoords);
+</span><span style="color:#888">    float sceneZ = LinearEyeDepth(rawZ);
+</span><span style="color:#888">    float partZ = IN.eyeDepth;
+</span><span style="color:#888">
+</span><span style="color:#888">    float foam = 1-saturate((sceneZ - partZ) / _FoamAmount);
+</span><span style="color:#888">    float foamNoise = tex2D(_FoamNoise, IN.uv_FoamNoise + _FoamDirection * _Time.y);
+</span><span style="color:#888">    foam = saturate(foam - foamNoise);
+</span><span style="color:#888">
+</span><span style="color:#888">    col.rgb = lerp(col.rgb, _FoamColor, foam);
+</span><span style="color:#888">    col.a += foam;*/</span>
+
+    o.Albedo <span style="color:#333">=</span> col.rgb;
+    o.Alpha <span style="color:#333">=</span> col.a;
+}
+</code></pre></div><p><img src="/assets/images/posts/033/ScrollingSpecs.gif" alt=""></p>
+<p>For this to word it&rsquo;s important to set up your river mesh the correct way! The coordinates have to be continous and along the flow of the river. I use blender for modelling and my unwrapping workflow is to autounwrap the whole river once automatically, then I choose a random quad and scale the right and left edge in the x direction to 0 so they&rsquo;re completely vertical, then I scale the upper and lower edge in the y direction so they&rsquo;re completely horizonal. After that I select the corrected quad and unwrap the whole river again with the &ldquo;follow active quads&rdquo; mode. You can make the river move faster in some places by changing it so the uv coordinates of the vertices are closer together at those places. (I did that where the water goes down a bit)</p>
+<p><img src="/assets/images/posts/033/RiverUnwrap.gif" alt=""></p>
+<p>For the specs texture, I did a cutoff on a perlin noise and baked that into a texture via my [material baking tool]({{ site.baseurl }}{% post_url 2018-10-13-baking_shaders%}). Here is the texture:</p>
+<p><img src="/assets/images/posts/033/RiverSpecs1.png" alt=""></p>
+<p>And here are the other values I used:</p>
+<p><img src="/assets/images/posts/033/SpecLayer1Settings.png" alt=""></p>
+<h2 id="multiple-scrolling-textures">Multiple scrolling textures</h2>
+<p>We can simply repeat this process to add another scrolling texture to the river. This new texture will override the color of the old one where it&rsquo;s visible. So we&rsquo;ll add a new specs texture, tint and scrolling direction as well as a uv set in the input struct.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in properties</span>
+[Header(Spec Layer <span style="color:#00d;font-weight:bold">2</span>)]
+_Specs2 (<span style="color:#f00;background-color:#faa">&#34;</span>Specs<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+_SpecColor2 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+_SpecDirection2 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader variables</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _Specs2;
+fixed4 _SpecColor2;
+float2 _SpecDirection2;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_Specs1;
+    float2 uv_Specs2;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in surface function</span>
+float2 specCoordinates2 <span style="color:#333">=</span> IN.uv_Specs2 <span style="color:#333">+</span> _SpecDirection2 <span style="color:#333">*</span> _Time.y;
+fixed4 specLayer2 <span style="color:#333">=</span> tex2D(_Specs2, specCoordinates2) <span style="color:#333">*</span> _SpecColor2;
+col.rgb <span style="color:#333">=</span> lerp(col.rgb, specLayer2.rgb, specLayer2.a);
+col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, specLayer2.a);
+</code></pre></div><p><img src="/assets/images/posts/033/TwoLayerScrollingSpecs.gif" alt=""></p>
+<p>To make the new specs texture I also used a cutoff perlin noise, but with a higher frequency and lower cutoff value. It&rsquo;s this texture:</p>
+<p><img src="/assets/images/posts/033/RiverSpecs2.png" alt=""></p>
+<p>And the other settings for the second specs layer look like this:</p>
+<p><img src="/assets/images/posts/033/SpecLayer2Settings.png" alt=""></p>
+<h2 id="foam">Foam</h2>
+<p>As a last detail to the shader we will add foam near objects in the water. For this we will use a very common technique where we&rsquo;ll compare the depth of the object behind the water with the depth of the water surface.</p>
+<p>Before we start, we set up the properties of the foam. We&rsquo;ll use a noise texture to make the foam vary over time, it&rsquo;ll also need a custom uv parameter in the input struct. Then we&rsquo;ll use a direction to make the noise move, just like we did with the specs earlier. And we add a color for the foam and a variable to regulate how visible in the water the shader will check for objects.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in properties</span>
+[Header(Foam)]
+_FoamNoise(<span style="color:#f00;background-color:#faa">&#34;</span>Foam Noise<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+_FoamDirection (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+_FoamColor (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+_FoamAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader variables</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _FoamNoise;
+fixed4 _FoamColor;
+<span style="color:#080;font-weight:bold">float</span> _FoamAmount;
+float2 _FoamDirection;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_Specs1;
+    float2 uv_Specs2;
+    float2 uv_FoamNoise;
+}
+</code></pre></div><p>We start by getting the depth of the surface. Because surface shaders don&rsquo;t have a function that can generate them for us, we have to write our own vertex function. First we add it to our surface shader declaration, then we write it. In it we just initialize the input struct for the surface function, then we write the depth to it via the COMPUTE_EYEDEPTH macro. To save it into the input struct we&rsquo;ll extend it to also hold a eyedepth variable.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//surface shader declaration</span>
+<span style="color:#579">#pragma surface surf Standard vertex:vert fullforwardshadows alpha</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_Specs1;
+    float2 uv_Specs2;
+    float2 uv_FoamNoise;
+    <span style="color:#080;font-weight:bold">float</span> eyeDepth;
+};
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> vert (<span style="color:#080;font-weight:bold">inout</span> appdata_full v, <span style="color:#080;font-weight:bold">out</span> Input o)
+{
+    UNITY_INITIALIZE_OUTPUT(Input, o);
+    COMPUTE_EYEDEPTH(o.eyeDepth);
+}
+</code></pre></div><p>Then we get the depth behind the surface by reading from the depth texture. So we add a new texture variable called _CameraDepthTexture. By adding it to our shader it will be automatically assigned. To read from it we have to get the screen coordinates, luckily we can get them easily by adding a variable called <code>screenPos</code> to our input struct.</p>
+<p>In the surface function we can then get the projection coordinate by passing the screenPos to the <code>UNITY_PROJ_COORD</code> macro. With it we can sample the depth texture by passing the depth texture as well as the projection coordinates to the <code>SAMPLE_DEPTH_TEXTURE_PROJ</code> macro to get the raw depth. The last step to get the scene depth from that is to simply pass it to the <code>LinearEyeDepth</code> function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_Specs1;
+    float2 uv_Specs2;
+    float2 uv_FoamNoise;
+    <span style="color:#080;font-weight:bold">float</span> eyeDepth;
+    float4 screenPos;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//shader variables</span>
+sampler2D_float _CameraDepthTexture;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in surface function</span>
+float4 projCoords <span style="color:#333">=</span> UNITY_PROJ_COORD(IN.screenPos);
+<span style="color:#080;font-weight:bold">float</span> rawZ <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, projCoords);
+<span style="color:#080;font-weight:bold">float</span> sceneZ <span style="color:#333">=</span> LinearEyeDepth(rawZ);
+<span style="color:#080;font-weight:bold">float</span> surfaceZ <span style="color:#333">=</span> IN.eyeDepth;
+</code></pre></div><p>Now that we have this data we can compare it. We simply subtract the depth of the surface from the depth of the scene. Then we divide it by the amount of foam, so the more foam we have, the slower the value grows. This value will start at 0 when the surface below is very close and grow the further away it is. Instead we want the foam to start at full opacity and become less visible the further away the ground gets, so we subtract it from one. Then as a last step before rendering the foam we&rsquo;ll clamp it between 0 and 1 to avoid weird interpolation artefacts.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> foam <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>((sceneZ <span style="color:#333">-</span> surfaceZ) <span style="color:#333">/</span> _FoamAmount);
+foam <span style="color:#333">=</span> saturate(foam);
+
+o.Albedo <span style="color:#333">=</span> foam;
+o.Alpha <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>;
+<span style="color:#080;font-weight:bold">return</span>;
+</code></pre></div><p><img src="/assets/images/posts/033/FoamVis.png" alt=""></p>
+<p>Then that we have the foam we can mix it into the color just the we did with the specs. Because the foam is just a simple value and not a color, we multiply it with the foam color alpha manually, this allows us to make the foam factor in less by lessening the alpha of it&rsquo;s color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> foam <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>((sceneZ <span style="color:#333">-</span> surfaceZ) <span style="color:#333">/</span> _FoamAmount);
+foam <span style="color:#333">=</span> saturate(foam);
+col.rgb <span style="color:#333">=</span> lerp(col.rgb, _FoamColor.rgb, foam);
+col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, foam <span style="color:#333">*</span> _FoamColor.a);
+</code></pre></div><p><img src="/assets/images/posts/033/StraightFoam.gif" alt=""></p>
+<p>To make the foam more interresting and lively, we then subtract a noise texture from it. We calculate the uv coordinates for it just like before - by adding the direction multiplied by the time to the base coordinates. Then we read the texture, but only use the red channel because the foam is a simple value without color. The subtraction of of the texture from the foam is just before the clamping.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 foamCoords <span style="color:#333">=</span> IN.uv_FoamNoise <span style="color:#333">+</span> _FoamDirection <span style="color:#333">*</span> _Time.y;
+<span style="color:#080;font-weight:bold">float</span> foamNoise <span style="color:#333">=</span> tex2D(_FoamNoise, foamCoords).r;
+<span style="color:#080;font-weight:bold">float</span> foam <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>((sceneZ <span style="color:#333">-</span> surfaceZ) <span style="color:#333">/</span> _FoamAmount);
+foam <span style="color:#333">=</span> saturate(foam <span style="color:#333">-</span> foamNoise);
+col.rgb <span style="color:#333">=</span> lerp(col.rgb, _FoamColor.rgb, foam);
+col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, foam <span style="color:#333">*</span> _FoamColor.a);
+</code></pre></div><p>With this we have a complete river shader.</p>
+<p><img src="/assets/images/posts/033/Result.gif" alt=""></p>
+<p>For the foam noise I used a normal tiling perlin noise baked into a texture. This is the texture:</p>
+<p><img src="/assets/images/posts/033/FoamNoise.png" alt=""></p>
+<p>And those are all settings I used for the material:</p>
+<p><img src="/assets/images/posts/033/AllSettings.png" alt=""></p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/033_River/FlowingRiver.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/033_River/FlowingRiver.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">033</span>_River<span style="color:#f00;background-color:#faa">&#34;</span> {
+    Properties {
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Base Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+
+        [Header(Spec Layer <span style="color:#00d;font-weight:bold">1</span>)]
+        _Specs1 (<span style="color:#f00;background-color:#faa">&#34;</span>Specs<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _SpecColor1 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+        _SpecDirection1 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+
+        [Header(Spec Layer <span style="color:#00d;font-weight:bold">2</span>)]
+        _Specs2 (<span style="color:#f00;background-color:#faa">&#34;</span>Specs<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _SpecColor2 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+        _SpecDirection2 (<span style="color:#f00;background-color:#faa">&#34;</span>Spec Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+
+        [Header(Foam)]
+        _FoamNoise(<span style="color:#f00;background-color:#faa">&#34;</span>Foam Noise<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _FoamDirection (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Direction<span style="color:#f00;background-color:#faa">&#34;</span>, Vector) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)
+        _FoamColor (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+        _FoamAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Foam Amount<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    }
+    SubShader {
+        Tags { <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>ForceNoShadowCasting<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+        LOD <span style="color:#00d;font-weight:bold">200</span>
+
+        CGPROGRAM
+        <span style="color:#888">// Physically based Standard lighting model, and enable shadows on all light types, then set it to render transparent</span>
+        <span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard vertex<span style="color:#333">:</span>vert fullforwardshadows alpha
+
+        <span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">4.0</span>
+
+        <span style="color:#080;font-weight:bold">struct</span> Input {
+            float2 uv_Specs1;
+            float2 uv_Specs2;
+            float2 uv_FoamNoise;
+            <span style="color:#080;font-weight:bold">float</span> eyeDepth;
+            float4 screenPos;
+        };
+
+        sampler2D_float _CameraDepthTexture;
+
+        fixed4 _Color;
+
+        <span style="color:#080;font-weight:bold">sampler2D</span> _Specs1;
+        fixed4 _SpecColor1;
+        float2 _SpecDirection1;
+
+        <span style="color:#080;font-weight:bold">sampler2D</span> _Specs2;
+        fixed4 _SpecColor2;
+        float2 _SpecDirection2;
+
+        <span style="color:#080;font-weight:bold">sampler2D</span> _FoamNoise;
+        fixed4 _FoamColor;
+        <span style="color:#080;font-weight:bold">float</span> _FoamAmount;
+        float2 _FoamDirection;
+
+        <span style="color:#080;font-weight:bold">void</span> vert (<span style="color:#080;font-weight:bold">inout</span> appdata_full v, <span style="color:#080;font-weight:bold">out</span> Input o)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, o);
+            COMPUTE_EYEDEPTH(o.eyeDepth);
+        }
+
+        <span style="color:#080;font-weight:bold">void</span> surf (Input IN, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+            <span style="color:#888">//set river base color</span>
+            fixed4 col <span style="color:#333">=</span> _Color;
+
+            <span style="color:#888">//add first layer of moving specs</span>
+            float2 specCoordinates1 <span style="color:#333">=</span> IN.uv_Specs1 <span style="color:#333">+</span> _SpecDirection1 <span style="color:#333">*</span> _Time.y;
+            fixed4 specLayer1 <span style="color:#333">=</span> tex2D(_Specs1, specCoordinates1) <span style="color:#333">*</span> _SpecColor1;
+            col.rgb <span style="color:#333">=</span> lerp(col.rgb, specLayer1.rgb, specLayer1.a);
+            col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, specLayer1.a);
+
+            <span style="color:#888">//add second layer of moving specs</span>
+            float2 specCoordinates2 <span style="color:#333">=</span> IN.uv_Specs2 <span style="color:#333">+</span> _SpecDirection2 <span style="color:#333">*</span> _Time.y;
+            fixed4 specLayer2 <span style="color:#333">=</span> tex2D(_Specs2, specCoordinates2) <span style="color:#333">*</span> _SpecColor2;
+            col.rgb <span style="color:#333">=</span> lerp(col.rgb, specLayer2.rgb, specLayer2.a);
+            col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, specLayer2.a);
+
+            <span style="color:#888">//get scene and surface depth</span>
+            float4 projCoords <span style="color:#333">=</span> UNITY_PROJ_COORD(IN.screenPos);
+            <span style="color:#080;font-weight:bold">float</span> rawZ <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, projCoords);
+            <span style="color:#080;font-weight:bold">float</span> sceneZ <span style="color:#333">=</span> LinearEyeDepth(rawZ);
+            <span style="color:#080;font-weight:bold">float</span> surfaceZ <span style="color:#333">=</span> IN.eyeDepth;
+
+            <span style="color:#888">//add foam</span>
+            float2 foamCoords <span style="color:#333">=</span> IN.uv_FoamNoise <span style="color:#333">+</span> _FoamDirection <span style="color:#333">*</span> _Time.y;
+            <span style="color:#080;font-weight:bold">float</span> foamNoise <span style="color:#333">=</span> tex2D(_FoamNoise, foamCoords).r;
+            <span style="color:#080;font-weight:bold">float</span> foam <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span><span style="color:#333">-</span>((sceneZ <span style="color:#333">-</span> surfaceZ) <span style="color:#333">/</span> _FoamAmount);
+            foam <span style="color:#333">=</span> saturate(foam <span style="color:#333">-</span> foamNoise);
+            col.rgb <span style="color:#333">=</span> lerp(col.rgb, _FoamColor.rgb, foam);
+            col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font-weight:bold">1</span>, foam <span style="color:#333">*</span> _FoamColor.a);
+
+            <span style="color:#888">//apply values to output struct</span>
+            o.Albedo <span style="color:#333">=</span> col.rgb;
+            o.Alpha <span style="color:#333">=</span> col.a;
+        }
+        ENDCG
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Diffuse<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>I hope this tutorial helped you to create a nice looking river. If you have any questions about existing tutorials or requests for new ones, just write me.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

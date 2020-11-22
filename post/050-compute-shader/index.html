@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Compute Shader | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Compute Shader" />
+<meta property="og:description" content="So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/050-compute-shader/" />
+<meta property="article:published_time" content="2020-07-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-07-26T00:00:00+00:00" />
+<meta itemprop="name" content="Compute Shader">
+<meta itemprop="description" content="So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct.">
+<meta itemprop="datePublished" content="2020-07-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-07-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1900">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Compute Shader"/>
+<meta name="twitter:description" content="So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Compute Shader</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-07-26T00:00:00Z">July 26, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.</p>
+<p>If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct. You don&rsquo;t need the GPU for you non graphics tasks. Using it will give you way more confusing error behaviour. The debugger wont give you as nice information and you can&rsquo;t have breakpoints. Optimizing is weirder since you always have to think about what data you&rsquo;re pushing around. The paralell nature of the GPU forces you to think way differently&hellip; If you don&rsquo;t need compute shaders, especially when you&rsquo;re not experienced, think about why you want to and if it&rsquo;s making your more work than its worth.</p>
+<p>If you&rsquo;re still here, lets get going. In Unity you can check whether your GPU supports compute shaders by checking <a href="https://docs.unity3d.com/ScriptReference/SystemInfo-supportsComputeShaders.html">SystemInfo.supportsComputeShaders</a>.</p>
+<p><img src="/assets/images/posts/050/result.gif" alt=""></p>
+<h2 id="basic-compute-shader">Basic Compute Shader</h2>
+<p>We can get a simple compute shader by just doing <code>rclick&gt;Create&gt;Shader&gt;Compute Shader</code>. The default shader does a few calculations to write a pattern into a texture, but for this tutorial I want to go one step simpler and just write positions into an array.</p>
+<p>In compute land an array we can write into is a <code>RWStructuredBuffer</code> with a certain type (<code>StructuredBuffer</code> is a array we can only read from). This type can be next to any type including vectors or structs. In our case we&rsquo;ll use a float3 vector.</p>
+<p>The function that calculates stuff is called the kernel. We have to add a <code>numthreads</code> attribute in front of the kernel and the kernel takes in one argument which tells us which iteration of the kernel we&rsquo;re in. In our case we define the number of threads as 64 threads in the <code>x</code> dimension and 1 in both <code>y</code> and <code>z</code>. Those values should work for most platforms that support compute shaders and its in 1 dimension so we dont have to do any rethinking when writing to our 1d array. The input argument is also 3d for that reason but for now we only care about the x part. We do have to mark it as <code>SV_DispatchThreadID</code> though so the correct value is assigned to it.</p>
+<p>To tell unity which functions are just regular functions that are called from somewhere else and which ones are the kernel functions we add a pragma statement, so <code>#pragma kernel &lt;functionname&gt;</code>. Its possible to have multiple kernels per shader file.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// Each #kernel tells which function to compile; you can have many kernels</span>
+<span style="color:#579">#pragma kernel Spheres</span>
+
+<span style="color:#888">//variables</span>
+RWStructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Result;
+
+[numthreads(<span style="color:#00d;font-weight:bold">64</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)]
+<span style="color:#080;font-weight:bold">void</span> Spheres (uint3 id <span style="color:#333">:</span> SV_DispatchThreadID)
+{
+    <span style="color:#888">//compute shader code.</span>
+}
+</code></pre></div><p>As a starting point I&rsquo;ll just let the program write a id,0,0 positions in the buffer we set up.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">[numthreads(<span style="color:#00d;font-weight:bold">64</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)]
+<span style="color:#080;font-weight:bold">void</span> Spheres (uint3 id <span style="color:#333">:</span> SV_DispatchThreadID)
+{
+    Result[id.x] <span style="color:#333">=</span> float3(id.x, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>);
+}
+</code></pre></div><h2 id="executing-compute-shaders">Executing Compute Shaders</h2>
+<p>Unlike graphics shaders compute shaders can&rsquo;t just be assigned to a material and via that to a object. Instead we trigger the execution ourselves from c# code.</p>
+<p>In the C# component we create we reference our compute shader via a variable of the type <code>ComputeShader</code>. We also create a integer to store the identifier of our kernel after getting it once in the start method. To get the kernel identifier we call the <code>FindKernel(&lt;kernelname&gt;)</code> function on our compute shader. And after getting the kernel identifier we can use it to get the size of each thread group (thats equal to our <code>numthreads</code> in the shader). We store the x size in a variable and discard the others by passing in <code>_</code> as a output variable.</p>
+<p>Lets also make the length of the buffer we&rsquo;re filling a public property so we can change that in the future. With that information available we can also create the gpu array we&rsquo;ll write to as a <code>ComputeBuffer</code>. Its constructor takes in the amount of elements as the first parameter and the size of its content as the second parameter. Since we&rsquo;re using float3 on the shader side, we can get the size(in bytes) of a float with the <code>sizeof</code> function and multiply the result by 3(getting the size of a Vector3 or a float3 of the new mathematics lib is also possible, but only in a unsafe context and that sounds scary(it isn&rsquo;t really, but whatever)). Paralell to the ComputeBuffer lets also create a regular Vector3 array of the same size, we&rsquo;ll use it later to copy the data back to the ram where we can use it. If we want to write clean code (we kinda do) we should also call <code>Dispose</code> on our buffer when the component is destroyed so unity can do garbage collection, so lets add that to the OnDestroy method.</p>
+<p>With all of that set up we can use the shader in the update method. First we declare set the buffer of the shader to be our buffer, this buffer is set per kernel so we also have to pass in our kernel identifier.
+To dispatch the shader we first calculate how many threadgroups we need, in our case we want the amount of threads to be the length of the array, so the thread groups should be that amount divided by the thread size rounded up. When dealing with integers the easiest way of doing a division and getting the rounded up result is to add the divisor minus one before the division, that adds 1 to the result unless the dividend is a exact multiple of the divisor.
+After thats done we can dispatch the shader and tell it how many thread groups it should run (the amount we just calculated in <code>x</code>, and 1 in <code>y</code> and <code>z</code>). And then we can already get the data out of the buffer into ram we can work with in C# with the aptly named <code>GetData</code> function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">BasicComputeSpheres</span> : MonoBehaviour
+{
+    <span style="color:#080;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> SphereAmount = <span style="color:#60e;font-weight:bold">17</span>;
+    <span style="color:#080;font-weight:bold">public</span> ComputeShader Shader;
+
+    ComputeBuffer resultBuffer;
+    <span style="color:#339;font-weight:bold">int</span> kernel;
+    <span style="color:#339;font-weight:bold">uint</span> threadGroupSize;
+    Vector3[] output;
+
+    <span style="color:#080;font-weight:bold">void</span> Start()
+    {
+        <span style="color:#888">//program we&#39;re executing
+</span><span style="color:#888"></span>        kernel = Shader.FindKernel(<span style="background-color:#fff0f0">&#34;Spheres&#34;</span>);
+        Shader.GetKernelThreadGroupSizes(kernel, <span style="color:#080;font-weight:bold">out</span> threadGroupSize, <span style="color:#080;font-weight:bold">out</span> _, <span style="color:#080;font-weight:bold">out</span> _);
+
+        <span style="color:#888">//buffer on the gpu in the ram
+</span><span style="color:#888"></span>        resultBuffer = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(SphereAmount, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+        output = <span style="color:#080;font-weight:bold">new</span> Vector3[SphereAmount];
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> Update()
+    {
+        Shader.SetBuffer(kernel, <span style="background-color:#fff0f0">&#34;Result&#34;</span>, resultBuffer);
+        <span style="color:#339;font-weight:bold">int</span> threadGroups = (<span style="color:#339;font-weight:bold">int</span>) ((SphereAmount + (threadGroupSize - <span style="color:#60e;font-weight:bold">1</span>)) / threadGroupSize);
+        Shader.Dispatch(kernel, threadGroups, <span style="color:#60e;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">1</span>);
+        resultBuffer.GetData(output);
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> OnDestroy()
+    {
+        resultBuffer.Dispose();
+    }
+}
+</code></pre></div><p>Now we have the data but we can&rsquo;t see it. There are ways of rendering the buffer directly on the GPU, but this is not the tutorial for that, instead I decided to instantiate a bunch of prefabs and use them for visualisation. The instanced transforms are saved in a private array which is created and filled with new prefab instances in the start method. The length of the array is the same length of the buffer.</p>
+<p>In update method we then copy the positions from the output struct to the local position of the objects.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">// in start method
+</span><span style="color:#888"></span>
+<span style="color:#888">//spheres we use for visualisation
+</span><span style="color:#888"></span>instances = <span style="color:#080;font-weight:bold">new</span> Transform[SphereAmount];
+<span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#60e;font-weight:bold">0</span>; i &lt; SphereAmount; i++)
+{
+    instances[i] = Instantiate(Prefab, transform).transform;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//in update method
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#60e;font-weight:bold">0</span>; i &lt; instances.Length; i++)
+    instances[i].localPosition = output[i];
+</code></pre></div><p><img src="/assets/images/posts/050/Row.png" alt=""></p>
+<h2 id="a-tiny-bit-more-complex-compute-shader">A tiny bit more complex Compute Shader</h2>
+<p>The rest of this is just to make stuff look nice, its just plain hlsl like in all my other tutorials.</p>
+<p>In the Compute Shader I first include the functions from <a href="https://ronja-tutorials.com/post/024-white-noise/">my tutorial on randomness</a> and add a new variable called time.
+In the kernel function I get a random vector(based on the kernel index), normalize it and get it to a random length between 0.1 and 1 (if I let it go too short bad math can happen too easily and some points become NaN). Then I generate a new vector thats orthogonal to that one by taking the cross product between the vector and a different random vector(this isn&rsquo;t guaranteed to work, if the vectors are paralell the cross product is <code>(0,0,0)</code> and can&rsquo;t e normalized, but it works well enough) and give its length the same treatment to make it be between 0.1 and 0.9. The random looking numbers I add to the inputs are to avoid some of the symmetry so not all random functions return the same result. Then I get a time variable by multiplying the time by 2(that 2 could be a uniform value if you want to adjust the speed manually) and give it a offset by a random value multiplied by some big-ish odd number.</p>
+<p>Those values can then be combined by multiplying one of the vectors by the sine of the time and the other by the cosine of the time and adding the 2 results. I then also multiplied it by 20 to make it bigger, but you should also consider using a property settable from outside here(do as I say not as I do).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// Each #kernel tells which function to compile; you can have many kernels</span>
+<span style="color:#579">#pragma kernel Spheres</span>
+
+<span style="color:#579">#include &#34;Random.cginc&#34;</span>
+
+<span style="color:#888">//variables</span>
+RWStructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Result;
+<span style="color:#080;font-weight:bold">uniform</span> <span style="color:#080;font-weight:bold">float</span> Time;
+
+[numthreads(<span style="color:#00d;font-weight:bold">64</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)]
+<span style="color:#080;font-weight:bold">void</span> Spheres (uint3 id <span style="color:#333">:</span> SV_DispatchThreadID)
+{
+    <span style="color:#888">//generate 2 orthogonal vectors</span>
+    float3 baseDir <span style="color:#333">=</span> normalize(rand1dTo3d(id.x) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> (rand1dTo1d(id.x)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+    float3 orthogonal <span style="color:#333">=</span> normalize(cross(baseDir, rand1dTo3d(id.x <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">7.1393</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>)) <span style="color:#333">*</span> (rand1dTo1d(id.x<span style="color:#333">+</span><span style="color:#60e;font-weight:bold">3.7443</span>)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+    <span style="color:#888">//scale the time and give it a random offset</span>
+    <span style="color:#080;font-weight:bold">float</span> scaledTime <span style="color:#333">=</span> Time <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">+</span> rand1dTo1d(id.x) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">712.131234</span>;
+    <span style="color:#888">//calculate a vector based on vectors</span>
+    float3 dir <span style="color:#333">=</span> baseDir <span style="color:#333">*</span> sin(scaledTime) <span style="color:#333">+</span> orthogonal <span style="color:#333">*</span> cos(scaledTime);
+    Result[id.x] <span style="color:#333">=</span> dir <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">20</span>;
+}
+</code></pre></div><p>Then all thats missing is passing in the time from the C# code and you should have a nice orbiting swarm.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">Shader.SetFloat(<span style="background-color:#fff0f0">&#34;Time&#34;</span>, Time.time);
+</code></pre></div><p>With a emissive material and a simple bloom from the postprocessing stack it can look like this:</p>
+<p><img src="/assets/images/posts/050/result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/050_Compute_Shader/BasicCompute.compute">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/050_Compute_Shader/BasicCompute.compute</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// Each #kernel tells which function to compile; you can have many kernels</span>
+<span style="color:#579">#pragma kernel Spheres</span>
+
+<span style="color:#579">#include &#34;Random.cginc&#34;</span>
+
+<span style="color:#888">//variables</span>
+RWStructuredBuffer<span style="color:#333">&lt;</span>float3<span style="color:#333">&gt;</span> Result;
+<span style="color:#080;font-weight:bold">uniform</span> <span style="color:#080;font-weight:bold">float</span> Time;
+
+[numthreads(<span style="color:#00d;font-weight:bold">64</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)]
+<span style="color:#080;font-weight:bold">void</span> Spheres (uint3 id <span style="color:#333">:</span> SV_DispatchThreadID)
+{
+    <span style="color:#888">//generate 2 orthogonal vectors</span>
+    float3 baseDir <span style="color:#333">=</span> normalize(rand1dTo3d(id.x) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> (rand1dTo1d(id.x)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+    float3 orthogonal <span style="color:#333">=</span> normalize(cross(baseDir, rand1dTo3d(id.x <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">7.1393</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>)) <span style="color:#333">*</span> (rand1dTo1d(id.x<span style="color:#333">+</span><span style="color:#60e;font-weight:bold">3.7443</span>)<span style="color:#333">*</span><span style="color:#60e;font-weight:bold">0.9</span><span style="color:#333">+</span><span style="color:#60e;font-weight:bold">0.1</span>);
+    <span style="color:#888">//scale the time and give it a random offset</span>
+    <span style="color:#080;font-weight:bold">float</span> scaledTime <span style="color:#333">=</span> Time <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">+</span> rand1dTo1d(id.x) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">712.131234</span>;
+    <span style="color:#888">//calculate a vector based on vectors</span>
+    float3 dir <span style="color:#333">=</span> baseDir <span style="color:#333">*</span> sin(scaledTime) <span style="color:#333">+</span> orthogonal <span style="color:#333">*</span> cos(scaledTime);
+    Result[id.x] <span style="color:#333">=</span> dir <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">20</span>;
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/050_Compute_Shader/BasicComputeSpheres.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/050_Compute_Shader/BasicComputeSpheres.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections.Generic</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">BasicComputeSpheres</span> : MonoBehaviour
+{
+    <span style="color:#080;font-weight:bold">public</span> <span style="color:#339;font-weight:bold">int</span> SphereAmount = <span style="color:#60e;font-weight:bold">17</span>;
+    <span style="color:#080;font-weight:bold">public</span> ComputeShader Shader;
+
+    <span style="color:#080;font-weight:bold">public</span> GameObject Prefab;
+
+    ComputeBuffer resultBuffer;
+    <span style="color:#339;font-weight:bold">int</span> kernel;
+    <span style="color:#339;font-weight:bold">uint</span> threadGroupSize;
+    Vector3[] output;
+
+    Transform[] instances;
+
+    <span style="color:#080;font-weight:bold">void</span> Start()
+    {
+        <span style="color:#888">//program we&#39;re executing
+</span><span style="color:#888"></span>        kernel = Shader.FindKernel(<span style="background-color:#fff0f0">&#34;Spheres&#34;</span>);
+        Shader.GetKernelThreadGroupSizes(kernel, <span style="color:#080;font-weight:bold">out</span> threadGroupSize, <span style="color:#080;font-weight:bold">out</span> _, <span style="color:#080;font-weight:bold">out</span> _);
+
+        <span style="color:#888">//buffer on the gpu in the ram
+</span><span style="color:#888"></span>        resultBuffer = <span style="color:#080;font-weight:bold">new</span> ComputeBuffer(SphereAmount, <span style="color:#080;font-weight:bold">sizeof</span>(<span style="color:#339;font-weight:bold">float</span>) * <span style="color:#60e;font-weight:bold">3</span>);
+        output = <span style="color:#080;font-weight:bold">new</span> Vector3[SphereAmount];
+
+        <span style="color:#888">//spheres we use for visualisation
+</span><span style="color:#888"></span>        instances = <span style="color:#080;font-weight:bold">new</span> Transform[SphereAmount];
+        <span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#60e;font-weight:bold">0</span>; i &lt; SphereAmount; i++)
+        {
+            instances[i] = Instantiate(Prefab, transform).transform;
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> Update()
+    {
+        Shader.SetFloat(<span style="background-color:#fff0f0">&#34;Time&#34;</span>, Time.time);
+        Shader.SetBuffer(kernel, <span style="background-color:#fff0f0">&#34;Result&#34;</span>, resultBuffer);
+        <span style="color:#339;font-weight:bold">int</span> threadGroups = (<span style="color:#339;font-weight:bold">int</span>) ((SphereAmount + (threadGroupSize - <span style="color:#60e;font-weight:bold">1</span>)) / threadGroupSize);
+        Shader.Dispatch(kernel, threadGroups, <span style="color:#60e;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">1</span>);
+        resultBuffer.GetData(output);
+
+        <span style="color:#080;font-weight:bold">for</span> (<span style="color:#339;font-weight:bold">int</span> i = <span style="color:#60e;font-weight:bold">0</span>; i &lt; instances.Length; i++)
+            instances[i].localPosition = output[i];
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> OnDestroy()
+    {
+        resultBuffer.Dispose();
+    }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Postprocessing with the Depth Texture | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Postprocessing with the Depth Texture" />
+<meta property="og:description" content="Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/017-postprocessing-depth/" />
+<meta property="article:published_time" content="2018-07-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-07-01T00:00:00+00:00" />
+<meta itemprop="name" content="Postprocessing with the Depth Texture">
+<meta itemprop="description" content="Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here.">
+<meta itemprop="datePublished" content="2018-07-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-07-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2138">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Postprocessing with the Depth Texture"/>
+<meta name="twitter:description" content="Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Postprocessing with the Depth Texture</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-07-01T00:00:00Z">July 1, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.</p>
+<p>To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that <a href="https://ronja-tutorials.com/post/016-postprocessing-basics/">here</a>.</p>
+<p><img src="/assets/images/posts/017/Result.gif" alt="Result"></p>
+<h2 id="read-depth">Read Depth</h2>
+<p>We will start this with the files we made in the simple postprocessing tutorial and go from there.</p>
+<p>The first thing we expand is the C# script which inserts our material into the rendering pipeline. We will expand it so when it starts up it will look for the camera on the same gameobject as itself and tell it to generate a depth buffer for us to use. This is done via the depthtexture mode flags. We could just set it to render the depth buffer, but what we’re going to do is take the existing value and take a bit-or with the flag we want to set, this way we don’t overwrite the flags other scripts might set to render their own effects. (you can read up on bitmasks if you’re curious how that works)</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> Start(){
+    Camera cam = GetComponent&lt;Camera&gt;();
+    cam.depthTextureMode = cam.depthTextureMode | DepthTextureMode.Depth;
+}
+</code></pre></div><p>That’s already everything we have to change on the C# side to get access to the depth texture, so we can now start writing our shader.</p>
+<p>We get access to the depth texture by creating a new texture sampler which we call _CameraDepthTexture. We can read from the sampler like any other texture, so we can just do that and look at how the depth texture looks like. Because the depth is just a single value, it’s only saved in the red value of the texture and the other color channels are empty so we just take the red value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the depth texture</span>
+<span style="color:#080;font-weight:bold">sampler2D</span> _CameraDepthTexture;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//get depth from depth texture</span>
+    <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> tex2D(_CameraDepthTexture, i.uv).r;
+
+    <span style="color:#080;font-weight:bold">return</span> depth;
+}
+</code></pre></div><p>After doing this and starting the game, chances are high that the game looks mostly black. That’s because the depth isn’t encoded linearly, the distances closer to the camera are more precise than the ones further away because that’s where more precision is needed. If we put the camera very close to objects we should still be able to see some brighter color, indicating that the object is close to the camera. (if you still see black/mostly black when putting the camera close to objects and would like to, try increasing your near clipping distance)</p>
+<p><img src="/assets/images/posts/017/Short.png" alt="a image where close objects are bright and then quickly fall off to black as theyre further away"></p>
+<p>To make this more usable for ourselves we have to decode the depth. Luckily unity provides a method for us that takes the depth as we have it now and returns the linear depth between 0 and 1, 0 being in the camera and 1 being at the far clipping plane. (if your image is mostly black with a white skybox here, you can try to lower the far clipping plane of your camera to see more shades)</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//get depth from depth texture</span>
+    <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> tex2D(_CameraDepthTexture, i.uv).r;
+    <span style="color:#888">//linear depth between camera and far clipping plane</span>
+    depth <span style="color:#333">=</span> Linear01Depth(depth);
+
+    <span style="color:#080;font-weight:bold">return</span> depth;
+}
+</code></pre></div><p><img src="/assets/images/posts/017/LinearDepth.png" alt="a image where close objects are bright and then fall off to black as theyre further away"></p>
+<p>The next step is to completely decouple the depth we have from the camera settings so we can change them again without changing the results of our effects. We archieve that by simply multiplying the linear depth we have now with the distance of the far clipping plane. The near and far clipping planes are provided to us by unity via the projectionparams variable, the far clipping plane is in the z component.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//get depth from depth texture</span>
+    <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> tex2D(_CameraDepthTexture, i.uv).r;
+    <span style="color:#888">//linear depth between camera and far clipping plane</span>
+    depth <span style="color:#333">=</span> Linear01Depth(depth);
+    <span style="color:#888">//depth as distance from camera in units</span>
+    depth <span style="color:#333">=</span> depth <span style="color:#333">*</span> _ProjectionParams.z;
+
+    <span style="color:#080;font-weight:bold">return</span> depth;
+}
+</code></pre></div><p><img src="/assets/images/posts/017/CorrectDepth.png" alt="a image where close objects are dark and then quickly fall off to white as theyre further away, most of the image is plain white"></p>
+<p>Because most objects are further away than 1 unit from the camera, the image will be primarily white again, but we now have a value we can use that’s independent of the clipping planes of the camera and in a unit of measurement we can understand (unity units).</p>
+<h2 id="generate-wave">Generate Wave</h2>
+<p>Next I’m going to show you how to use this information to make a wave effect that seemingly wanders through the world, away from the player. We will be able to customize the distance from the player the wave has at the moment, the length of the trail of the wave, and the color of the wave. So the first step we take is to add those variables to the properties and as variables to our shader. We use the header attribute here to write wave in bold letters over the part with variables for the wave in the inspector, it doesn’t change the functionality of the shader at all.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    [Header(Wave)]
+    _WaveDistance (<span style="color:#f00;background-color:#faa">&#34;</span>Distance from player<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>
+    _WaveTrail (<span style="color:#f00;background-color:#faa">&#34;</span>Length of the trail<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">5</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    _WaveColor (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//variables to control the wave</span>
+<span style="color:#080;font-weight:bold">float</span> _WaveDistance;
+<span style="color:#080;font-weight:bold">float</span> _WaveTrail;
+float4 _WaveColor;
+</code></pre></div><p><img src="/assets/images/posts/017/Inspector.png" alt="a image of the inspector with the variables"></p>
+<p>The wave example will have a hard cut at it’s front end and a smooth tail behind that. We start by making a hard cut based on the distance. For this we use the step function which returns 0 if the second value is greater or 1 otherwise.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">    <span style="color:#888">//calculate wave</span>
+    <span style="color:#080;font-weight:bold">float</span> waveFront <span style="color:#333">=</span> step(depth, _WaveDistance);
+
+    <span style="color:#080;font-weight:bold">return</span> waveFront;
+}
+</code></pre></div><p><img src="/assets/images/posts/017/Cutoff.gif" alt="a line at a specific depth that falls off"></p>
+<p>Then to define the trail we use a smoothstep function which is similar to the step function, except we can define two values to compare the third value to, if the third value is less than the first, the function returns 0, if it’s bigger than the second it returns 1, other values return values between 0 and 1. I like to imagine it like a inverse linear interpolation because you can take the result of the smoothstep and put it into a lerp with the same minimum and maximum values as the smoothstep to get the value of teh third argument.</p>
+<p>In this case the value we want to compare to is the depth, our maximum is the wave distance and the minimum is the wave distance minus the trail length.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">    <span style="color:#080;font-weight:bold">float</span> waveTrail <span style="color:#333">=</span> smoothstep(_WaveDistance <span style="color:#333">-</span> _WaveTrail, _WaveDistance, depth);
+    <span style="color:#080;font-weight:bold">return</span> waveTrail;
+}
+</code></pre></div><p><img src="/assets/images/posts/017/Trail.gif" alt="a smooth line at a specific depth that falls off"></p>
+<p>You might notive that the front and the trail of the wave are opposite, it would be easy to fix that (flip the two arguments of the clip or flip the min orthe max of the smoothstep), but in this case it’s on purpose. Because if we multiply any number by zero it becomes zero, we can now multiply the front and the trail of the wave and it will become zero in front and behind the wave with only a small white wave in the middle at our defined distance.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate wave</span>
+    <span style="color:#080;font-weight:bold">float</span> waveFront <span style="color:#333">=</span> step(depth, _WaveDistance);
+    <span style="color:#080;font-weight:bold">float</span> waveTrail <span style="color:#333">=</span> smoothstep(_WaveDistance <span style="color:#333">-</span> _WaveTrail, _WaveDistance, depth);
+    <span style="color:#080;font-weight:bold">float</span> wave <span style="color:#333">=</span> waveFront <span style="color:#333">*</span> waveTrail;
+
+    <span style="color:#080;font-weight:bold">return</span> wave;
+}
+</code></pre></div><p><img src="/assets/images/posts/017/WhiteWave.gif" alt="a line at a specific depth that falls off"></p>
+<p>Now that we have defined our wave, we can bring back color to the image. For that we first have to sample our source image again and then we do a linear interpolation from the source image to our wave color based on the wave parameter we just calculated.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//mix wave into source color</span>
+fixed4 col <span style="color:#333">=</span> lerp(source, _WaveColor, wave);
+
+<span style="color:#080;font-weight:bold">return</span> col;
+</code></pre></div><p><img src="/assets/images/posts/017/HitSky.gif" alt="a line at a specific depth that falls off"></p>
+<p>As you can see we have a artefact with this approach when the distance reaches the far clipping plane. Even though the skybox is technically at the distance of the far clipping plane, we don’t want to show the wave when it reaches it.</p>
+<p>To fix this we read the source color just after we calculate the depth and return it instantly if the depth is at the far clipping plane.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//get depth from depth texture</span>
+    <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> tex2D(_CameraDepthTexture, i.uv).r;
+    <span style="color:#888">//linear depth between camera and far clipping plane</span>
+    depth <span style="color:#333">=</span> Linear01Depth(depth);
+    <span style="color:#888">//depth as distance from camera in units</span>
+    depth <span style="color:#333">=</span> depth <span style="color:#333">*</span> _ProjectionParams.z;
+
+    <span style="color:#888">//get source color</span>
+    fixed4 source <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+    <span style="color:#888">//skip wave and return source color if we&#39;re at the skybox</span>
+    <span style="color:#080;font-weight:bold">if</span>(depth <span style="color:#333">&gt;=</span> _ProjectionParams.z)
+        <span style="color:#080;font-weight:bold">return</span> source;
+
+    <span style="color:#888">//calculate wave</span>
+    <span style="color:#080;font-weight:bold">float</span> waveFront <span style="color:#333">=</span> step(depth, _WaveDistance);
+    <span style="color:#080;font-weight:bold">float</span> waveTrail <span style="color:#333">=</span> smoothstep(_WaveDistance <span style="color:#333">-</span> _WaveTrail, _WaveDistance, depth);
+    <span style="color:#080;font-weight:bold">float</span> wave <span style="color:#333">=</span> waveFront <span style="color:#333">*</span> waveTrail;
+
+    <span style="color:#888">//mix wave into source color</span>
+    fixed4 col <span style="color:#333">=</span> lerp(source, _WaveColor, wave);
+
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>One last thing I’d like to do is expand the C# script to automatically set the distance for us and make it slowly go away from the player. I’d like to control the speed the wave travels and if the wave is active. Also we have to remember the current distance of the wave. For all of that we add a few new class variables to our script.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#00c">[SerializeField]</span>
+<span style="color:#080;font-weight:bold">private</span> Material postprocessMaterial;
+<span style="color:#00c">[SerializeField]</span>
+<span style="color:#080;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">float</span> waveSpeed;
+<span style="color:#00c">[SerializeField]</span>
+<span style="color:#080;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">bool</span> waveActive;
+</code></pre></div><p>Then we add the update method which is called by unity automatically every frame. In it we increase the distance of the wave if it’S active and set it to zero when it isn’t, this way the wave is reset and comes from the player every time we enable it again.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> Update(){
+    <span style="color:#888">//if the wave is active, make it move away, otherwise reset it
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">if</span>(waveActive){
+        waveDistance = waveDistance + waveSpeed * Time.deltaTime;
+    } <span style="color:#080;font-weight:bold">else</span> {
+        waveDistance = <span style="color:#60e;font-weight:bold">0</span>;
+    }
+}
+</code></pre></div><p>And then to use the wavedistance variable in our shader we set it. We do the setting in the OnRenderImage just before the method is used, that way we can make sure that when it’s used it’s set to the correct value.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+    <span style="color:#888">//sync the distance from the script to the shader
+</span><span style="color:#888"></span>    postprocessMaterial.SetFloat(<span style="background-color:#fff0f0">&#34;_WaveDistance&#34;</span>, waveDistance);
+    <span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>    Graphics.Blit(source, destination, postprocessMaterial);
+}
+</code></pre></div><p><img src="/assets/images/posts/017/AutoWave.gif" alt="a wave travelling automatically while a bool is true"></p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">017</span>_Depth_Postprocessing<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        [Header(Wave)]
+        _WaveDistance (<span style="color:#f00;background-color:#faa">&#34;</span>Distance from player<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">10</span>
+        _WaveTrail (<span style="color:#f00;background-color:#faa">&#34;</span>Length of the trail<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">5</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _WaveColor (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#00d;font-weight:bold">1</span>)
+    }
+
+    SubShader{
+        <span style="color:#888">// markers that specify that we don&#39;t need culling</span>
+        <span style="color:#888">// or comparing/writing to the depth buffer</span>
+        Cull Off
+        ZWrite Off
+        ZTest Always
+
+        Pass{
+            CGPROGRAM
+            <span style="color:#888">//include useful shader functions</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//define vertex and fragment shader</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//the rendered screen so far</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+
+            <span style="color:#888">//the depth texture</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _CameraDepthTexture;
+
+            <span style="color:#888">//variables to control the wave</span>
+            <span style="color:#080;font-weight:bold">float</span> _WaveDistance;
+            <span style="color:#080;font-weight:bold">float</span> _WaveTrail;
+            float4 _WaveColor;
+
+
+            <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the vertex shader</span>
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.uv <span style="color:#333">=</span> v.uv;
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#888">//the fragment shader</span>
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//get depth from depth texture</span>
+                <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> tex2D(_CameraDepthTexture, i.uv).r;
+                <span style="color:#888">//linear depth between camera and far clipping plane</span>
+                depth <span style="color:#333">=</span> Linear01Depth(depth);
+                <span style="color:#888">//depth as distance from camera in units</span>
+                depth <span style="color:#333">=</span> depth <span style="color:#333">*</span> _ProjectionParams.z;
+
+                <span style="color:#888">//get source color</span>
+                fixed4 source <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+                <span style="color:#888">//skip wave and return source color if we&#39;re at the skybox</span>
+                <span style="color:#080;font-weight:bold">if</span>(depth <span style="color:#333">&gt;=</span> _ProjectionParams.z)
+                    <span style="color:#080;font-weight:bold">return</span> source;
+
+                <span style="color:#888">//calculate wave</span>
+                <span style="color:#080;font-weight:bold">float</span> waveFront <span style="color:#333">=</span> step(depth, _WaveDistance);
+                <span style="color:#080;font-weight:bold">float</span> waveTrail <span style="color:#333">=</span> smoothstep(_WaveDistance <span style="color:#333">-</span> _WaveTrail, _WaveDistance, depth);
+                <span style="color:#080;font-weight:bold">float</span> wave <span style="color:#333">=</span> waveFront <span style="color:#333">*</span> waveTrail;
+
+                <span style="color:#888">//mix wave into source color</span>
+                fixed4 col <span style="color:#333">=</span> lerp(source, _WaveColor, wave);
+
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+            ENDCG
+        }
+    }
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#888">//behaviour which should lie on the same gameobject as the main camera
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">DepthPostprocessing</span> : MonoBehaviour {
+    <span style="color:#888">//material that&#39;s applied when doing postprocessing
+</span><span style="color:#888"></span><span style="color:#00c">    [SerializeField]</span>
+    <span style="color:#080;font-weight:bold">private</span> Material postprocessMaterial;
+<span style="color:#00c">    [SerializeField]</span>
+    <span style="color:#080;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">float</span> waveSpeed;
+<span style="color:#00c">    [SerializeField]</span>
+    <span style="color:#080;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">bool</span> waveActive;
+
+    <span style="color:#080;font-weight:bold">private</span> <span style="color:#339;font-weight:bold">float</span> waveDistance;
+
+    <span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> Start(){
+        <span style="color:#888">//get the camera and tell it to render a depth texture
+</span><span style="color:#888"></span>        Camera cam = GetComponent&lt;Camera&gt;();
+        cam.depthTextureMode = cam.depthTextureMode | DepthTextureMode.Depth;
+    }
+
+    <span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> Update(){
+        <span style="color:#888">//if the wave is active, make it move away, otherwise reset it
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span>(waveActive){
+            waveDistance = waveDistance + waveSpeed * Time.deltaTime;
+        } <span style="color:#080;font-weight:bold">else</span> {
+            waveDistance = <span style="color:#60e;font-weight:bold">0</span>;
+        }
+    }
+
+    <span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">private</span> <span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+        <span style="color:#888">//sync the distance from the script to the shader
+</span><span style="color:#888"></span>        postprocessMaterial.SetFloat(<span style="background-color:#fff0f0">&#34;_WaveDistance&#34;</span>, waveDistance);
+        <span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>        Graphics.Blit(source, destination, postprocessMaterial);
+    }
+}
+</code></pre></div><p>You can also find the source code for this tutorial here:<!-- raw HTML omitted -->
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/017_DepthPostprocessing/DepthPostprocessing.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/017_DepthPostprocessing/DepthPostprocessing.shader</a><!-- raw HTML omitted -->
+<a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/017_DepthPostprocessing/DepthPostprocessing.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/017_DepthPostprocessing/DepthPostprocessing.cs</a><!-- raw HTML omitted --></p>
+<p>I hope I was able to explain how to use the depth buffer for postprocessing effects and you’ll be able to make your own effects now.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

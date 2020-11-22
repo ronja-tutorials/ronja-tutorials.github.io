@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Screenspace Textures | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.
+On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Screenspace Textures" />
+<meta property="og:description" content="There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.
+On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/039-screenspace-texture/" />
+<meta property="article:published_time" content="2019-01-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-01-20T00:00:00+00:00" />
+<meta itemprop="name" content="Screenspace Textures">
+<meta itemprop="description" content="There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.
+On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future.">
+<meta itemprop="datePublished" content="2019-01-20T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-01-20T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1054">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Screenspace Textures"/>
+<meta name="twitter:description" content="There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.
+On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Screenspace Textures</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2019-01-20T00:00:00Z">January 20, 2019</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.</p>
+<p>On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future.</p>
+<p><img src="/assets/images/posts/039/Result.gif" alt=""></p>
+<h2 id="screenspace-coordinates-in-unlit-shaders">Screenspace Coordinates in Unlit Shaders</h2>
+<p>If you&rsquo;re new to shader programming I recommend you to read <a href="/basics.html">my tutorial on the basics of writing shaders</a> first. If you&rsquo;ve written a few shaders you should be fine. As the base shader I&rsquo;ll iterate upon I&rsquo;ll use the result of the <a href="https://ronja-tutorials.com/post/004-basic/">tutorial about using textures in a shader</a>.</p>
+<p>The first changes we make is to expand the vertex to fragment struct. So far it held the position and the uv coordinates. The screen position is used similarly to the uv coordinates, but for the screen position we need a vector with 4 components instead of 2.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+<span style="color:#080;font-weight:bold">struct</span> v2f{
+    float4 position <span style="color:#333">:</span> SV_POSITION;
+    float4 screenPosition <span style="color:#333">:</span> TEXCOORD0;
+};
+</code></pre></div><p>Then we fill that new variable in the vertex function. We can get the screen position from the clip space position via a function in the unity shader library called <code>ComputeScreenPos</code>. We simply pass it the position in clipspace (the result of the UnityObjectToClipPos function) and it&rsquo;ll return the screenspace position.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the vertex shader</span>
+v2f vert(appdata v){
+    v2f o;
+    <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+    o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+    o.screenPosition <span style="color:#333">=</span> ComputeScreenPos(o.position);
+    <span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><p>In the fragment shader we take the first two components of the screen position and divide them by the last one. This division is to counteract the perspective correction the GPU automatically performs on interpolators.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float2 textureCoordinate <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+    col <span style="color:#333">*=</span> _Color;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/039/SimpleSSTex.png" alt=""></p>
+<p>This already works as expected, but when our screen isn&rsquo;t square(like it usually isn&rsquo;t) our image will be distorted, additionally the screen position doesn&rsquo;t take the scaling and translation of the texture into consideration we set in the inspector.</p>
+<p>To fix the stretching we can simply multiply the x component of the coordinate by the aspect ratio. We get the aspect ratio by dividing the width of the current rendertarget by it&rsquo;s height. Those variables are saved in the x and y component of the <code>_ScreenParams</code> variable.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float2 textureCoordinate <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">/</span> _ScreenParams.y;
+    textureCoordinate.x <span style="color:#333">=</span> textureCoordinate.x <span style="color:#333">*</span> aspect;
+    fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+    col <span style="color:#333">*=</span> _Color;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>To apply the scaling and offset of the texture we can then use the TRANSFORM_TEX macro which we previously used in the vertex shader.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    float2 textureCoordinate <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+    <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">/</span> _ScreenParams.y;
+    textureCoordinate.x <span style="color:#333">=</span> textureCoordinate.x <span style="color:#333">*</span> aspect;
+    textureCoordinate <span style="color:#333">=</span> TRANSFORM_TEX(textureCoordinate, _MainTex);
+    fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+    col <span style="color:#333">*=</span> _Color;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/039/TransformedSSTex.png" alt=""></p>
+<p><img src="/assets/images/posts/039/UnlitMaterialSetup.png" alt=""></p>
+<h2 id="screenspace-coordinates-in-surface-shaders">Screenspace Coordinates in Surface Shaders</h2>
+<p>To use screenspace coordinates in surface shaders I recommend you to learn how surface shaders in general work, I have <a href="https://ronja-tutorials.com/post/005-simple-surface/">a tutorial</a> about that here. I&rsquo;ll also use the result of <a href="https://ronja-tutorials.com/post/005-simple-surface/">that tutorial</a> as a starting point for this shader.</p>
+<p>For surface shaders we don&rsquo;t have to prepare anything in the vertex shader, just adding a variable called <code>screenPos</code> to the surface input struct will make unity generate code that fills it with the correct data.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> Input {
+    float4 screenPos;
+};
+</code></pre></div><p>We can then use this variable the same way we used it in the unlit shader. We just have to add the <code>_MainTex_ST</code> variable to the uniform variables because unity won&rsquo;t generate that unless we have a variable called <code>uv_MainTex</code> in our input struct.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//uniform variables</span>
+float4 _MainTex_ST;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+    float2 textureCoordinate <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+    <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">/</span> _ScreenParams.y;
+    textureCoordinate.x <span style="color:#333">=</span> textureCoordinate.x <span style="color:#333">*</span> aspect;
+    textureCoordinate <span style="color:#333">=</span> TRANSFORM_TEX(textureCoordinate, _MainTex);
+
+    fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+    col <span style="color:#333">*=</span> _Color;
+    o.Albedo <span style="color:#333">=</span> col.rgb;
+    o.Metallic <span style="color:#333">=</span> _Metallic;
+    o.Smoothness <span style="color:#333">=</span> _Smoothness;
+    o.Emission <span style="color:#333">=</span> _Emission;
+}
+</code></pre></div><p><img src="/assets/images/posts/039/LitScreenspaceTex.png" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="unlit-screenspace-texture">Unlit Screenspace Texture</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/039_Screenspace_Textures/UnlitScreenspaceTextures.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/039_Screenspace_Textures/UnlitScreenspaceTextures.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">03</span><span style="color:#00d;font-weight:bold">9</span>_ScreenspaceTextures<span style="color:#333">/</span>Unlit<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#888">//include useful shader functions</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#888">//define vertex and fragment shader</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//texture and transforms of the texture</span>
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+            float4 _MainTex_ST;
+
+            <span style="color:#888">//tint of the texture</span>
+            fixed4 _Color;
+
+            <span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 screenPosition <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#888">//the vertex shader</span>
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.screenPosition <span style="color:#333">=</span> ComputeScreenPos(o.position);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#888">//the fragment shader</span>
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                float2 textureCoordinate <span style="color:#333">=</span> i.screenPosition.xy <span style="color:#333">/</span> i.screenPosition.w;
+                <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">/</span> _ScreenParams.y;
+                textureCoordinate.x <span style="color:#333">=</span> textureCoordinate.x <span style="color:#333">*</span> aspect;
+                textureCoordinate <span style="color:#333">=</span> TRANSFORM_TEX(textureCoordinate, _MainTex);
+                fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+                col <span style="color:#333">*=</span> _Color;
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+
+            ENDCG
+        }
+    }
+}
+</code></pre></div><h3 id="lit-screenspace-texture">Lit Screenspace Texture</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/039_Screenspace_Textures/SurfaceScreenspaceTexture.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/039_Screenspace_Textures/SurfaceScreenspaceTexture.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">03</span><span style="color:#00d;font-weight:bold">9</span>_ScreenspaceTextures<span style="color:#333">/</span>Surface<span style="color:#f00;background-color:#faa">&#34;</span> {
+    Properties {
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+        _Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+        [HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>)
+    }
+    SubShader {
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        CGPROGRAM
+
+        <span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+        <span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+        <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+        float4 _MainTex_ST;
+        fixed4 _Color;
+
+        <span style="color:#080;font-weight:bold">half</span> _Smoothness;
+        <span style="color:#080;font-weight:bold">half</span> _Metallic;
+        half3 _Emission;
+
+        <span style="color:#080;font-weight:bold">struct</span> Input {
+            float4 screenPos;
+        };
+
+        <span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+            float2 textureCoordinate <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+            <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">/</span> _ScreenParams.y;
+            textureCoordinate.x <span style="color:#333">=</span> textureCoordinate.x <span style="color:#333">*</span> aspect;
+            textureCoordinate <span style="color:#333">=</span> TRANSFORM_TEX(textureCoordinate, _MainTex);
+
+            fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, textureCoordinate);
+            col <span style="color:#333">*=</span> _Color;
+            o.Albedo <span style="color:#333">=</span> col.rgb;
+            o.Metallic <span style="color:#333">=</span> _Metallic;
+            o.Smoothness <span style="color:#333">=</span> _Smoothness;
+            o.Emission <span style="color:#333">=</span> _Emission;
+        }
+        ENDCG
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

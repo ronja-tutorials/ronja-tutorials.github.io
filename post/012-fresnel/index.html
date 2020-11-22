@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Fresnel | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Fresnel" />
+<meta property="og:description" content="Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/012-fresnel/" />
+<meta property="article:published_time" content="2018-05-26T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-05-26T00:00:00+00:00" />
+<meta itemprop="name" content="Fresnel">
+<meta itemprop="description" content="Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.">
+<meta itemprop="datePublished" content="2018-05-26T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-05-26T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1540">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Fresnel"/>
+<meta name="twitter:description" content="Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Fresnel</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-05-26T00:00:00Z">May 26, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.</p>
+<p>For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them <a href="https://ronja-tutorials.com/post/004-basic/">here</a>. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.</p>
+<p><img src="/assets/images/posts/012/Result.jpg" alt="Material with fresnel effect"></p>
+<h2 id="highlighting-one-side-of-the-model">Highlighting one Side of the Model</h2>
+<p>We start with the surface shader modify it to show the fresnel. The fresnel uses the normals of the object to determine the intensity of the effect. To get the normals in worldspace in our shader, we add the worldNormal attribute to our input struct as well as the internal data macro. We won’t interact with the internal data at all, but unity needs it to generate the worldspace normal.</p>
+<p>You can generate the worldspace normals in non-surface shaders with a simple matrix multiplication, it’s explained in my <a href="https://ronja-tutorials.com/post/010-triplanar-mapping/">triplanar mapping tutorial</a>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_MainTex;
+    float3 worldNormal;
+    INTERNAL_DATA
+};
+</code></pre></div><p>To get a gradient from that, we take the dot product with another normalized vector. When you take the dot product of two normalized vectors, you get a value that represents how much they align. If they point in the same direction, the dot product returns 1, if they are orthogonal it returns a 0 and if the vectors are opposing it returns a -1.</p>
+<p><img src="/assets/images/posts/012/DotSphere.png" alt="A sphere with a dot product"></p>
+<p><img src="/assets/images/posts/012/DotDirection.png" alt="arrows that show which value the dot product has with relative directions"></p>
+<p>First we will just get the dot product of the normal and a static vector so see better how it works. We then write the result into the emission channel, so we can see it well.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//get the dot product between the normal and the direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnel;
+}
+</code></pre></div><p><img src="/assets/images/posts/012/WhiteTopBlackBottom.png" alt="Material dot product added to emissive channel, the bottom is black"></p>
+<p>We can now see that the surface gets brighter where it points up and darker where it points down. To prevent weird results with negative emission, we can clamp the fresnel value to the values between 0 to 1 before using it. For that we’ll use the saturate method. It does the same as a clamp from 0 to 1, but is faster on some GPUs. With that change we see how the fresnel only effects the top of our objects.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//get the dot product between the normal and the direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#888">//clamp the value between 0 and 1 so we don&#39;t get dark artefacts at the backside</span>
+    fresnel <span style="color:#333">=</span> saturate(fresnel);
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnel;
+}
+</code></pre></div><p><img src="/assets/images/posts/012/WhiteTopBlackBottom.png" alt="Material dot product added to emissive channel, the bottom is black"></p>
+<h2 id="highlighting-the-outer-parts">Highlighting the outer Parts</h2>
+<p>The next step is to make the effect relative to our view direction instead of a fixed direction. In surface shaders we get the view direction by just adding it to our input struct.</p>
+<p>If you’re making a unlit fresnel shader, you can get the view direction by subtracting the camera position from the world position of your vertex (I explain how to get the worldspace position in my <a href="https://ronja-tutorials.com/post/008-planar-mapping/">planar mapping tutorial</a> and you can get the camera position from the builtin variable _WorldSpaceCameraPos (you can just use it in your code without adding anything else)).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input struct which is automatically filled by unity</span>
+<span style="color:#080;font-weight:bold">struct</span> Input {
+    float2 uv_MainTex;
+    float3 worldNormal;
+    float3 viewDir;
+    INTERNAL_DATA
+};
+
+<span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//just apply the values for metalness and smoothness</span>
+    o.Metallic <span style="color:#333">=</span> _Metallic;
+    o.Smoothness <span style="color:#333">=</span> _Smoothness;
+
+    <span style="color:#888">//get the dot product between the normal and the view direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, i.viewDir);
+    <span style="color:#888">//clamp the value between 0 and 1 so we don&#39;t get dark artefacts at the backside</span>
+    fresnel <span style="color:#333">=</span> saturate(fresnel);
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnel;
+}
+</code></pre></div><p><img src="/assets/images/posts/012/WhiteFront.png" alt="Material with highlighted front"></p>
+<p>That’s already working pretty well, but instead of the outside of the material, it’s illuminating the center of it. To invert that, we simply subtract if from 1, so the bright areas in this version don’t affect the color any more and the unaffected parts get highlighted.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//get the dot product between the normal and the view direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, i.viewDir);
+    <span style="color:#888">//invert the fresnel so the big values are on the outside</span>
+    fresnel <span style="color:#333">=</span> saturate(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> fresnel);
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnel;
+}
+</code></pre></div><p><img src="/assets/images/posts/012/WhiteFresnel.png" alt="Material with white fresnel effect"></p>
+<h2 id="add-fresnel-color-and-intensity">Add Fresnel Color and Intensity</h2>
+<p>To finish this shader I’d like to add some customisation options. First we add a fresnel color. For that we need a property and a value for that and then multiply our fresnel value with that color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
+
+_FresnelColor (<span style="color:#f00;background-color:#faa">&#34;</span>Fresnel Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+
+<span style="color:#888">//...</span>
+
+float3 _FresnelColor;
+
+<span style="color:#888">//...</span>
+
+<span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//get the dot product between the normal and the view direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, i.viewDir);
+    <span style="color:#888">//invert the fresnel so the big values are on the outside</span>
+    fresnel <span style="color:#333">=</span> saturate(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> fresnel);
+    <span style="color:#888">//combine the fresnel value with a color</span>
+    float3 fresnelColor <span style="color:#333">=</span> fresnel <span style="color:#333">*</span> _FresnelColor;
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnelColor;
+}
+
+<span style="color:#888">//...</span>
+</code></pre></div><p><img src="/assets/images/posts/012/Result.jpg" alt="purple fresnel effect"></p>
+<p>Next we’ll add a possibility to make the fresnel effect stronger or weaker by adding a exponent to it. We also add the powerslider attribute to the property of the exponent. That way values closer to 0 take up more space on the slider and can be adjusted more accurately (in this example the part of the slider from 0.25 to 1 is almost as big as the part from 1 to 4).</p>
+<p>Exponents are pretty expensive so if you find a way to adjust your fresnel that fits you just as well, it’s probably better to switch to that, but exponents are also easy and nice to use.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">
+<span style="color:#888">//...</span>
+
+[PowerSlider(<span style="color:#00d;font-weight:bold">4</span>)] _FresnelExponent (<span style="color:#f00;background-color:#faa">&#34;</span>Fresnel Exponent<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#60e;font-weight:bold">0.25</span>, <span style="color:#00d;font-weight:bold">4</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+
+<span style="color:#888">//...</span>
+
+<span style="color:#080;font-weight:bold">float</span> _FresnelExponent;
+
+<span style="color:#888">//...</span>
+
+<span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+<span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+
+    <span style="color:#888">//...</span>
+
+    <span style="color:#888">//get the dot product between the normal and the view direction</span>
+    <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, i.viewDir);
+    <span style="color:#888">//invert the fresnel so the big values are on the outside</span>
+    fresnel <span style="color:#333">=</span> saturate(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> fresnel);
+    <span style="color:#888">//combine the fresnel value with a color</span>
+    float3 fresnelColor <span style="color:#333">=</span> fresnel <span style="color:#333">*</span> _FresnelColor;
+    <span style="color:#888">//raise the fresnel value to the exponents power to be able to adjust it</span>
+    fresnel <span style="color:#333">=</span> pow(fresnel, _FresnelExponent);
+    <span style="color:#888">//apply the fresnel value to the emission</span>
+    o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnelColor;
+}
+
+<span style="color:#888">//...</span>
+</code></pre></div><p><img src="/assets/images/posts/012/ExponentAdjustment.gif" alt="Adjusting the fresnel strength"></p>
+<p>A fresnel effect can also be used to fade textures or other effects among other things, but that’s for you to explore or maybe another tutorial.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">012</span>_Fresnel<span style="color:#f00;background-color:#faa">&#34;</span> {
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties {
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _Smoothness (<span style="color:#f00;background-color:#faa">&#34;</span>Smoothness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+        _Metallic (<span style="color:#f00;background-color:#faa">&#34;</span>Metalness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+        [HDR] _Emission (<span style="color:#f00;background-color:#faa">&#34;</span>Emission<span style="color:#f00;background-color:#faa">&#34;</span>, color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#40e;font-weight:bold">0</span>)
+
+        _FresnelColor (<span style="color:#f00;background-color:#faa">&#34;</span>Fresnel Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
+        [PowerSlider(<span style="color:#00d;font-weight:bold">4</span>)] _FresnelExponent (<span style="color:#f00;background-color:#faa">&#34;</span>Fresnel Exponent<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#60e;font-weight:bold">0.25</span>, <span style="color:#00d;font-weight:bold">4</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+    }
+    SubShader {
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        CGPROGRAM
+
+        <span style="color:#888">//the shader is a surface shader, meaning that it will be extended by unity in the background to have fancy lighting and other features</span>
+        <span style="color:#888">//our surface shader function is called surf and we use the standard lighting model, which means PBR lighting</span>
+        <span style="color:#888">//fullforwardshadows makes sure unity adds the shadow passes the shader might need</span>
+        <span style="color:#f00;background-color:#faa">#</span>pragma surface surf Standard fullforwardshadows
+        <span style="color:#f00;background-color:#faa">#</span>pragma target <span style="color:#60e;font-weight:bold">3.0</span>
+
+        <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+        fixed4 _Color;
+
+        <span style="color:#080;font-weight:bold">half</span> _Smoothness;
+        <span style="color:#080;font-weight:bold">half</span> _Metallic;
+        half3 _Emission;
+
+        float3 _FresnelColor;
+        <span style="color:#080;font-weight:bold">float</span> _FresnelExponent;
+
+        <span style="color:#888">//input struct which is automatically filled by unity</span>
+        <span style="color:#080;font-weight:bold">struct</span> Input {
+            float2 uv_MainTex;
+            float3 worldNormal;
+            float3 viewDir;
+            INTERNAL_DATA
+        };
+
+        <span style="color:#888">//the surface shader function which sets parameters the lighting function then uses</span>
+        <span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
+            <span style="color:#888">//sample and tint albedo texture</span>
+            fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv_MainTex);
+            col <span style="color:#333">*=</span> _Color;
+            o.Albedo <span style="color:#333">=</span> col.rgb;
+
+            <span style="color:#888">//just apply the values for metalness and smoothness</span>
+            o.Metallic <span style="color:#333">=</span> _Metallic;
+            o.Smoothness <span style="color:#333">=</span> _Smoothness;
+
+            <span style="color:#888">//get the dot product between the normal and the view direction</span>
+            <span style="color:#080;font-weight:bold">float</span> fresnel <span style="color:#333">=</span> dot(i.worldNormal, i.viewDir);
+            <span style="color:#888">//invert the fresnel so the big values are on the outside</span>
+            fresnel <span style="color:#333">=</span> saturate(<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">-</span> fresnel);
+            <span style="color:#888">//raise the fresnel value to the exponents power to be able to adjust it</span>
+            fresnel <span style="color:#333">=</span> pow(fresnel, _FresnelExponent);
+            <span style="color:#888">//combine the fresnel value with a color</span>
+            float3 fresnelColor <span style="color:#333">=</span> fresnel <span style="color:#333">*</span> _FresnelColor;
+            <span style="color:#888">//apply the fresnel value to the emission</span>
+            o.Emission <span style="color:#333">=</span> _Emission <span style="color:#333">+</span> fresnelColor;
+        }
+        ENDCG
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>I hope I could help you understand how fresnel effects work and you can use them for your own shaders if you want to.</p>
+<p>You can also find the source code for this shader here: <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/012_Fresnel/Fresnel.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/012_Fresnel/Fresnel.shader</a></p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

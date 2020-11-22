@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Spheretracing with Shading | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Spheretracing with Shading" />
+<meta property="og:description" content="In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/044-spheretracing-shading/" />
+<meta property="article:published_time" content="2019-08-15T00:00:00+00:00" />
+<meta property="article:modified_time" content="2019-08-15T00:00:00+00:00" />
+<meta itemprop="name" content="Spheretracing with Shading">
+<meta itemprop="description" content="In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function.">
+<meta itemprop="datePublished" content="2019-08-15T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2019-08-15T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1707">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Spheretracing with Shading"/>
+<meta name="twitter:description" content="In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Spheretracing with Shading</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2019-08-15T00:00:00Z">August 15, 2019</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://ronja-tutorials.com/post/043-spheretracing-basics/">previous tutorial</a> I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.</p>
+<h2 id="architecture-changes">Architecture Changes</h2>
+<p>In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function. This material function will calculate the light and combine the lighting with the surface color. To make this function as modular as possible I decided to put the light calculations in another function and the calculations for the normal of the surface in yet another one. If fewer more monolithic functions are more readable to you, feel free to structure your shader like that.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 normal(float3 pos){
+    <span style="color:#888">//calculate surface normal</span>
+}
+
+float3 lightColor(float3 pos){
+    <span style="color:#888">//calculate light color</span>
+}
+
+float4 material(float3 pos){
+    <span style="color:#888">//return final surface color</span>
+}
+
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//ray information</span>
+    float3 pos <span style="color:#333">=</span> i.localPosition;
+    float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
+    <span style="color:#080;font-weight:bold">float</span> progress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    
+    <span style="color:#888">//tracing loop</span>
+    <span style="color:#080;font-weight:bold">for</span> (uint iter <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; iter <span style="color:#333">&lt;</span> MAX_STEPS; iter<span style="color:#333">++</span>) {
+        <span style="color:#888">//get current location on ray</span>
+        float3 samplePoint <span style="color:#333">=</span> pos <span style="color:#333">+</span> dir <span style="color:#333">*</span> progress;
+        <span style="color:#888">//get distance to closest shape</span>
+        <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> scene(samplePoint);
+        <span style="color:#888">//return color if inside shape</span>
+        <span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+            <span style="color:#080;font-weight:bold">return</span> material(samplePoint);
+        }
+        <span style="color:#888">//go forwards</span>
+        progress <span style="color:#333">=</span> progress <span style="color:#333">+</span> distance;
+    }
+    <span style="color:#888">//discard pixel if no shape was hit</span>
+    clip(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+    <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+}
+</code></pre></div><h2 id="normal">Normal</h2>
+<p>One of the most important variables when calculating light in a shader is the surface normal. Unlike a mesh where the normal is embeded into the data, we have to get the normal from the scene function ourselves in this case. We use the fact that we can see a signed distance field as a function to calculate the normal. The normal is the direction in which the value of the SDF grows. Even though a 3d function looks way more complex than a 1d function we can still use similar techniques to find the direction of it.</p>
+<p>This &ldquo;direction&rdquo; of a function is also called its &ldquo;derivative&rdquo; and a common and simple way to find it is to look at two close points of the function and compare the change in value. With 1d functions we pass the function 2 different X values and divide the change in resulting Y values by the change in the X axis to get the rate at which the result of the function changes.</p>
+<p><img src="/assets/images/posts/044/1d_derivative.png" alt=""></p>
+<p>When working with our 3d signed distance function we can do the same separately in 3 axis and since we only care about the direction and use the same change in position in all axis we don&rsquo;t even have to care about the length of the resulting vector.</p>
+<p>We call the change in position to get the normal &ldquo;epsilon&rdquo;. A epsilon that&rsquo;s too big leads to surfaces that look too smooth and inaccurate, but a epsilon that&rsquo;s too small can lead to calculation imprecisions, so it&rsquo;s worth playing around with that value for your use case. I chose 0.01 as a starting value. The function to calculate the change in signed distance value is scenevalue at the position plus a little distance in a axis subtracted by the scene value at the position minus a tiny number on that axis. In code this looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//determine change in signed distance</span>
+<span style="color:#080;font-weight:bold">float</span> changeX <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+<span style="color:#080;font-weight:bold">float</span> changeY <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>));
+<span style="color:#080;font-weight:bold">float</span> changeZ <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON));
+</code></pre></div><p>You can see how to get the derivative on the X axis we move the position a bit to the right and left on that axis.</p>
+<p>After getting all those values we can combine them to one normal vector. Since we used such a tiny epsilon, the normal vector will also be very small, so to fix that we normalize it wich results in a normal vector with a length of 1. Since we decided the object is traced in object space, but a normal in worldspace is more useful we also do a matrix multiplication to convert it into worldspace before normalizing it. For the multiplication we add a 4th component which we set to 0, this makes the instruction only change the rotation and scale of the vector, but doesn&rsquo;t move it since the normal is position independent.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//distance from rendered point to sample SDF for normal calculation</span>
+<span style="color:#579">#define NORMAL_EPSILON 0.01</span>
+
+float3 normal(float3 pos){
+    <span style="color:#888">//determine change in signed distance</span>
+    <span style="color:#080;font-weight:bold">float</span> changeX <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> changeY <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> changeZ <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON));
+    <span style="color:#888">//construct normal vector</span>
+    float3 surfaceNormal <span style="color:#333">=</span> float3(changeX, changeY, changeZ);
+    <span style="color:#888">//convert normal vector into worldspace and make it uniform length</span>
+    surfaceNormal <span style="color:#333">=</span> mul(unity_ObjectToWorld, float4(surfaceNormal, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">return</span> normalize(surfaceNormal);
+}
+</code></pre></div><p>If we now return the result of the normal function from the shader, we can see the worldspace normals which lead to a red/green/blue surface in the same direction as the direction gizmo in the corner.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//return color if inside shape</span>
+<span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+    <span style="color:#080;font-weight:bold">return</span> float4(normal(samplePoint), <span style="color:#00d;font-weight:bold">1</span>);
+}
+</code></pre></div><p><img src="/assets/images/posts/044/normals.png" alt=""></p>
+<h2 id="lighting">Lighting</h2>
+<p>The lighting function works the same as in any other context. The main difference to <a href="https://ronja-tutorials.com/post/013-custom-lighting/">the lighting implementations I&rsquo;ve explained previously</a> we can&rsquo;t use surface shaders so this implementation is more limited since that would need multiple shader passes. I&rsquo;m not going to implement more than 1 light and won&rsquo;t show how to make point lights work here, so we&rsquo;re stuck with a single directional light.</p>
+<p>We begin my retrieving the surface normal with the previously written function. Then we get the direction the light is coming from. In the case of directional lights this is always saved in <code>_WorldSpaceLightPos0.xyz</code>.</p>
+<p>With this information we can do a simple lighting calculation. We get the dot product between direction and normal and then we use the saturate function to ensure the result is never negative. The result of the function is this falloff multiplied by the color of the light which is stored in <code>_LightColor0</code> to use the color of the light as a tint. It&rsquo;s important that the <code>_LightColor0</code> variable is only available when we imclude the <code>Lighting.cginc</code> include file in our shader, so we also add that.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#include &#34;Lighting.cginc&#34;</span>
+
+float4 lightColor(float3 position){
+    <span style="color:#888">//calculate needed surface and light data</span>
+    float3 surfaceNormal <span style="color:#333">=</span> normal(position);
+    float3 lightDirection <span style="color:#333">=</span> _WorldSpaceLightPos0.xyz;
+
+    <span style="color:#888">//calculate simple shading</span>
+    <span style="color:#080;font-weight:bold">float</span> lightAngle <span style="color:#333">=</span> saturate(dot(surfaceNormal, lightDirection));
+    <span style="color:#080;font-weight:bold">return</span> lightAngle <span style="color:#333">*</span> _LightColor0;
+}
+</code></pre></div><p>Printing out the result of the lighting function already looks like a plain white surface.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//return color if inside shape</span>
+<span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+    <span style="color:#080;font-weight:bold">return</span> lightColor(samplePoint);
+}
+</code></pre></div><p><img src="/assets/images/posts/044/light.png" alt=""></p>
+<h2 id="final-steps">Final Steps</h2>
+<p>The last step for this shader I want to show is how to include the surface color into the shader again. For this we prepared the material function earlier which combines everything into the final result. In this implementation we just multiply the light we calculated with the color property which we added in the previous tutorial to get the final color.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float4 material(float3 position){
+    <span style="color:#888">//get light color</span>
+    float4 light <span style="color:#333">=</span> lightColor(position);
+
+    <span style="color:#888">//combine base color and light color</span>
+    float4 color <span style="color:#333">=</span> _Color <span style="color:#333">*</span> light;
+
+    <span style="color:#080;font-weight:bold">return</span> color;
+}
+</code></pre></div><p><img src="/assets/images/posts/044/Result.png" alt=""></p>
+<p>You can expand this by reading a texture or generating a pattern in the material function or by using more complex or interresting lighting functions in the lightColor function and of course by using a more complex signed distance field, but I hope this tutorial gave you some insight into the basics and how to get to more complex implementations.</p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/044_SphereTracingShading/SphereTracingShading.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/044_SphereTracingShading/SphereTracingShading.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">044</span>_SphereTracingShading<span style="color:#f00;background-color:#faa">&#34;</span>{
+    <span style="color:#888">//show values to edit in inspector</span>
+    Properties{
+        _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>DisableBatching<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            ZWrite Off
+
+            CGPROGRAM
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Lighting.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#888">//surface color</span>
+            fixed4 _Color;
+
+            <span style="color:#888">//maximum amount of steps</span>
+            <span style="color:#f00;background-color:#faa">#</span>define MAX_STEPS <span style="color:#00d;font-weight:bold">10</span>
+            <span style="color:#888">//furthest distance that&#39;s accepted as inside surface</span>
+            <span style="color:#f00;background-color:#faa">#</span>define THICKNESS <span style="color:#60e;font-weight:bold">0.01</span>
+            <span style="color:#888">//distance from rendered point to sample SDF for normal calculation</span>
+            <span style="color:#f00;background-color:#faa">#</span>define NORMAL_EPSILON <span style="color:#60e;font-weight:bold">0.01</span>
+
+            <span style="color:#888">//input data</span>
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#888">//data that goes from vertex to fragment shader</span>
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION; <span style="color:#888">//position in clip space</span>
+                float4 localPosition <span style="color:#333">:</span> TEXCOORD0; <span style="color:#888">//position in local space</span>
+                float4 viewDirection <span style="color:#333">:</span> TEXCOORD1; <span style="color:#888">//view direction in local space (not normalized!)</span>
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//position for rendering</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//save local position for origin</span>
+                o.localPosition <span style="color:#333">=</span> v.vertex;
+                <span style="color:#888">//get camera position in local space</span>
+                float4 objectSpaceCameraPos <span style="color:#333">=</span> mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, <span style="color:#00d;font-weight:bold">1</span>));
+                <span style="color:#888">//get local view vector</span>
+                o.viewDirection <span style="color:#333">=</span> v.vertex <span style="color:#333">-</span> objectSpaceCameraPos;
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float3 pos){
+                <span style="color:#080;font-weight:bold">return</span> length(pos) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+            }
+
+            float3 normal(float3 pos){
+                <span style="color:#888">//determine change in signed distance</span>
+                <span style="color:#080;font-weight:bold">float</span> changeX <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> changeY <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> changeZ <span style="color:#333">=</span> scene(pos <span style="color:#333">+</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON)) <span style="color:#333">-</span> scene(pos <span style="color:#333">-</span> float3(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, NORMAL_EPSILON));
+                <span style="color:#888">//construct normal vector</span>
+                float3 surfaceNormal <span style="color:#333">=</span> float3(changeX, changeY, changeZ);
+                <span style="color:#888">//convert normal vector into worldspace and make it uniform length</span>
+                surfaceNormal <span style="color:#333">=</span> mul(unity_ObjectToWorld, float4(surfaceNormal, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">return</span> normalize(surfaceNormal);
+            }
+
+            float4 lightColor(float3 position){
+                <span style="color:#888">//calculate needed surface and light data</span>
+                float3 surfaceNormal <span style="color:#333">=</span> normal(position);
+                float3 lightDirection <span style="color:#333">=</span> _WorldSpaceLightPos0.xyz;
+
+                <span style="color:#888">//calculate simple shading</span>
+                <span style="color:#080;font-weight:bold">float</span> lightAngle <span style="color:#333">=</span> saturate(dot(surfaceNormal, lightDirection));
+                <span style="color:#080;font-weight:bold">return</span> lightAngle <span style="color:#333">*</span> _LightColor0;
+            }
+
+            float4 material(float3 position){
+                <span style="color:#888">//get light color</span>
+                float4 light <span style="color:#333">=</span> lightColor(position);
+
+                <span style="color:#888">//combine base color and light color</span>
+                float4 color <span style="color:#333">=</span> _Color <span style="color:#333">*</span> light;
+
+                <span style="color:#080;font-weight:bold">return</span> color;
+            }
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#888">//ray information</span>
+                float3 pos <span style="color:#333">=</span> i.localPosition;
+                float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
+                <span style="color:#080;font-weight:bold">float</span> progress <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+                
+                <span style="color:#888">//tracing loop</span>
+                <span style="color:#080;font-weight:bold">for</span> (uint iter <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; iter <span style="color:#333">&lt;</span> MAX_STEPS; iter<span style="color:#333">++</span>) {
+                    <span style="color:#888">//get current location on ray</span>
+                    float3 samplePoint <span style="color:#333">=</span> pos <span style="color:#333">+</span> dir <span style="color:#333">*</span> progress;
+                    <span style="color:#888">//get distance to closest shape</span>
+                    <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> scene(samplePoint);
+                    <span style="color:#888">//return color if inside shape</span>
+                    <span style="color:#080;font-weight:bold">if</span>(distance <span style="color:#333">&lt;</span> THICKNESS){
+                        <span style="color:#080;font-weight:bold">return</span> material(samplePoint);
+                    }
+                    <span style="color:#888">//go forwards</span>
+                    progress <span style="color:#333">=</span> progress <span style="color:#333">+</span> distance;
+                }
+                <span style="color:#888">//discard pixel if no shape was hit</span>
+                clip(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+                <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
+            }
+
+            ENDCG
+        }
+    }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,1658 +1,1954 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en-us">
   <head>
-
-    <!-- Non social metatags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="theme-color" content="#157878">
+    
+    <title>Shader Tutorials by Ronja | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
 
     
 
-    <title>Ronja&#39;s Shader Tutorials</title>
-
     
-      <!-- Update your html tag to include the itemscope and itemtype attributes. -->
-<html itemscope itemtype="http://schema.org/Article">
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- Place this data between the <head> tags of your website -->
-
-  <meta name="author" content="Ronja Böhringer">
-
-<meta name="description" content="I&#39;m making shader tutorials for Unity aimed at beginners." />
-
-
-
-
-
-<!-- Schema.org markup for Google+ -->
-<meta itemprop="name" content="Ronja&#39;s Shader Tutorials">
-<meta itemprop="description" content="I&#39;m making shader tutorials for Unity aimed at beginners.">
-
-  <meta itemprop="image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
-
-
-<!-- Twitter Card data -->
-<meta name="twitter:card" content="summary_large_image">
-
-
-
-<meta name="twitter:title" content="Ronja&#39;s Shader Tutorials">
-<meta name="twitter:description" content="I&#39;m making shader tutorials for Unity aimed at beginners.">
-
-
-  <meta name="twitter:creator" content="@TotallyRonja">
-
-
-<!-- Twitter summary card with large image must be at least 280x150px -->
-
-  <meta name="twitter:image:src" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
-  <meta property="twitter:image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png">
-
-<meta property="twitter:url" content="https://www.ronja-tutorials.com/">
-
-<!-- Open Graph data -->
-<meta property="og:title" content="Ronja&#39;s Shader Tutorials" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.ronja-tutorials.com/" />
-
-  <meta property="og:image" content="https://www.ronja-tutorials.com/thumbnail-jumbo.png" />
-
-<meta property="og:description" content="I&#39;m making shader tutorials for Unity aimed at beginners." />
-<meta property="og:site_name" content="Ronja's Shader Tutorials" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      
 
     
 
-    <link rel="canonical" href="https://www.ronja-tutorials.com/">
-
     
+      
+        <link href="/index.xml" rel="alternate" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+        <link href="/index.xml" rel="feed" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+      
+    
+    
+    <meta property="og:title" content="Shader Tutorials by Ronja" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ronja-tutorials.com/" />
+<meta property="og:updated_time" content="2018-03-20T00:00:00+00:00" />
+<meta itemprop="name" content="Shader Tutorials by Ronja">
+<meta itemprop="description" content="">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Shader Tutorials by Ronja"/>
+<meta name="twitter:description" content=""/>
 
-    <!-- <link rel="shortcut icon" href="https://www.ronja-tutorials.com/favicon.ico"> -->
-    <meta name="robots" content="noarchive">
-
-    <!-- <link rel="alternate" media="only screen and (max-width: 640px)" href="">
-    <link rel="alternate" media="handheld" href=""> -->
-
-
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
-    <link rel="stylesheet" href="/assets/css/style.css?v=">
+	
   </head>
-  <body>
 
-    <header class="site-header" role="banner">
-
-  <div class="wrapper">
-    
-    
+  <body class="ma0 avenir bg-near-white">
 
     
-    <!-- SVG icons from https://iconmonstr.com -->
 
-    <!-- Twitter icon -->
-    <span class="my-span-icon">
-        <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
-          <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
-        </a>
-      </span>
-
-      <!-- RSS icon -->
+  <header>
+    <div class="pb3-m pb6-l bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
       
-        <span class="my-span-icon">
-          <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
-            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
-          </a>
-        </span>
+        Ronja&#39;s tutorials
       
-      <!-- Contact icon -->
-      
-      
-        <span class="my-span-icon">
-          <a href="/about.html" aria-label="Contact" title="Contact ">
-            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
-          </a>
-        </span>
+    </a>
+    <div class="flex-l items-center">
       
 
-    
-      <nav class="site-nav">
-        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-        <label for="nav-trigger">
-          <span class="menu-icon">
-            <svg viewBox="0 0 18 15" width="18px" height="15px">
-              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
-              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
-              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
-            </svg>
-          </span>
-        </label>
+      
+      
 
-        <div class="trigger">
-          
-            
-            
-              
-              
-            
-          
-            
-            
-          
-            
-            
-              
-                <a class="page-link" href="/about.html">About</a>
-              
-            
-          
-            
-            
-          
-            
-            
-          
-            
-            
-          
-            
-            
-          
-            
-            
-              
-                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
-              
-            
-          
-            
-            
-              
-                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
-              
-            
-          
-            
-            
-              
-                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
-              
-            
-          
-            
-            
-              
-                <a class="page-link" href="/2018/03/20/hlsl-basics.html"></a>
-              
-            
-          
-            
-            
-          
-            
-            
-          
-        </div>
-      </nav>
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
   </div>
-</header>
+</nav>
+
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
+          Shader Tutorials by Ronja
+        </h1>
+        
+      </div>
+    </div>
+  </header>
 
 
-    
-    
-    
-
-    <section class="page-header">
-      <h1 class="project-name">Ronja&#39;s Shader Tutorials</h1>
-      <h2 class="project-tagline">I&#39;m making shader tutorials for Unity aimed at beginners.</h2>
+    <main class="pb7" role="main">
       
-      <!-- Post tagline -->
+  <article class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center lh-copy mid-gray" style="max-width: 42em">
+    <p>Hey there, I&rsquo;m Ronja and I make shader tutorials with the goal to make shaders understandable by everyone. 
+The focus of this tutorials is on unity shaders with hlsl. They are more accessible than direct implementations of the shader APIs yet flexible and powerful. Even though they&rsquo;re all in one (proprietary) engine most of the skills I teach are transferrable to other contexts. If you have any wishes for shaders you want to know how they work write me a message and I&rsquo;ll see what I can do.</p>
+<p>The tutorials do assume that you know how to program in any written programming language (which one doesnt matter), so its better to start there. If you&rsquo;re completely new to shaders I recommend your start with the series about the absolute basics, explaining how to make a very simple shader from nothing, you can find it <a href="/basics.html">here</a>.</p>
+<p>You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you like what I do and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">https://www.patreon.com/RonjaTutorials</a>) or use Ko-Fi for one-time donations (<a href="https://ko-fi.com/ronjatutorials">https://ko-fi.com/ronjatutorials</a>).</p>
+
+  </article>
+  
+  
+  
+  
+  
+  
+  
+    
+    
+
+    <div class="pa3 pa4-ns w-100 w-70-ns center">
       
-      <!-- End: Post tagline -->
-    </section>
+        
+          <h1 class="flex-none">
+            Posts
+          </h1>
+        
 
-    <section class="main-content">
+        <div class="mb4 ml3">
+          <input id="SearchField" class="mb1" type="text" oninput="filterPosts(this.value)" />
 
-      <div>
-  <p>Hey there, I’m Ronja and I make shader tutorials with the goal to make shaders understandable by everyone. 
-The focus of this tutorials is on unity shaders with hlsl. They are more accessible than direct implementations of the shader APIs yet flexible and powerful.</p>
+          <div class="mt3">
+            Newest first
+            <label class="switch">
+              <input
+                id="Chronological"
+                type="checkbox"
+                oninput="setOrder(this.checked)"
+              />
+              <span class="slider round"></span>
+            </label>
+            Oldest first
+          </div>
+        </div>
 
-<p>I try to make a new tutorial every two weeks so the list of tutorials is growing quickly. If you have any wishes for shaders you want to know how they work write me a message and I’ll see what I can do.</p>
+      <section class="w-100 mw8" id="post-list">
+        
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Graphics.DrawProcedural The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/051-draw-procedural/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Graphics.DrawProcedural
+          </h1>
+          
+        </div>
+        
+          
+          
 
-<p>If you’re completely new to shaders I recommend your start with the series about the absolute basics, explaining how to make a very simple shader from nothing, you can find it <a href="/basics.html">here</a>. I still recommend you to start with a different programming language if you’re completely new to programming because the paralell nature and lacking debugging tools can make shaders more unintuitive than other languages.</p>
-
-<p>You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you like what I do and want to support me you can do that on Patreon (<a href="https://patreon.com/RonjaTutorials">https://patreon.com/RonjaTutorials</a>) or Ko-Fi (<a href="https://ko-fi.com/RonjaTutorials">https://ko-fi.com/RonjaTutorials</a>).</p>
-
-
-  <h2>Tutorials</h2>
-  <input id="SearchField" type="text" oninput="filterPosts(this.value)" />
-
-  <div>
-    Newest first
-    <label class="switch">
-      <input
-        id="Chronological"
-        type="checkbox"
-        oninput="setOrder(this.checked)"
-      />
-      <span class="slider round"></span>
-    </label>
-    Oldest first
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/051/result_hu03dafc6af6f0761919476bb8d0f49430_346081_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Graphics.DrawProcedural" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
   </div>
-  <!--<div>
-    Small View
-    <label class="switch">
-      <input id="BigView" type="checkbox" checked oninput="minimize(!this.checked)"/>
-      <span class="slider round"></span>
-    </label>
-    Big View
-  </div>-->
+</article>
 
-  <div>&nbsp;</div>
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Compute Shader So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/050-compute-shader/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Compute Shader
+          </h1>
+          
+        </div>
+        
+          
+          
 
-  <ul class="post-list tutorial-list">
-     
-    <li name="Graphics.DrawProcedural" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 16, 2020</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2020/09/16/draw-procedural.html" title="Graphics.DrawProcedural">Graphics.DrawProcedural</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2020/09/16/draw-procedural.html" title="Graphics.DrawProcedural">
-            <img
-              src="/assets/images/posts/051/result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Compute Shader" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 26, 2020</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2020/07/26/compute-shader.html" title="Compute Shader">Compute Shader</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2020/07/26/compute-shader.html" title="Compute Shader">
-            <img
-              src="/assets/images/posts/050/result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Sprite Outlines" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 23, 2020</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2020/07/23/sprite-outlines.html" title="Sprite Outlines">Sprite Outlines</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2020/07/23/sprite-outlines.html" title="Sprite Outlines">
-            <img
-              src="/assets/images/posts/049/Properties.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Instancing and Material Property Blocks" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Feb 11, 2020</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2020/02/11/material-property-blocks.html" title="Instancing and Material Property Blocks">Instancing and Material Property Blocks</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2020/02/11/material-property-blocks.html" title="Instancing and Material Property Blocks">
-            <img
-              src="/assets/images/posts/048/BallPit.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Inverse Lerp and Remap" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jan 8, 2020</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2020/01/08/invlerp_remap.html" title="Inverse Lerp and Remap">Inverse Lerp and Remap</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2020/01/08/invlerp_remap.html" title="Inverse Lerp and Remap">
-            <img
-              src="/assets/images/posts/047/result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Partial Derivatives (fwidth)" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Nov 29, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/11/29/fwidth.html" title="Partial Derivatives (fwidth)">Partial Derivatives (fwidth)</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/11/29/fwidth.html" title="Partial Derivatives (fwidth)">
-            <img
-              src="/assets/images/posts/046/fire.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Handling Depth for Spheretracing" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Oct 14, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/10/14/spheretracing-depth.html" title="Handling Depth for Spheretracing">Handling Depth for Spheretracing</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/10/14/spheretracing-depth.html" title="Handling Depth for Spheretracing">
-            <img
-              src="/assets/images/posts/045/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Spheretracing with Shading" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Aug 15, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/08/15/spheretracing-shading.html" title="Spheretracing with Shading">Spheretracing with Shading</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/08/15/spheretracing-shading.html" title="Spheretracing with Shading">
-            <img
-              src="/assets/images/posts/044/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Spheretracing Basics" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jun 21, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/06/21/spheretracing-basics.html" title="Spheretracing Basics">Spheretracing Basics</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/06/21/spheretracing-basics.html" title="Spheretracing Basics">
-            <img
-              src="/assets/images/posts/043/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Dithering" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">May 11, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/05/11/dithering.html" title="Dithering">Dithering</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/05/11/dithering.html" title="Dithering">
-            <img
-              src="/assets/images/posts/042/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="HSV Color Space" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Apr 16, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/04/16/hsv-colorspace.html" title="HSV Color Space">HSV Color Space</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/04/16/hsv-colorspace.html" title="HSV Color Space">
-            <img
-              src="/assets/images/posts/041/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Halftone Shading" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 2, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/03/02/halftone-shading.html" title="Halftone Shading">Halftone Shading</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/03/02/halftone-shading.html" title="Halftone Shading">
-            <img
-              src="/assets/images/posts/040/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Screenspace Textures" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jan 20, 2019</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2019/01/20/screenspace-texture.html" title="Screenspace Textures">Screenspace Textures</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2019/01/20/screenspace-texture.html" title="Screenspace Textures">
-            <img
-              src="/assets/images/posts/039/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Texture Dissolve" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Dec 15, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/12/15/dissolve.html" title="Texture Dissolve">Texture Dissolve</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/12/15/dissolve.html" title="Texture Dissolve">
-            <img
-              src="/assets/images/posts/038/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="2D SDF Shadows" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Dec 1, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/12/01/2d-shadows.html" title="2D SDF Shadows">2D SDF Shadows</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/12/01/2d-shadows.html" title="2D SDF Shadows">
-            <img
-              src="/assets/images/posts/037/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="2D SDF Space Manipulation" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Nov 24, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/11/24/sdf-space-manipulation.html" title="2D SDF Space Manipulation">2D SDF Space Manipulation</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/11/24/sdf-space-manipulation.html" title="2D SDF Space Manipulation">
-            <img
-              src="/assets/images/posts/036/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="2D SDF Combination" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Nov 17, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/11/17/2d-sdf-combination.html" title="2D SDF Combination">2D SDF Combination</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/11/17/2d-sdf-combination.html" title="2D SDF Combination">
-            <img
-              src="/assets/images/posts/035/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="2D Signed Distance Field Basics" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Nov 10, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/11/10/2d-sdf-basics.html" title="2D Signed Distance Field Basics">2D Signed Distance Field Basics</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/11/10/2d-sdf-basics.html" title="2D Signed Distance Field Basics">
-            <img
-              src="/assets/images/posts/034/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Flowing River" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Nov 3, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/11/03/river.html" title="Flowing River">Flowing River</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/11/03/river.html" title="Flowing River">
-            <img
-              src="/assets/images/posts/033/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Improved Toon Light" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Oct 27, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/10/27/improved-toon.html" title="Improved Toon Light">Improved Toon Light</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/10/27/improved-toon.html" title="Improved Toon Light">
-            <img
-              src="/assets/images/posts/032/CompleteToon.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Single Step Toon Light" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Oct 20, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/10/20/single-step-toon.html" title="Single Step Toon Light">Single Step Toon Light</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/10/20/single-step-toon.html" title="Single Step Toon Light">
-            <img
-              src="/assets/images/posts/031/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Baking Shaders into Textures" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Oct 13, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/10/13/baking_shaders.html" title="Baking Shaders into Textures">Baking Shaders into Textures</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/10/13/baking_shaders.html" title="Baking Shaders into Textures">
-            <img
-              src="/assets/images/posts/030/MagicEditor.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Tiling Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Oct 6, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/10/06/tiling-noise.html" title="Tiling Noise">Tiling Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/10/06/tiling-noise.html" title="Tiling Noise">
-            <img
-              src="/assets/images/posts/029/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Voronoi Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 29, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/09/29/voronoi-noise.html" title="Voronoi Noise">Voronoi Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/09/29/voronoi-noise.html" title="Voronoi Noise">
-            <img
-              src="/assets/images/posts/028/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Layered Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 22, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/09/22/layered-noise.html" title="Layered Noise">Layered Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/09/22/layered-noise.html" title="Layered Noise">
-            <img
-              src="/assets/images/posts/027/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Perlin Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 15, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/09/15/perlin-noise.html" title="Perlin Noise">Perlin Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/09/15/perlin-noise.html" title="Perlin Noise">
-            <img
-              src="/assets/images/posts/026/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Value Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 8, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/09/08/value-noise.html" title="Value Noise">Value Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/09/08/value-noise.html" title="Value Noise">
-            <img
-              src="/assets/images/posts/025/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="White Noise" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Sep 2, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/09/02/white-noise.html" title="White Noise">White Noise</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/09/02/white-noise.html" title="White Noise">
-            <img
-              src="/assets/images/posts/024/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Blur Postprocessing Effect" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Aug 27, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/08/27/postprocessing-blur.html" title="Blur Postprocessing Effect">Blur Postprocessing Effect</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/08/27/postprocessing-blur.html" title="Blur Postprocessing Effect">
-            <img
-              src="/assets/images/posts/023/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Stencil Buffers" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Aug 18, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/08/18/stencil-buffers.html" title="Stencil Buffers">Stencil Buffers</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/08/18/stencil-buffers.html" title="Stencil Buffers">
-            <img
-              src="/assets/images/posts/022/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Clipping a Model with a Plane" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Aug 6, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/08/06/plane-clipping.html" title="Clipping a Model with a Plane">Clipping a Model with a Plane</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/08/06/plane-clipping.html" title="Clipping a Model with a Plane">
-            <img
-              src="/assets/images/posts/021/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Hull Outlines" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 21, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/07/21/hull-outline.html" title="Hull Outlines">Hull Outlines</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/07/21/hull-outline.html" title="Hull Outlines">
-            <img
-              src="/assets/images/posts/020/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Outlines via Postprocessing" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 15, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/07/15/postprocessing-outlines.html" title="Outlines via Postprocessing">Outlines via Postprocessing</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/07/15/postprocessing-outlines.html" title="Outlines via Postprocessing">
-            <img
-              src="/assets/images/posts/019/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Postprocessing with Normal Texture" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 8, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/07/08/postprocessing-normal.html" title="Postprocessing with Normal Texture">Postprocessing with Normal Texture</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/07/08/postprocessing-normal.html" title="Postprocessing with Normal Texture">
-            <img
-              src="/assets/images/posts/018/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Postprocessing with the Depth Texture" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jul 1, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/07/01/postprocessing-depth.html" title="Postprocessing with the Depth Texture">Postprocessing with the Depth Texture</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/07/01/postprocessing-depth.html" title="Postprocessing with the Depth Texture">
-            <img
-              src="/assets/images/posts/017/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Postprocessing Basics" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jun 23, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/06/23/postprocessing-basics.html" title="Postprocessing Basics">Postprocessing Basics</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/06/23/postprocessing-basics.html" title="Postprocessing Basics">
-            <img
-              src="/assets/images/posts/016/Result.jpg"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Wobble Displacement" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jun 16, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/06/16/Wobble-Displacement.html" title="Wobble Displacement">Wobble Displacement</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/06/16/Wobble-Displacement.html" title="Wobble Displacement">
-            <img
-              src="/assets/images/posts/015/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Polygon Clipping" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jun 10, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/06/10/polygon-clipping.html" title="Polygon Clipping">Polygon Clipping</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/06/10/polygon-clipping.html" title="Polygon Clipping">
-            <img
-              src="/assets/images/posts/014/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Custom Lighting" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Jun 2, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/06/02/custom-lighting.html" title="Custom Lighting">Custom Lighting</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/06/02/custom-lighting.html" title="Custom Lighting">
-            <img
-              src="/assets/images/posts/013/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Fresnel" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">May 26, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/05/26/fresnel.html" title="Fresnel">Fresnel</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/05/26/fresnel.html" title="Fresnel">
-            <img
-              src="/assets/images/posts/012/Result.jpg"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Checkerboard Pattern" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">May 18, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/05/18/Chessboard.html" title="Checkerboard Pattern">Checkerboard Pattern</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/05/18/Chessboard.html" title="Checkerboard Pattern">
-            <img
-              src="/assets/images/posts/011/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Triplanar Mapping" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">May 11, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/05/11/triplanar-mapping.html" title="Triplanar Mapping">Triplanar Mapping</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/05/11/triplanar-mapping.html" title="Triplanar Mapping">
-            <img
-              src="/assets/images/posts/010/Result.gif"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Color Interpolation" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">May 3, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/05/03/interpolating-colors.html" title="Color Interpolation">Color Interpolation</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/05/03/interpolating-colors.html" title="Color Interpolation">
-            <img
-              src="/assets/images/posts/009/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Planar Mapping" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Apr 23, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/04/23/planar-mapping.html" title="Planar Mapping">Planar Mapping</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/04/23/planar-mapping.html" title="Planar Mapping">
-            <img
-              src="/assets/images/posts/008/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Sprite Shaders" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Apr 13, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/04/13/sprite-shaders.html" title="Sprite Shaders">Sprite Shaders</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/04/13/sprite-shaders.html" title="Sprite Shaders">
-            <img
-              src="/assets/images/posts/007/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Basic Transparency" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Apr 6, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/04/06/simple-transparency.html" title="Basic Transparency">Basic Transparency</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/04/06/simple-transparency.html" title="Basic Transparency">
-            <img
-              src="/assets/images/posts/006/SemitransparentCube.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Surface Shader Basics" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 30, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/03/30/simple-surface.html" title="Surface Shader Basics">Surface Shader Basics</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/03/30/simple-surface.html" title="Surface Shader Basics">
-            <img
-              src="/assets/images/posts/005/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Basic Shader" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 23, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/03/23/basic.html" title="Basic Shader">Basic Shader</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/03/23/basic.html" title="Basic Shader">
-            <img
-              src="/assets/images/posts/004/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Variables" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 22, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/03/22/variables.html" title="Variables">Variables</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/03/22/variables.html" title="Variables">
-            <img
-              src="/assets/images/posts/003/Result.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="HLSL" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 21, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/03/21/hlsl.html" title="HLSL">HLSL</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/03/21/hlsl.html" title="HLSL">
-            <img
-              src="/assets/images/posts/002/LanguageAreas.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-      
-    <li name="Structure" style="overflow: hidden;">
-      <!--
-          <span class="post-meta">Mar 20, 2018</span>-->
-      
-        <div style="float:left; width: 70%;">
-          <h2>
-            <a class="post-link" href="/2018/03/20/structure.html" title="Structure">Structure</a>
-          </h2>
-        </div>
-        
-        <div style="float:right; width: 30%;">
-          <a class="post-link" href="/2018/03/20/structure.html" title="Structure">
-            <img
-              src="/assets/images/posts/001/pipeline.png"
-              style="max-width: 100%; max-height: 100px; float:right;"
-              name="preview"
-              class="preview"
-            />
-          </a>
-        </div>
-        
-      </a>
-    </li>
-     
-  </ul>
-  <script>
-    root = document.getElementsByClassName("post-list")[0]
-    this.posts = root.getElementsByTagName("li")
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/050/result_hu8680c32a787b8784dae8515f7d2b32b9_6546347_0x128_resize_q30_bgffffff_box.jpg" alt="image from Compute Shader" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
 
-    this.flipped = false
-    this.minimized = false
-    this.filter = ""
-
-    function filterPosts(searchTerm) {
-      this.filter = searchTerm
-      for (i = 0; i < this.posts.length; i++) {
-        post = this.posts[i]
-        var found = post
-          .getAttribute("name")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-        post.style.display = found ? "block" : "none"
-      }
-      updateUrl()
-    }
-
-    function setOrder(chrono) {
-      if ((this.flipped && !chrono) || (!this.flipped && chrono)) flipOrder()
-    }
-
-    function minimize(mini) {
-      this.minimized = mini
-      if (this.maginBottom == undefined) {
-        this.maginBottom = this.posts[0].style.marginBottom
-      }
-      for (i = 0; i < this.posts.length; i++) {
-        post = this.posts[i]
-        post.getElementsByClassName("preview")[0].style.display = mini
-          ? "none"
-          : "block"
-        post.getElementsByClassName("post-meta")[0].style.display = mini
-          ? "none"
-          : "block"
-      }
-      updateUrl()
-    }
-
-    function flipOrder() {
-      var elements = document.createDocumentFragment()
-      var count = this.posts.length
-      var flippedPosts = []
-      for (i = 1; i <= count; i++) {
-        var newElement = this.posts[count - i].cloneNode(true)
-        elements.appendChild(newElement)
-        flippedPosts.push(newElement)
-      }
-      while (root.firstChild) {
-        root.removeChild(root.firstChild)
-      }
-      root.appendChild(elements)
-      this.posts = flippedPosts
-      this.flipped = !this.flipped
-      updateUrl()
-    }
-
-    function updateUrl() {
-      var urlParams = new URLSearchParams()
-      var any = 0
-      if (this.filter) {
-        urlParams.set("search", this.filter)
-        any = true
-      }
-      if (this.flipped) {
-        urlParams.set("flipped", this.flipped)
-        any = true
-      }
-      if (this.minimized) {
-        urlParams.set("minimized", this.minimized)
-        any = true
-      }
-
-      var loc = window.location
-      var url = loc.protocol + "//" + loc.host + loc.pathname
-      if (any) url += "?" + urlParams.toString()
-      window.history.replaceState({ path: url }, "", url)
-    }
-
-    function init() {
-      var urlParams = new URLSearchParams(window.location.search)
-      if (urlParams.has("search")) {
-        document.getElementById("SearchField").value = urlParams.get("search")
-        filterPosts(urlParams.get("search"))
-      }
-      if (urlParams.has("flipped")) {
-        var value = urlParams.get("flipped") == "true"
-        document.getElementById("Chronological").checked = value
-        setOrder(value)
-      }
-      if (urlParams.has("minimized")) {
-        var value = urlParams.get("minimized") == "true"
-        document.getElementById("BigView").checked = !value
-        minimize(value)
-      }
-    }
-
-    init()
-  </script>
-</div>
-
-
-      <!-- SVG icons from https://iconmonstr.com -->
-
-      <!-- Twitter icon -->
-      <span class="my-span-icon">
-          <a href="https://twitter.com/TotallyRonja" aria-label="'s Twitter" title="'s Twitter">
-            <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" style="margin-top: 12px;margin-left: 13px;"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.066 9.645c.183 4.04-2.83 8.544-8.164 8.544-1.622 0-3.131-.476-4.402-1.291 1.524.18 3.045-.244 4.252-1.189-1.256-.023-2.317-.854-2.684-1.995.451.086.895.061 1.298-.049-1.381-.278-2.335-1.522-2.304-2.853.388.215.83.344 1.301.359-1.279-.855-1.641-2.544-.889-3.835 1.416 1.738 3.533 2.881 5.92 3.001-.419-1.796.944-3.527 2.799-3.527.825 0 1.572.349 2.096.907.654-.128 1.27-.368 1.824-.697-.215.671-.67 1.233-1.263 1.589.581-.07 1.135-.224 1.649-.453-.384.578-.87 1.084-1.433 1.489z"/></svg>
-          </a>
-        </span>
-
-        <!-- RSS icon -->
+          </div>
         
-          <span class="my-span-icon">
-            <a href="/feed.xml" aria-label="RSS feed" title="'s RSS feed">
-              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3.374 17c-.897 0-1.626-.727-1.626-1.624s.729-1.624 1.626-1.624 1.626.727 1.626 1.624-.729 1.624-1.626 1.624zm3.885 0c-.03-3.022-2.485-5.474-5.511-5.504v-2.406c4.361.03 7.889 3.555 7.92 7.91h-2.409zm4.081 0c-.016-5.297-4.303-9.571-9.592-9.594v-2.406c6.623.023 11.985 5.384 12 12h-2.408z"/></svg>
-            </a>
-          </span>
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Sprite Outlines I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/049-sprite-outlines/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Sprite Outlines
+          </h1>
+          
+        </div>
         
-        <!-- Contact icon -->
-        
-        
-          <span class="my-span-icon">
-            <a href="/about.html" aria-label="Contact" title="Contact ">
-              <svg class="my-svg-icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><path d="M12 .02c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6.99 6.98l-6.99 5.666-6.991-5.666h13.981zm.01 10h-14v-8.505l7 5.673 7-5.672v8.504z"/></svg>
-            </a>
-          </span>
-        
-    </section>
+          
+          
 
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/049/Properties_hu76e20713112b0d4205c4de49580ba2f9_827242_0x128_resize_q30_bgffffff_box.jpg" alt="image from Sprite Outlines" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Instancing and Material Property Blocks Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/048-material-property-blocks/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Instancing and Material Property Blocks
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/048/BallPit_hu8ca55a30c4bc47ee3759db1c4d29333b_335547_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Instancing and Material Property Blocks" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Inverse Lerp and Remap In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/047-invlerp_remap/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Inverse Lerp and Remap
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/047/result_huc1ba578a3532f3d7e54f9c4bc52ea059_35492_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Inverse Lerp and Remap" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Partial Derivatives (fwidth) The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/046-fwidth/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Partial Derivatives (fwidth)
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/046/fire_hub11cad2172e6f8f8a6ed6d8f521c2643_375067_0x128_resize_q30_bgffffff_box.jpg" alt="image from Partial Derivatives (fwidth)" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Handling Depth for Spheretracing In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/045-spheretracing-depth/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Handling Depth for Spheretracing
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/045/Result_hu7e2ae6d9725cf8352eec0c806b8c2363_66539_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Handling Depth for Spheretracing" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Spheretracing with Shading In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/044-spheretracing-shading/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Spheretracing with Shading
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/044/Result_hu49e5a27b429b939810b5756c943e4276_28055_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Spheretracing with Shading" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Spheretracing Basics Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&rsquo;ll just trace the silouette of a sphere, but in future tutorials I&rsquo;ll give examples how to make more complex shapes and do lighting.
+As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do this tutorial when you&rsquo;re fairly new to shaders.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/043-spheretracing-basics/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Spheretracing Basics
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/043/Result_hu9a6f99620e8afa18d4ee00fd3e12e9bd_12093_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Spheretracing Basics" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Dithering We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/042-dithering/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Dithering
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/042/Result_hu75738110c894ff5b6327f54c069bc3e0_6394663_0x128_resize_q30_bgffffff_box.jpg" alt="image from Dithering" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">HSV Color Space So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the color. This is great if we want to render the color or tint it, but adjusting the hue or saturation becomes very bothersome. For those kinds of operations we can use the HSV color space. In addition to the HSV color space there are also other similar color spaces, like the HSL or CIE color models.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/041-hsv-colorspace/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            HSV Color Space
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/041/Result_hu6d8248f451b1f8309fe9e834253a9d5e_13771739_0x128_resize_q30_bgffffff_box.jpg" alt="image from HSV Color Space" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Halftone Shading This tutorial is on another common toon shading technique called halftone shading, unlike normal shading it only uses full lit or full unlit as colors, but it doesn&rsquo;t create a hard cut either. Instead it uses a pattern to decide which pixels are lit and which aren&rsquo;t and the chance of a pixel being lit gets higher the brighter the pixel would be with a normal lighting method. To understand this tutorial I recommend reading and understanding the tutorial about custom lighting methods and the tutorial about generating screenspace texture coordinates.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/040-halftone-shading/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Halftone Shading
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/040/Result_hub140d6fe8ad33ccf7507c5d0a5922c43_78170_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Halftone Shading" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Screenspace Textures There are many techniques how to generate texture coordinates. Previous tutorials explain how to use UV coordinates and how to generate coordinates based on planar and triplanar mapping. In this one we&rsquo;ll use the position of the pixel on the screen as the coordinate.
+On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/039-screenspace-texture/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Screenspace Textures
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/039/Result_hu799697ee86e778f50ef8d396067a5ce4_5615556_0x128_resize_q30_bgffffff_box.jpg" alt="image from Screenspace Textures" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Texture Dissolve This tutorial is about how to make Meshes dissolve in the pattern of a texture. We will use a surface shader for this tutorial, so if you don&rsquo;t understand how they work yet, I can refer you to my tutorial about them here. This tutorial will also just work with opaque shaders, but you can also use the same principles on transparent or unlit shaders.
+Simple Dissolve We start by adding a new texture to our shader to drive the dissolve.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/038-dissolve/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Texture Dissolve
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/038/Result_hu9fe63ab04999e6d3bbda2cd55681444e_1275512_0x128_resize_q30_bgffffff_box.jpg" alt="image from Texture Dissolve" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">2D SDF Shadows Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/037-2d-shadows/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            2D SDF Shadows
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/037/Result_hu306dfe3fbe703f93c71d9fbc6a1ad8d5_2473718_0x128_resize_q30_bgffffff_box.jpg" alt="image from 2D SDF Shadows" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">2D SDF Space Manipulation When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/036-sdf-space-manipulation/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            2D SDF Space Manipulation
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/036/Result_hu8e5af3870cda3f7e504ae6608fae58b6_9113888_0x128_resize_q30_bgffffff_box.jpg" alt="image from 2D SDF Space Manipulation" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">2D SDF Combination In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/035-2d-sdf-combination/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            2D SDF Combination
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/035/Result_huc335bc8d4c3ccbf200d37d4bb99230a2_362967_0x128_resize_q30_bgffffff_box.jpg" alt="image from 2D SDF Combination" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">2D Signed Distance Field Basics So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/034-2d-sdf-basics/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            2D Signed Distance Field Basics
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/034/Result_huc10411c19ff9831f6130c3dc004846b6_4628023_0x128_resize_q30_bgffffff_box.jpg" alt="image from 2D Signed Distance Field Basics" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Flowing River This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
+The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
+Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/033-river/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Flowing River
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/033/Result_hu54222d6d7144aa5a8f796b4f463c55da_4370135_0x128_resize_q30_bgffffff_box.jpg" alt="image from Flowing River" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Improved Toon Light Last weeks tutorial was about making a simple toon shader, but I felt like there&rsquo;s still a lot to improve about it so this weeks tutorial is too. We&rsquo;ll fix a thing, and add multiple steps to the lighting as well as a specular highlight. I recommend you to read the previous tutorial if you haven&rsquo;t because this one is heavily based on it and expands its code.
+Improved shadows for multiple lights.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/032-improved-toon/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Improved Toon Light
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/032/CompleteToon_hufd1ffce4fb22fc2fa1e53226f9dcc7e1_17970_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Improved Toon Light" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Single Step Toon Light I thought about how to make a toon shader and this is the result. There are obviously many different toon styles, so this is just one possiblity of many, but even if it&rsquo;s not the result you want in your game this tutorial can give you some insight in how I work and how to do stuff with shaders. The main advantage for me to use this toon shader in opposition to one that reads from ramp texures is that I can dynamically change the parameters without editing a texture first.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/031-single-step-toon/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Single Step Toon Light
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/031/Result_hue3571dcbb2189d085e0f4c10deebc4e4_1680391_0x128_resize_q30_bgffffff_box.jpg" alt="image from Single Step Toon Light" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Baking Shaders into Textures Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/030-baking_shaders/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Baking Shaders into Textures
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/030/MagicEditor_hu3092dc2058e19830adfc4890dc98b099_247493_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Baking Shaders into Textures" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Tiling Noise So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/029-tiling-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Tiling Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/029/Result_hu43e306412dec83869a689338f4fe3ec9_196741_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Tiling Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Voronoi Noise Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/028-voronoi-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Voronoi Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/028/Result_hu116c446565051b060d8bf3a918fa2572_8732309_0x128_resize_q30_bgffffff_box.jpg" alt="image from Voronoi Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Layered Noise Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/027-layered-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Layered Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/027/Result_huec3b15ec23d68b4c45330d21bd71f2a8_7407360_0x128_resize_q30_bgffffff_box.jpg" alt="image from Layered Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Perlin Noise Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/026-perlin-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Perlin Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/026/Result_hu832111f06f7cf2505ff4c3dfd932d354_3815093_0x128_resize_q30_bgffffff_box.jpg" alt="image from Perlin Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Value Noise Summary In the last tutorial we learned how to generate random numbers in a shader. In this one we&rsquo;ll go into interpolating between random numbers to generate noise that&rsquo;s smoother and gradually changes. Because we need random values to interpolate between for value noise, you should know how to generate random values in shaders before doing this tutorial. Value noise is similar to perlin noise, but different because we always interpolate between the center of the cells, perlin noise will be explained in a later tutorial.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/025-value-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Value Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/025/Result_huc95e3edc0013216f25f422f3102c7ae3_6527074_0x128_resize_q30_bgffffff_box.jpg" alt="image from Value Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">White Noise Summary For many effects we want random numbers to generate patterns or other things in our shaders. Directly using those random values generates a pattern we call &ldquo;white noise&rdquo;. There are other patterns which have more structure we can generate based on that which we will explore in other tutorials, for example perlin and voronoi noise. For this tutorial we will implement the noise in a surface shader so you should know how to write a basic surface shader).</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/024-white-noise/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            White Noise
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/024/Result_hu17d37269845e833d869177d83c56da77_1025289_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from White Noise" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Blur Postprocessing Effect Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/023-postprocessing-blur/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Blur Postprocessing Effect
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/023/Result_hua99d1cd378a9ead067cfeac68d876b1b_12842963_0x128_resize_q30_bgffffff_box.jpg" alt="image from Blur Postprocessing Effect" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Stencil Buffers Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/022-stencil-buffers/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Stencil Buffers
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/022/Result_huda512d2f6435ab7d53e14d051ce69558_8886227_0x128_resize_q30_bgffffff_box.jpg" alt="image from Stencil Buffers" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Clipping a Model with a Plane Summary Another cool effect is to make the surface disappear when it’s beyond a certain plane.
+To follow this tutorial, it’s best to know how surface shaders work - you can find a tutorial how they work here.
+Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/021-plane-clipping/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Clipping a Model with a Plane
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/021/Result_hu4725a38d57ab722b8ca236eb0b5b7972_632110_0x128_resize_q30_bgffffff_box.jpg" alt="image from Clipping a Model with a Plane" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Hull Outlines Summary So far we only ever wrote a color to the screen once per shader (or let unity generate multiple passes for us via surface shaders). But we have the possibility to draw our mesh multiple times in a single shader. A great way to use this is to draw outlines. First we draw our object as usual and then we draw it again, but we change the vertices a bit so it’s only visible around the original object, drawing a outline.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/020-hull-outline/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Hull Outlines
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/020/Result_hud00d38114254b8792a843b5368dcc1bf_80617_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Hull Outlines" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Outlines via Postprocessing Summary One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edges than the alternative (inverted hull outlines) and you don’t have to change all of your materials to give them the outline effect.
+To understand how to create outlines via postprocessing it’s best to have understood how to get access to the depth and normals of the scene first.
+Depth Outlines We start with the shader and C# script from the postprocessing with normals tutorial.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/019-postprocessing-outlines/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Outlines via Postprocessing
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/019/Result_hu9bc93424d78d838fb8fc7e40046da09e_93768_0x128_resize_q30_bgffffff_box.jpg" alt="image from Outlines via Postprocessing" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Postprocessing with Normal Texture Summary Another piece of information we can easily get our hands on thats very useful for postprocessing is the normals of the scene. They show in which direction the surface at any given pixel is pointing.
+To understand how to get and use the normals of the scene it’s best to know how to access the scene depth first, I made a tutorial on how to do that here.
+Read Depth and Normals We start this tutorials with the files from the depth postprocessing tutorial and expand them as we need.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/018-postprocessing-normal/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Postprocessing with Normal Texture
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/018/Result_hu9110b0993d9b6705c635535fdc31425b_246219_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Postprocessing with Normal Texture" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Postprocessing with the Depth Texture Summary In the last tutorial I explained how to do very simple postprocessing effects. One important tool to do more advanced effects is access to the depth buffer. It’s a texture in which the distance of pixels from the camera is saved in.
+To understand how postprocessing effects with access to the depth buffer work it’s best to understand how postprocessing works in general in unity. I have a tutorial on that here.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/017-postprocessing-depth/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Postprocessing with the Depth Texture
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/017/Result_hu8805f43a32a72c9f72ff41e2ba405234_1124400_0x128_resize_q30_bgffffff_box.jpg" alt="image from Postprocessing with the Depth Texture" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Postprocessing Basics Summary We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.
+Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/016-postprocessing-basics/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Postprocessing Basics
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/016/Result_hu0f4b5b9ed2a7298d044591f1b7390b55_88808_0x128_resize_q30_box.jpg" alt="image from Postprocessing Basics" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Wobble Displacement Summary So far we only used the vertex shader to move vertices from their object coordinates to their clip space coordinates (or to the world space coordinates which we then used for other things). But there are more things we can do with vertex shaders. As a introduction I’m going to show you how to apply a simple sine wave to a model, making it wobble.
+I will make the shader with a surface shader so you should know the basics of surface shaders, but it works the same with any other type of shader.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/015-wobble-displacement/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Wobble Displacement
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/015/Result_huf8f21bcce2cc8fd1302685e5de7bdea2_1860769_0x128_resize_q30_bgffffff_box.jpg" alt="image from Wobble Displacement" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Polygon Clipping Summary Of course everything we render so far is made of polygons, but someone asked me how to clip a polygon shape based on a list of points in a shader so I’ll explain how to do that now. I will explain how to do that with a single shader pass in a fragment shader, a different way would be to actually generate triangles based on your polygon and use stencil buffers to clip, but I won’t explain that in this tutorial.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/014-polygon-clipping/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Polygon Clipping
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/014/Result_hufa797f76e5524c627d93d4b7b20ae6e0_97849_0x128_resize_q30_bgffffff_box.jpg" alt="image from Polygon Clipping" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Custom Lighting Summary Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometimes we want to change the way we treat lighting to get a different, often more cartoonish, look. Custom lighting functions allow us to do exactly that.
+This tutorial is about a surface shader specific feature, while the basics of lighting are the same in all shaders, you need a lot more code to archieve the same result from a non-surface shader and I won’t explain it in this tutorial.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/013-custom-lighting/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Custom Lighting
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/013/Result_hu3d7cef0c8881321fc27dede1185d9916_184179_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Custom Lighting" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Fresnel Summary A common effect people use in shaders in a fresnel effect. With a fresnel you can darken, lighten or color the outline of your objects, increasing the sense of depth.
+For this tutorial we will make a surface shader, so if you follow it directly you should know the basics of surface shaders. You can find a explanation of them here. But you can also use a fresnel effect for unlit shaders, giving your objects some smoothness and tangibility without having to implement expensive lighting.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/012-fresnel/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Fresnel
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/012/Result_hu08494262bf3a1d80319721acbe33f4a5_69197_0x128_resize_q30_box.jpg" alt="image from Fresnel" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Checkerboard Pattern Summary For me, one of the most interresting things to do with shaders is procedural images. To get started with that, we’re going to create a simple Checkerboard pattern.
+This tutorial will build on the simple shader with only properties, but as always, you can also use the technique to generate colors in more complex shaders.
+Stripes I will take the world position of the surface to generate the chessboard texture, that way we can later move and rotate the model around and the generated patterns will fit together.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/011-chessboard/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Checkerboard Pattern
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/011/Result_hub980600331141451b168fc3f567f3d53_36795_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Checkerboard Pattern" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Triplanar Mapping Summary I made a tutorial about planar mapping previously. The biggest disadvantage of the technique is that it only works from one direction and breaks when the surface we’re drawing isn’t oriented towards the direction we’re mapping from (up in the previous example). A way to improve automatic uv generation is that we do the mapping three times from different directions and blend between those three colors.
+This tutorial will build upon the planar mapping shader which is a unlit shader, but you can use the technique with many shaders, including surface shaders.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/010-triplanar-mapping/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Triplanar Mapping
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/010/Result_huacce70b7fa12d440476e12946dc25c58_2264752_0x128_resize_q30_bgffffff_box.jpg" alt="image from Triplanar Mapping" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Color Interpolation Summary Often you have more than one color going into the output you want to draw to the screen. A simple way of combining two colors is to interpolate between them based on other parameters.
+This tutorial will build on the simple textured shader, but you can use this technique with any shader including surface shaders. Interpolate Colors The first version of this shader we’re exploring will just interpolate between two plain colors based on a value.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/009-interpolating-colors/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Color Interpolation
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/009/Result_huc31b764ffa7f7bea074c014e1d4ffed3_98590_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Color Interpolation" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Planar Mapping Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
+This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
+Basics We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/008-planar-mapping/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Planar Mapping
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/008/Result_hu63ba3933956fb3b99648c37cad153ca1_264773_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Planar Mapping" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Sprite Shaders Summary In unity the way sprites are rendered is very similar to the way 3d objects are rendered. Most of the work is done by the sprite renderer component. I’ll go a bit over what the component is doing and how we can change our shader to do some of the stuff the default sprite renderer is doing.
+This tutorial will build on the transparent shader we made previously so it’s best that you understand that one first.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/007-sprite-shaders/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Sprite Shaders
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/007/Result_hub2fce3458329b18b8ad31dba7e4d7a97_18047_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Sprite Shaders" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Basic Transparency Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
+To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/006-simple-transparency/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Basic Transparency
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/006/SemitransparentCube_hu1422fde7d119daa8612954b5ad774e08_90590_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Basic Transparency" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Surface Shader Basics Summary In addition to writing shaders almost from the ground up, unity also allows us to define some parameters and let unity generate the code which does the complex light calculations. Those shaders are called &ldquo;surface shaders&rdquo;.
+To understand surface shaders, it’s good to get to know basic unlit shaders first, I have a tutorial on them here.
+Conversion to simple Surface Shader When using surface shaders we don’t have to do a few things we have to do otherwise, because unity will generate them for us.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/005-simple-surface/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Surface Shader Basics
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/005/Result_hu471dff4a69c47f211fc56dafd05c3597_105156_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Surface Shader Basics" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Basic Shader Summary In the last three tutorials I explained some of the cornerstones of how shaders work. In this one I show you how to fill in the rest.
+The main thing I didn&rsquo;t show was actual executed code. Thats because you don&rsquo;t need much code to get a shader running at first and all of the fancy code is in specialized tutorials.
+What we have so far Everything here should be explained in one of the previous three tutorials.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/004-basic/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Basic Shader
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/004/Result_hu6ecc42f596b71620461be34e6dfec006_39993_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Basic Shader" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Variables Summary After making clear how the shader stages are put together and the rough outline of shaderlab outside of the actual shader code, lets talk about what variables our shader needs to function and how we add them to our code. This includes the variables that we set per material, the variables that are part of the mesh data and the data thats passed from the vertex to the fragment.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/003-variables/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Variables
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/003/Result_huddfd8f265494bb6f769e0920ddbe9268_8911_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Variables" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">HLSL HLSL? Hlsl is the language the &ldquo;juicy&rdquo; parts of unity shaders are written in. The parts that contain custom logic and eventually decide what is drawn where on screen. It&rsquo;s the language Microsoft designed to work with their Direct3D API to write gpu programs. Strictly speaking most Unity shaders are tagged as being written in CG which is short for C for Graphics, but CG shares most of it&rsquo;s syntax and features with hlsl and was deprecated in 2012, so wrongly referring to it as hlsl leads to you being able to find better results in search engines and not much else.</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/002-hlsl/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            HLSL
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/002/LanguageAreas_hu30b30880b337e172001c1bc8a45f3a46_53914_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from HLSL" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+          <div class="relative w-100 mb0" name="article">
+            <p style="display: none;">Structure Shader Structure When talking about shaders I want to start at explaining the rough outline of how shaders are set up so we can understand how to customize them.
+Most modern shaders have a variable pipeline that consists out of at least a vertex shader and a fragment shader. It&rsquo;s also possible to add a geometry and tesselation stage to this, but you only rarely need those. The vertex shader (sometimes also called vertex stage or function) takes the data that defines the model and transforms it into screenspace so it can be rendered (using matrix multiplication, but we can just accept that it works for now).</p>
+            
+<article class="bb b--black-10">
+  <div class="db pv1 ph3 ph0-l no-underline dark-gray">
+    <a href="https://ronja-tutorials.com/post/001-structure/" class="color-inherit link">
+      <div class="flex flex-column flex-row-ns" style="height: 80px;">
+        <div class="blah w-100 w-80-ns pl3-ns">
+          <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
+            Structure
+          </h1>
+          
+        </div>
+        
+          
+          
+
+            
+            
+          
+          <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
+            <img src="https://ronja-tutorials.com/assets/images/posts/001/pipeline_huca3de29707c715e9ba8bdef2d13c0579_17533_0x128_resize_q30_bgffffff_box_2.jpg" alt="image from Structure" 
+              style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
+          </div>
+        
+      </div>
+    </a>
+  </div>
+</article>
+
+          </div>
+        
+      </section>
+
+      <script>
+        root = document.getElementById("post-list")
+        this.posts = document.getElementsByName("article")
     
-      <script type="text/javascript">
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-        ga('create', 'UA-124040112-1', 'auto');
-        ga('send', 'pageview');
+        this.flipped = false
+        this.minimized = false
+        this.filter = ""
+    
+        function filterPosts(searchTerm) {
+          this.filter = searchTerm
+          for (i = 0; i < this.posts.length; i++) {
+            post = this.posts[i]
+            var found = post
+              .childNodes[1].innerHTML 
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())
+            post.style.display = found ? "block" : "none"
+          }
+          updateUrl()
+        }
+    
+        function setOrder(chrono) {
+          if ((this.flipped && !chrono) || (!this.flipped && chrono)) flipOrder()
+        }
+    
+        function minimize(mini) {
+          this.minimized = mini
+          if (this.maginBottom == undefined) {
+            this.maginBottom = this.posts[0].style.marginBottom
+          }
+          for (i = 0; i < this.posts.length; i++) {
+            post = this.posts[i]
+            post.getElementsByClassName("preview")[0].style.display = mini
+              ? "none"
+              : "block"
+            post.getElementsByClassName("post-meta")[0].style.display = mini
+              ? "none"
+              : "block"
+          }
+          updateUrl()
+        }
+    
+        function flipOrder() {
+          var elements = document.createDocumentFragment()
+          var count = this.posts.length
+          var flippedPosts = []
+          for (i = 1; i <= count; i++) {
+            var newElement = this.posts[count - i].cloneNode(true)
+            elements.appendChild(newElement)
+            flippedPosts.push(newElement)
+          }
+          while (root.firstChild) {
+            root.removeChild(root.firstChild)
+          }
+          root.appendChild(elements)
+          this.posts = flippedPosts
+          this.flipped = !this.flipped
+          updateUrl()
+        }
+    
+        function updateUrl() {
+          var urlParams = new URLSearchParams()
+          var any = 0
+          if (this.filter) {
+            urlParams.set("search", this.filter)
+            any = true
+          }
+          if (this.flipped) {
+            urlParams.set("flipped", this.flipped)
+            any = true
+          }
+          if (this.minimized) {
+            urlParams.set("minimized", this.minimized)
+            any = true
+          }
+    
+          var loc = window.location
+          var url = loc.protocol + "//" + loc.host + loc.pathname
+          if (any) url += "?" + urlParams.toString()
+          window.history.replaceState({ path: url }, "", url)
+        }
+    
+        function init() {
+          var urlParams = new URLSearchParams(window.location.search)
+          if (urlParams.has("search")) {
+            document.getElementById("SearchField").value = urlParams.get("search")
+            filterPosts(urlParams.get("search"))
+          }
+          if (urlParams.has("flipped")) {
+            var value = urlParams.get("flipped") == "true"
+            document.getElementById("Chronological").checked = value
+            setOrder(value)
+          }
+          if (urlParams.has("minimized")) {
+            var value = urlParams.get("minimized") == "true"
+            document.getElementById("BigView").checked = !value
+            minimize(value)
+          }
+        }
+    
+        init()
       </script>
+
+      </div>
+  
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
     
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
   </body>
 </html>

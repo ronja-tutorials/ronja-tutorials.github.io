@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+      
+        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+        <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+      
+    
+    
+    <meta property="og:title" content="Posts" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/" />
+<meta property="og:updated_time" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="name" content="Posts">
+<meta itemprop="description" content="">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Posts"/>
+<meta name="twitter:description" content=""/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="pb3-m pb6-l bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
+          Posts
+        </h1>
+        
+      </div>
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+
+  <article class="pa3 pa4-ns nested-copy-line-height nested-img">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
+      
+    </section>
+    <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 16, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/051-draw-procedural/" class="link black dim">
+        Graphics.DrawProcedural
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      The last tutorial was about compute shader basics, how to generate values, read them back to the cpu and use them. One critical aspect in all that is that copying data from the cpu to the gpu (from the ram to the vram) or back takes some time, so wouldn&rsquo;t it be neat if there was a way to just render the data directly from the GPU without copying it around?
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 26, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/050-compute-shader/" class="link black dim">
+        Compute Shader
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      So far we always used shaders to render with a fixed pipeline into textures, but modern graphics card can do way more than just that (sometimes they&rsquo;re also referred to as GPGPU for &ldquo;general purpose graphics processing unit&rdquo; because of that). To do things that arent in the fix pipeline we&rsquo;re using so far we have to use compute shaders.
+If you&rsquo;re asking yourself why we&rsquo;d do that, the CPU is performant enough, especially once we use multithreading then I&rsquo;m here to tell you that you&rsquo;re 100% correct.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        July 23, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/049-sprite-outlines/" class="link black dim">
+        Sprite Outlines
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      I already talked about 2 ways of generating outlines in your programs, by analyzing the depth and normals of your scene or by rendering the model twice with a hull. Both of those assume we&rsquo;re using opaque meshes that write into the depth buffer, if we&rsquo;re using 2d sprites neither approach works. The approach for this tutorial uses the alpha channel of a texture to generate 2d outlines.
+Basic Implementation The idea is that we sample the texture at multiple spots around the uv point and remember the biggest value of the alpha channel we find.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        February 11, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/048-material-property-blocks/" class="link black dim">
+        Instancing and Material Property Blocks
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        January 8, 2020
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/047-invlerp_remap/" class="link black dim">
+        Inverse Lerp and Remap
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In a previous tutorial I explained how the builtin lerp function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.
+Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        November 29, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/046-fwidth/" class="link black dim">
+        Partial Derivatives (fwidth)
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      The partial derivative functions ddx, ddy and fwidth are some of the least used hlsl functions and they look quite confusing at first, but I like them a lot and I think they have some straightforward useful use cases so I hope I can explain them to you. Since I&rsquo;m explaining straightforward functions you don&rsquo;t have to know a lot of shader programming for this, but you should have a rough overview over how to render simple things with shaders in unity.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        October 14, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/045-spheretracing-depth/" class="link black dim">
+        Handling Depth for Spheretracing
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        August 15, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/044-spheretracing-shading/" class="link black dim">
+        Spheretracing with Shading
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
+Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 21, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/043-spheretracing-basics/" class="link black dim">
+        Spheretracing Basics
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&rsquo;ll just trace the silouette of a sphere, but in future tutorials I&rsquo;ll give examples how to make more complex shapes and do lighting.
+As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do this tutorial when you&rsquo;re fairly new to shaders.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        May 11, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/042-dithering/" class="link black dim">
+        Dithering
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      We often use gradients of some kind in shaders, but there are cases where we&rsquo;re limited to less shades of colors than we want to express. One common technique to fake having many different colors with only a few is dithering. In this tutorial I explain how to dither between two colors based on a given ratio, but it&rsquo;s also possible to use dithering for more shades of color with more complex algorithms.
+    </div>
+  </div>
+
+        </div>
+      
+    </aside>
+    
+<ul class="pagination">
+  <li class="page-item">
+    <a href="/post/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+  </li>
+  <li class="page-item disabled">
+    <a  class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+  </li>
+  <li class="page-item active">
+    <a class="page-link" href="/post/">1</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/2/">2</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/3/">3</a>
+  </li>
+  <li class="page-item disabled">
+    <span aria-hidden="true">&nbsp;&hellip;&nbsp;</span>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/6/">6</a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/2/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/6/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+  </li>
+</ul>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

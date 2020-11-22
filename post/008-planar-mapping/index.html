@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Planar Mapping | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
+This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
+Basics We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Planar Mapping" />
+<meta property="og:description" content="Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
+This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
+Basics We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/008-planar-mapping/" />
+<meta property="article:published_time" content="2018-04-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-04-23T00:00:00+00:00" />
+<meta itemprop="name" content="Planar Mapping">
+<meta itemprop="description" content="Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
+This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
+Basics We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates.">
+<meta itemprop="datePublished" content="2018-04-23T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-04-23T00:00:00+00:00" />
+<meta itemprop="wordCount" content="576">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Planar Mapping"/>
+<meta name="twitter:description" content="Summary Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.
+This tutorial will build on the simple textured shader, but you can use the technique with any shader including surface shaders.
+Basics We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Planar Mapping</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-04-23T00:00:00Z">April 23, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>Sometimes you don’t have texture coordinates on your object, you want to make the Textures of multiple Objects align or you have a different reason to generate your own UV coordinates… In this tutorial we’ll start with the simplest way to generate your own coordinates, planar mapping.</p>
+<p>This tutorial will build on the <a href="https://ronja-tutorials.com/post/004-basic/">simple textured shader</a>, but you can use the technique with any shader including surface shaders.</p>
+<p><img src="/assets/images/posts/008/Result.png" alt="Result"></p>
+<h2 id="basics">Basics</h2>
+<p>We start by removing the uv coordinates from the input struct as we&rsquo;ll generate our own texture coordinates.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> appdata{
+    <span style="color:#080;font-weight:bold">float</span> vertex <span style="color:#333">:</span> POSITION;
+};
+</code></pre></div><p>Because UV coordinates can still be interpolated between the vertices like they were before, we calculate the new UVs in the vertex shader. As a start we can set the UV coordinates to the x and z values of the object coordinates. That’s enough to make the texture appear on our model and it looks like it’s pressed onto it from the top.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">v2f vert(appdata v){
+    v2f o;
+    o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+    o.uv <span style="color:#333">=</span> v.vertex.xz;
+    <span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><h2 id="adjustable-tiling">Adjustable Tiling</h2>
+<p>This doesn’t take the texture scaling into consideration and we might not want the texture to rotate and move with the object as it does now.</p>
+<p>To fix the texture scaling and offset, we just put the TRANSFORM_TEX macro around the uv coordinates.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">v2f vert(appdata v){
+    v2f o;
+    o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+    o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.vertex.xz, _MainTex);
+    <span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><p><img src="/assets/images/posts/008/AdjustTilingOffset.gif" alt="adjust tiling and offset and watch the material react"></p>
+<h2 id="texture-coordinates-based-on-world-position">Texture Coordinates based on World Position</h2>
+<p>To take the object position and rotation out of the equation, we have to use the position of the vertex in the world (previously we used the position relative to the object center). To calculate the world position, we multiply the object to world matrix with it (I won’t go into matrix multiplication here). After we obtain the world position, we use that to set the uv coordinates.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">v2f vert(appdata v){
+	v2f o;
+	<span style="color:#888">//calculate the position in clip space to render the object</span>
+	o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+	<span style="color:#888">//calculate world position of vertex</span>
+	float4 worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+	<span style="color:#888">//change UVs based on tiling and offset of texture</span>
+	o.uv <span style="color:#333">=</span> TRANSFORM_TEX(worldPos.xz, _MainTex);
+	<span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><p><img src="/assets/images/posts/008/MoveSphere.gif" alt="create a few spheres with the new material and move them around"></p>
+<p>As you see this technique has some disadvantages, mainly that it only works with tileable textures and the stretching on the sides, but that can be mitigated with some more advanced techniques like triplanar mapping which I’ll get into in a later tutorial.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">00</span><span style="color:#00d;font-weight:bold">8</span>_Planar_Mapping<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			fixed4 _Color;
+
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+			};
+
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//calculate the position in clip space to render the object</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#888">//calculate world position of vertex</span>
+				float4 worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+				<span style="color:#888">//change UVs based on tiling and offset of texture</span>
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(worldPos.xz, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				<span style="color:#888">//read texture at uv position</span>
+				fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+				<span style="color:#888">//multiply texture color with tint color</span>
+				col <span style="color:#333">*=</span> _Color;
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>You can also find the source code here <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/008_Planar_Mapping/planar_mapping.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/008_Planar_Mapping/planar_mapping.shader</a></p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>2D SDF Space Manipulation | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="2D SDF Space Manipulation" />
+<meta property="og:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/036-sdf-space-manipulation/" />
+<meta property="article:published_time" content="2018-11-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-11-24T00:00:00+00:00" />
+<meta itemprop="name" content="2D SDF Space Manipulation">
+<meta itemprop="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.">
+<meta itemprop="datePublished" content="2018-11-24T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-11-24T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3682">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="2D SDF Space Manipulation"/>
+<meta name="twitter:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">2D SDF Space Manipulation</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-11-24T00:00:00Z">November 24, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) and [combine sdf shapes]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
+<p><img src="/assets/images/posts/036/Result.gif" alt=""></p>
+<h2 id="setup">Setup</h2>
+<p>For this tutorial I&rsquo;ll modify a union between a square and a circle, but you can use it on any shape you want. It&rsquo;s similar to the setup for the [previous tutorial]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
+<p>Important here is that the part we will modify is before we use the position to generate shapes.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">036</span>_SDF_Space_Manpulation<span style="color:#333">/</span>Type<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+
+        _LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+
+        [IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+        _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+
+                <span style="color:#888">// manipulate position with cool methods here!</span>
+
+                float2 squarePosition <span style="color:#333">=</span> position;
+                squarePosition <span style="color:#333">=</span> translate(squarePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                squarePosition <span style="color:#333">=</span> rotate(squarePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+                <span style="color:#080;font-weight:bold">float</span> squareShape <span style="color:#333">=</span> rectangle(squarePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">1.5</span>));
+                <span style="color:#080;font-weight:bold">float</span> circleShape <span style="color:#333">=</span> circle(circlePosition, <span style="color:#00d;font-weight:bold">1</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> merge(circleShape, squareShape);
+
+                <span style="color:#080;font-weight:bold">return</span> combination;
+            }
+
+            float4 _InsideColor;
+            float4 _OutsideColor;
+
+            <span style="color:#080;font-weight:bold">float</span> _LineDistance;
+            <span style="color:#080;font-weight:bold">float</span> _LineThickness;
+
+            <span style="color:#080;font-weight:bold">float</span> _SubLines;
+            <span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+                <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+                <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+                <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><p>And the 2D_SDF.cginc function in the same folder as the shader we will expand looks like this at the start:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+<span style="color:#888">//transforms</span>
+
+float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#888">//move samplepoint in the opposite direction that we want to move shapes in</span>
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+
+float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+
+<span style="color:#888">//combinations</span>
+
+<span style="color:#888">///basic</span>
+<span style="color:#080;font-weight:bold">float</span> merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> min(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> max(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction){
+    <span style="color:#080;font-weight:bold">return</span> intersect(base, <span style="color:#333">-</span>subtraction);
+}
+
+<span style="color:#080;font-weight:bold">float</span> interpolate(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> amount){
+    <span style="color:#080;font-weight:bold">return</span> lerp(shape1, shape2, amount);
+}
+
+<span style="color:#888">/// round</span>
+<span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> <span style="color:#333">-</span>length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleUnion <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> max(simpleUnion, radius);
+    <span style="color:#080;font-weight:bold">return</span>  insideDistance <span style="color:#333">+</span> outsideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">+</span> radius, shape2 <span style="color:#333">+</span> radius);
+    intersectionSpace <span style="color:#333">=</span> max(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersection <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(simpleIntersection, <span style="color:#333">-</span>radius);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#080;font-weight:bold">return</span> round_intersect(base, <span style="color:#333">-</span>subtraction, radius);
+}
+
+<span style="color:#888">///champfer</span>
+<span style="color:#080;font-weight:bold">float</span> champfer_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleMerge <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">-</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> merge(simpleMerge, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersect <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">+</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> intersect(simpleIntersect, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">return</span> champfer_intersect(base, <span style="color:#333">-</span>subtraction, champferSize);
+}
+
+<span style="color:#888">/// round border intersection</span>
+<span style="color:#080;font-weight:bold">float</span> round_border(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 position <span style="color:#333">=</span> float2(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> distanceFromBorderIntersection <span style="color:#333">=</span> length(position);
+    <span style="color:#080;font-weight:bold">return</span> distanceFromBorderIntersection <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">float</span> grooveShape <span style="color:#333">=</span> subtract(circleBorder, base <span style="color:#333">+</span> depth);
+    <span style="color:#080;font-weight:bold">return</span> subtract(base, grooveShape);
+}
+
+<span style="color:#888">//shapes</span>
+
+<span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#888">//get distance from center and grow it according to radius</span>
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><p><img src="/assets/images/posts/036/BaseShape.png" alt=""></p>
+<h2 id="space-repetition">Space Repetition</h2>
+<h3 id="mirror">Mirror</h3>
+<p>One of the simplest things we can do is to mirror the world around a axis. To mirror it around the y axis we take the absolute value of the x component of our position. This way the coordinates on the right and the left of the axis are the same. <code>(-1, 1)</code> becomes <code>(1, 1)</code> and by that it&rsquo;s inside a circle that uses <code>(1, 1)</code> as it&rsquo;s origin with a radius greater than 0.</p>
+<p>Because most of the time the code using this function would look like <code>position = mirror(position);</code> anyways, we can use a small shortcut here. We simply declare the position argument as inout. This way when we write to the argument it&rsquo;ll also change the variable where we pass it into the function. The return type can then be void because we&rsquo;re not using the return value anyways.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">void</span> mirror(<span style="color:#080;font-weight:bold">inout</span> float2 position){
+    position.x <span style="color:#333">=</span> abs(position.x);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+mirror(position);
+</code></pre></div><p><img src="/assets/images/posts/036/Mirrored.png" alt=""></p>
+<p>This is pretty nice already, but it only gives us a single axis to mirror around. We can expand that by rotating the space just like we did for rotating shapes. We first have to rotate the space, then mirror it and then rotate it back. This way we can mirror around any angle. The same is possible by translating the space and doing the inverse translation after mirroring. (If you&rsquo;re doing both, remember to first translate, then rotate before mirroring and rotating first afterwards)</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+<span style="color:#080;font-weight:bold">float</span> rotation <span style="color:#333">=</span> _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.25</span>;
+position <span style="color:#333">=</span> rotate(position, rotation);
+mirror(position);
+position <span style="color:#333">=</span> rotate(position, <span style="color:#333">-</span>rotation);
+</code></pre></div><p><img src="/assets/images/posts/036/RotatingMirror.gif" alt=""></p>
+<h2 id="cells">Cells</h2>
+<p>If you know how <a href="/noise.html">generating noise</a> works, you know that for procedural generation we often repeat the position and have small cells which are essentially the same except for a few paramters. For distance fields we can do the same.</p>
+<p>Because the <code>fmod</code> function (as well as using % for the modulo) gives us the remainder instead of the definition of a modulo we want we&rsquo;ll have to use some trickery. We first take the modulo with the fmod function. For positive numbers that&rsquo;s what we want, for negative numbers though, it&rsquo;s the result we want minus the period. The fix for this is to add the period and take the modulo again. Adding the period will give us the result we want for negative input values and a value that&rsquo;s one period too high for positive input values. The second modulo will do nothing to the values for negative input values, because they&rsquo;re already between 0 and the period, for positive input values, it&rsquo;ll basically subtract one period.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">void</span> cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, float2 period){
+    position <span style="color:#333">=</span> fmod(position, period);
+    <span style="color:#888">//negative positions lead to negative modulo</span>
+    position <span style="color:#333">+=</span> period;
+    <span style="color:#888">//negative positions now have correct cell coordinates, positive input positions too high</span>
+    position <span style="color:#333">=</span> fmod(position, period);
+    <span style="color:#888">//second mod doesn&#39;t change values between 0 and period, but brings down values that are above period.</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+cells(position, float2(<span style="color:#00d;font-weight:bold">3</span>, <span style="color:#00d;font-weight:bold">3</span>));
+</code></pre></div><p><img src="/assets/images/posts/036/Cells.png" alt=""></p>
+<p>A problem with cells is that we loose the continuity we like in distance fields. It&rsquo;s not that bad when the shapes are only in the middle of the cells, but in examples like the one I have here, it can lead to massive artefacts we want to avoid if we use the distance field for many things we might want to use distance fields for.</p>
+<p>One solution that doesn&rsquo;t work in every case, but which is great where it works is to mirror every second cell. For this we need the cell index of our pixel, but we still have no return value in our function, so we can easily use that to return the cell index.</p>
+<p>To calculate the cell index we divide the position by the period. this way 0-1 is the first cell, 1-2 the second etc&hellip; and we can easily quantise this. To get the cell index we then simply floor the value and return the result. It&rsquo;s important that we calculate the cell index before we do the modulo to repeat the cells, otherwise we&rsquo;d get a index of 0 everywhere because the position doesn&rsquo;t go above the period.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+float2 cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, float2 period){
+    position <span style="color:#333">=</span> fmod(position, period);
+    <span style="color:#888">//negative positions lead to negative modulo</span>
+    position <span style="color:#333">+=</span> period;
+    <span style="color:#888">//negative positions now have correct cell coordinates, positive input positions too high</span>
+    position <span style="color:#333">=</span> fmod(position, period);
+    <span style="color:#888">//second mod doesn&#39;t change values between 0 and period, but brings down values that are above period.</span>
+
+    float2 cellIndex <span style="color:#333">=</span> position <span style="color:#333">/</span> period;
+    cellIndex <span style="color:#333">=</span> floor(cellIndex);
+    <span style="color:#080;font-weight:bold">return</span> cellIndex;
+}
+</code></pre></div><p>With this information we can now flip the cells. To get whether we should or should not flip, we take the modulo of 2 with the cell index. The result of this operations changes between 0 and 1 or -1 every second cell. To make the changing more consistent, we take the sbolute value and have a value that switches between 0 and 1.</p>
+<p>To use this value to flip between the normal position and the flipped one we need a function that does nothing for a value of 0 and subtracts the position from the period where flip is 1. So we do a linear interpolation from the normal position to the flipped one via the flip variable. Because the flip variable is a 2d vector the components are individually flipped.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+float2 period <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">3</span>;
+float2 cell <span style="color:#333">=</span> cells(position, period);
+float2 flip <span style="color:#333">=</span> abs(fmod(cell, <span style="color:#00d;font-weight:bold">2</span>));
+position <span style="color:#333">=</span> lerp(position, period <span style="color:#333">-</span> position, flip);
+</code></pre></div><p><img src="/assets/images/posts/036/FlippedCells.png" alt=""></p>
+<h2 id="radial-cells">Radial Cells</h2>
+<p>Another cool thing is to repeat the space in a radial pattern.</p>
+<p>To get that effect, we first calculate the radial position. For that we encode the angle around the center in the x axis and the distance from the center in the y axis.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 radialPosition <span style="color:#333">=</span> float2(atan2(position.x, position.y), length(position));
+</code></pre></div><p>Then we repeat the angle. Because passing in the amount of repetitions is way easier than the angle of each slice we first calculate the size of each slice. A whole circle is 2 times pi, so to get the part we want we divide 2 times pi by the cell amount.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+<span style="color:#080;font-weight:bold">float</span> cellSize <span style="color:#333">=</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">/</span> cells;
+</code></pre></div><p>With this infomation we can now repeat the x component of the radial position every cellSize units. We do the repetition via the modulo, just like before we get problems with negative numbers here which we have to mitigate by using two modulo functions.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">radialPosition.x <span style="color:#333">=</span> fmod(fmod(radialPosition.x, cellSize) <span style="color:#333">+</span> cellSize, cellSize);
+</code></pre></div><p>Then we have to transfer the new position back into normal xy coordinates. We use the sincos function with the x component of the radial position as the angle here to write the sine into the x coordinate of the position and the cosine into the y coordinate. With this step we get the normalised position. To get the correct distance from the center we then have to multiply it by the y component of the radial position, which signifies the length.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">void</span> radial_cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, <span style="color:#080;font-weight:bold">float</span> cells){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+    <span style="color:#080;font-weight:bold">float</span> cellSize <span style="color:#333">=</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">/</span> cells;
+    float2 radialPosition <span style="color:#333">=</span> float2(atan2(position.x, position.y), length(position));
+    radialPosition.x <span style="color:#333">=</span> fmod(fmod(radialPosition.x, cellSize) <span style="color:#333">+</span> cellSize, cellSize);
+
+    sincos(radialPosition.x, position.x, position.y);
+    position <span style="color:#333">=</span> position <span style="color:#333">*</span> radialPosition.y;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+float2 period <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">6</span>;
+radial_cells(position, period, <span style="color:#080;font-weight:bold">false</span>);
+</code></pre></div><p><img src="/assets/images/posts/036/RadialSymmetry.png" alt=""></p>
+<p>Then we can also add a cell index and mirroring just like we did for the regular cells.</p>
+<p>We have to calculate the cell index after calculating the radial position, but before taking it&rsquo;s modulo. We get it by dividing the x component of the radial position and flooring the result. In this case the index can also be negative, that&rsquo;s a problem if we have a uneven amount of cells. For example with 3 cells, we&rsquo;d get 1 cell with index 0, 1 cell with a index of -1 and 2 half cells with each 1 and -2. To sidestep this problem, we add the amount of cells to the floored variable and then take a modulo with the cellsize.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">float</span> cellIndex <span style="color:#333">=</span> fmod(floor(radialPosition.x <span style="color:#333">/</span> cellSize) <span style="color:#333">+</span> cells, cells);
+
+<span style="color:#888">//at the end of the function:</span>
+<span style="color:#080;font-weight:bold">return</span> cellIndex;
+</code></pre></div><p>To mirror this, we&rsquo;d like to have the coordinates as radial coordinates, so to avoid calculating the radial coordinates again outside of the function we&rsquo;re going to give the option via a bool argument. Usually we really don&rsquo;t like having branching (if statements) in our shaders, but in this case all pixels on the screen will take the same path, so it&rsquo;s fine.</p>
+<p>The mirroring has to happen after the radial coordinate was looped, but before it&rsquo;s transformed back into a regular position. We get whether the current cell should be flipped or not by taking the modulo of the cell index and 2. This usually should give us zeroes and ones, but in my case I experienced some twos, which is weird, but we can work with. To fix the twos, we simply subtract one 1 from our flip variable and then take the absolute value, this way zeroes and twos become ones and the ones become zero, just like we like it, just the other way around.</p>
+<p>Because the zeroes and ones are the wrong way around, we do a linear interpolation from the flipped version to the unflipped one, not the other way around that we did previously. To flip the coordinate we just subtract the position from the cell size.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">float</span> radial_cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, <span style="color:#080;font-weight:bold">float</span> cells, <span style="color:#080;font-weight:bold">bool</span> mirrorEverySecondCell <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">false</span>){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+    <span style="color:#080;font-weight:bold">float</span> cellSize <span style="color:#333">=</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">/</span> cells;
+    float2 radialPosition <span style="color:#333">=</span> float2(atan2(position.x, position.y), length(position));
+
+    <span style="color:#080;font-weight:bold">float</span> cellIndex <span style="color:#333">=</span> fmod(floor(radialPosition.x <span style="color:#333">/</span> cellSize) <span style="color:#333">+</span> cells, cells);
+
+    radialPosition.x <span style="color:#333">=</span> fmod(fmod(radialPosition.x, cellSize) <span style="color:#333">+</span> cellSize, cellSize);
+
+    <span style="color:#080;font-weight:bold">if</span>(mirrorEverySecondCell){
+        <span style="color:#080;font-weight:bold">float</span> flip <span style="color:#333">=</span> fmod(cellIndex, <span style="color:#00d;font-weight:bold">2</span>);
+        flip <span style="color:#333">=</span> abs(flip<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+        radialPosition.x <span style="color:#333">=</span> lerp(cellSize <span style="color:#333">-</span> radialPosition.x, radialPosition.x, flip);
+    }
+
+    sincos(radialPosition.x, position.x, position.y);
+    position <span style="color:#333">=</span> position <span style="color:#333">*</span> radialPosition.y;
+
+    <span style="color:#080;font-weight:bold">return</span> cellIndex;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+float2 period <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">6</span>;
+radial_cells(position, period, <span style="color:#080;font-weight:bold">true</span>);
+</code></pre></div><p><img src="/assets/images/posts/036/MirroredRadialSymmetry.png" alt=""></p>
+<h2 id="wobbly-space">Wobbly space</h2>
+<p>But we don&rsquo;t have to repeat the space to change it. In the tutorial about basics we rotate, transform and scale it for example. Another thing we can do is to move each axis based on the other one with a sine wave. This does make the distances of the signed distance funciton less precise, but as long as we don&rsquo;t make it wobble too much it should be fine.</p>
+<p>We first calculate the amount we change the position by flipping the x and y components and then multiplying them by the frequency of the wobble. Then we take the sine of that value and multiply it by the amount of wobble we want to add. After that we simply add that wobble factor to the position and apply the result to the position again.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
+
+<span style="color:#080;font-weight:bold">void</span> wobble(<span style="color:#080;font-weight:bold">inout</span> float2 position, float2 frequency, float2 amount){
+    float2 wobble <span style="color:#333">=</span> sin(position.yx <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> amount;
+    position <span style="color:#333">=</span> position <span style="color:#333">+</span> wobble;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+
+wobble(position, <span style="color:#00d;font-weight:bold">5</span>, <span style="color:#60e;font-weight:bold">.05</span>);
+</code></pre></div><p><img src="/assets/images/posts/036/Wobble.png" alt=""></p>
+<p>We can also animate that wobble by changing the position, applying the wobble at the offset position and moving the space back. To avoid the float numbers from becomming too big and creating ugly artefacts, I do a modulo at pi times 2 divided by the frequency of the wobble, this lines up with the wobble (a sine wave repeats every pi times 2 units) so you won&rsquo;t see the jump and prevents the offset from becoming too big.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in shader function</span>
+<span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+<span style="color:#080;font-weight:bold">float</span> frequency <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">5</span>;
+<span style="color:#080;font-weight:bold">float</span> offset <span style="color:#333">=</span> _Time.y;
+offset <span style="color:#333">=</span> fmod(offset, PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">/</span> frequency);
+position <span style="color:#333">=</span> translate(position, offset);
+wobble(position, <span style="color:#00d;font-weight:bold">5</span>, <span style="color:#60e;font-weight:bold">.05</span>);
+position <span style="color:#333">=</span> translate(position, <span style="color:#333">-</span>offset);
+</code></pre></div><p><img src="/assets/images/posts/036/AnimatedWobble.gif" alt=""></p>
+<h2 id="sources">Sources</h2>
+<h3 id="2d-sdf-library">2D SDF Library</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/2D_SDF.cginc</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+<span style="color:#888">//transforms</span>
+
+float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#888">//move samplepoint in the opposite direction that we want to move shapes in</span>
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+
+float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+
+<span style="color:#888">//combinations</span>
+
+<span style="color:#888">///basic</span>
+<span style="color:#080;font-weight:bold">float</span> merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> min(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> max(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction){
+    <span style="color:#080;font-weight:bold">return</span> intersect(base, <span style="color:#333">-</span>subtraction);
+}
+
+<span style="color:#080;font-weight:bold">float</span> interpolate(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> amount){
+    <span style="color:#080;font-weight:bold">return</span> lerp(shape1, shape2, amount);
+}
+
+<span style="color:#888">/// round</span>
+<span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> <span style="color:#333">-</span>length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleUnion <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> max(simpleUnion, radius);
+    <span style="color:#080;font-weight:bold">return</span>  insideDistance <span style="color:#333">+</span> outsideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">+</span> radius, shape2 <span style="color:#333">+</span> radius);
+    intersectionSpace <span style="color:#333">=</span> max(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersection <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(simpleIntersection, <span style="color:#333">-</span>radius);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#080;font-weight:bold">return</span> round_intersect(base, <span style="color:#333">-</span>subtraction, radius);
+}
+
+<span style="color:#888">///champfer</span>
+<span style="color:#080;font-weight:bold">float</span> champfer_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleMerge <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">-</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> merge(simpleMerge, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersect <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">+</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> intersect(simpleIntersect, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">return</span> champfer_intersect(base, <span style="color:#333">-</span>subtraction, champferSize);
+}
+
+<span style="color:#888">/// round border intersection</span>
+<span style="color:#080;font-weight:bold">float</span> round_border(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 position <span style="color:#333">=</span> float2(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> distanceFromBorderIntersection <span style="color:#333">=</span> length(position);
+    <span style="color:#080;font-weight:bold">return</span> distanceFromBorderIntersection <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">float</span> grooveShape <span style="color:#333">=</span> subtract(circleBorder, base <span style="color:#333">+</span> depth);
+    <span style="color:#080;font-weight:bold">return</span> subtract(base, grooveShape);
+}
+
+<span style="color:#888">// space repetition</span>
+
+<span style="color:#080;font-weight:bold">void</span> mirror(<span style="color:#080;font-weight:bold">inout</span> float2 position){
+    position.x <span style="color:#333">=</span> abs(position.x);
+}
+
+float2 cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, float2 period){
+    <span style="color:#888">//find cell index</span>
+    float2 cellIndex <span style="color:#333">=</span> position <span style="color:#333">/</span> period;
+    cellIndex <span style="color:#333">=</span> floor(cellIndex);
+
+    <span style="color:#888">//negative positions lead to negative modulo</span>
+    position <span style="color:#333">=</span> fmod(position, period);
+    <span style="color:#888">//negative positions now have correct cell coordinates, positive input positions too high</span>
+    position <span style="color:#333">+=</span> period;
+    <span style="color:#888">//second mod doesn&#39;t change values between 0 and period, but brings down values that are above period.</span>
+    position <span style="color:#333">=</span> fmod(position, period);
+
+    <span style="color:#080;font-weight:bold">return</span> cellIndex;
+}
+
+<span style="color:#080;font-weight:bold">float</span> radial_cells(<span style="color:#080;font-weight:bold">inout</span> float2 position, <span style="color:#080;font-weight:bold">float</span> cells, <span style="color:#080;font-weight:bold">bool</span> mirrorEverySecondCell <span style="color:#333">=</span> <span style="color:#080;font-weight:bold">false</span>){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+    <span style="color:#080;font-weight:bold">float</span> cellSize <span style="color:#333">=</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">/</span> cells;
+    float2 radialPosition <span style="color:#333">=</span> float2(atan2(position.x, position.y), length(position));
+
+    <span style="color:#080;font-weight:bold">float</span> cellIndex <span style="color:#333">=</span> fmod(floor(radialPosition.x <span style="color:#333">/</span> cellSize) <span style="color:#333">+</span> cells, cells);
+
+    radialPosition.x <span style="color:#333">=</span> fmod(fmod(radialPosition.x, cellSize) <span style="color:#333">+</span> cellSize, cellSize);
+
+    <span style="color:#080;font-weight:bold">if</span>(mirrorEverySecondCell){
+        <span style="color:#080;font-weight:bold">float</span> flip <span style="color:#333">=</span> fmod(cellIndex, <span style="color:#00d;font-weight:bold">2</span>);
+        flip <span style="color:#333">=</span> abs(flip<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
+        radialPosition.x <span style="color:#333">=</span> lerp(cellSize <span style="color:#333">-</span> radialPosition.x, radialPosition.x, flip);
+    }
+
+    sincos(radialPosition.x, position.x, position.y);
+    position <span style="color:#333">=</span> position <span style="color:#333">*</span> radialPosition.y;
+
+    <span style="color:#080;font-weight:bold">return</span> cellIndex;
+}
+
+<span style="color:#080;font-weight:bold">void</span> wobble(<span style="color:#080;font-weight:bold">inout</span> float2 position, float2 frequency, float2 amount){
+    float2 wobble <span style="color:#333">=</span> sin(position.yx <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> amount;
+    position <span style="color:#333">=</span> position <span style="color:#333">+</span> wobble;
+}
+
+<span style="color:#888">//shapes</span>
+
+<span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#888">//get distance from center and grow it according to radius</span>
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><h3 id="base-demo-shader">Base Demo Shader</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_mirror.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_mirror.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_cells.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_cells.shader</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_wobble.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_wobble.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">036</span>_SDF_Space_Manpulation<span style="color:#333">/</span>Mirror<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+
+        _LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+
+        [IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+        _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+
+                <span style="color:#888">// modify position here!</span>
+
+                float2 squarePosition <span style="color:#333">=</span> position;
+                squarePosition <span style="color:#333">=</span> translate(squarePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#00d;font-weight:bold">2</span>));
+                squarePosition <span style="color:#333">=</span> rotate(squarePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+                <span style="color:#080;font-weight:bold">float</span> squareShape <span style="color:#333">=</span> rectangle(squarePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>));
+
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#60e;font-weight:bold">1.5</span>));
+                <span style="color:#080;font-weight:bold">float</span> circleShape <span style="color:#333">=</span> circle(circlePosition, <span style="color:#00d;font-weight:bold">1</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> merge(circleShape, squareShape);
+
+                <span style="color:#080;font-weight:bold">return</span> combination;
+            }
+
+            float4 _InsideColor;
+            float4 _OutsideColor;
+
+            <span style="color:#080;font-weight:bold">float</span> _LineDistance;
+            <span style="color:#080;font-weight:bold">float</span> _LineThickness;
+
+            <span style="color:#080;font-weight:bold">float</span> _SubLines;
+            <span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+                <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+                <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+                <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>With this you know all of the basics about signed distance functions that come to my mind off the top of my head. I&rsquo;ll try to do something interresting with them in the next tutorial.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

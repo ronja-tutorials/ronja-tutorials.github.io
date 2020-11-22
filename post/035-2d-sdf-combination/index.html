@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>2D SDF Combination | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="2D SDF Combination" />
+<meta property="og:description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/035-2d-sdf-combination/" />
+<meta property="article:published_time" content="2018-11-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-11-17T00:00:00+00:00" />
+<meta itemprop="name" content="2D SDF Combination">
+<meta itemprop="description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.">
+<meta itemprop="datePublished" content="2018-11-17T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-11-17T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3250">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="2D SDF Combination"/>
+<meta name="twitter:description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">2D SDF Combination</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-11-17T00:00:00Z">November 17, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find <a href="http://mercury.sexy/hg_sdf">here (http://mercury.sexy/hg_sdf)</a> and there are a few ways of combining shapes I don&rsquo;t go into here.</p>
+<p><img src="/assets/images/posts/035/Result.gif" alt=""></p>
+<h2 id="setup">Setup</h2>
+<p>To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it. It will use the distance lines visualisation we made in the first tutorial for showing the distance fields. We will set all parameters except for the visualisation parameters in code for simplicity, but you can replace any value you see with a property to make it adjustable.</p>
+<p>The main shader we start with looks like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">035</span>_2D_SDF_Combinations<span style="color:#333">/</span>Champfer Union<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+
+        _LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+
+        [IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+        _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+                float2 squarePosition <span style="color:#333">=</span> position;
+                squarePosition <span style="color:#333">=</span> translate(squarePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                squarePosition <span style="color:#333">=</span> rotate(squarePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+                <span style="color:#080;font-weight:bold">float</span> squareShape <span style="color:#333">=</span> rectangle(squarePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#00d;font-weight:bold">2</span>));
+
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#333">-</span><span style="color:#60e;font-weight:bold">1.5</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> circleShape <span style="color:#333">=</span> circle(circlePosition, <span style="color:#60e;font-weight:bold">2.5</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> combination_function(circleShape, squareShape);
+
+                <span style="color:#080;font-weight:bold">return</span> combination;
+            }
+
+            float4 _InsideColor;
+            float4 _OutsideColor;
+
+            <span style="color:#080;font-weight:bold">float</span> _LineDistance;
+            <span style="color:#080;font-weight:bold">float</span> _LineThickness;
+
+            <span style="color:#080;font-weight:bold">float</span> _SubLines;
+            <span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+                <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+                <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+                <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><p>And the 2D_SDF.cginc function in the same folder as the shader we will expand looks like this at the start:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+<span style="color:#888">//transforms</span>
+
+float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#888">//move samplepoint in the opposite direction that we want to move shapes in</span>
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+
+float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+
+<span style="color:#888">//shapes</span>
+
+<span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#888">//get distance from center and grow it according to radius</span>
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><h2 id="simple-combinations">Simple Combinations</h2>
+<p>We&rsquo;ll start with a few simple ways of combining two shapes to make one bigger shape, unions, intersections and subtractions. And a way to make one shape morph into another.</p>
+<h3 id="union">Union</h3>
+<p>The most basic operator is a union. With it we can add two shapes together and get the signed distance of the combined shape. When we have the signed distance of two shapes we can combine them by taking the smaller value of the two with the <code>min</code> function.</p>
+<p>By using the minimum of the two values the end shape will be below 0 (visible) where one of the two input shapes has a distance to the edge which is below 0, the same works for all other distance values, showing the combination of both shapes.</p>
+<p>I call the function to create a union &ldquo;merge&rdquo; here, partly because it&rsquo;s the act of merging them, partly because the union keyword is reserverd in hlsl so we can&rsquo;t use it as a function name.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc include file</span>
+
+<span style="color:#080;font-weight:bold">float</span> merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> min(shape1, shape2);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in scene function in shader</span>
+
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> merge(circleShape, squareShape);
+</code></pre></div><p><img src="/assets/images/posts/035/Union.png" alt=""></p>
+<h3 id="intersection">Intersection</h3>
+<p>Another common way of combining shapes is to use the areas where two shapes overlap. For this we take the maximum value of the two shape distances we want to combine. When using the bigger value of the two, we get a value above 0 (outside the shape) whenever any of the distances to the two shapes is outside the shape and the other distances line up similarly again.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc include file</span>
+
+<span style="color:#080;font-weight:bold">float</span> intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> max(shape1, shape2);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in scene function in shader</span>
+
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> intersect(circleShape, squareShape);
+</code></pre></div><p><img src="/assets/images/posts/035/Intersection.png" alt=""></p>
+<h3 id="subtraction">Subtraction</h3>
+<p>Often we don&rsquo;t want to treat both shapes the same though, instead we want to subtract one shape from the other. This is pretty easy to do by doing a intersection between the shape we want to modify and everything but the shape we want to subtract. The way we get invert the inside and outside of a shape is by negating the signed distance. What was 1 unit outside the shape is 1 unit inside it now.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc include file</span>
+
+<span style="color:#080;font-weight:bold">float</span> subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction){
+    <span style="color:#080;font-weight:bold">return</span> intersect(base, <span style="color:#333">-</span>subtraction);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in scene function in shader</span>
+
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> subtract(squareShape, circleShape);
+</code></pre></div><p><img src="/assets/images/posts/035/Subtraction.png" alt=""></p>
+<h3 id="interpolation">Interpolation</h3>
+<p>A non-obvious way of combining two shapes is to interpolate beteen them. This is also possible to some extent with polygon meshes with blendshapes, but is way more limited that what we can do with signed distance fields. By simply interpolating between the distances of two shapes they smoothly morph into each other. For the interpolation we can simply use the <code>lerp</code> method.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc include file</span>
+
+<span style="color:#080;font-weight:bold">float</span> interpolate(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> amount){
+    <span style="color:#080;font-weight:bold">return</span> lerp(shape1, shape2, amount);
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in scene function in shader</span>
+
+<span style="color:#080;font-weight:bold">float</span> pulse <span style="color:#333">=</span> sin(_Time.y) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> interpolate(circleShape, pulse);
+</code></pre></div><p><img src="/assets/images/posts/035/Interpolation.gif" alt=""></p>
+<h2 id="other-combinations">Other Combinations</h2>
+<p>With the simply combinations we already have everything we need to just combine shapes, but the wonderful thing about signed distance fields is that we aren&rsquo;t limited to this, there are many other ways we can combine shapes and do interresting stuff where they connect. Again, I&rsquo;ll only explain a few of the techniques, but you can see more of them at <a href="http://mercury.sexy/hg_sdf">http://mercury.sexy/hg_sdf</a>(write me if you know more useful SDF libraries).</p>
+<h3 id="round">Round</h3>
+<p>We can interpret the surface of the two shapes we&rsquo;re combining as the x and y axis of position in a coordinate system and then calculate the distance to the origin of that position. If we do that it&rsquo;ll give us a really weird shape, but if we limit the axis to values below 0 we get something that looks like a smooth union of the inside distances of the two shapes.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1, shape2);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> length(intersectionSpace);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundInsideUnion.png" alt=""></p>
+<p>That&rsquo;s nice, but we can&rsquo;t change the line where the distance is 0 is with this, so it&rsquo;s not more valuable that a regular union so far. But what we can do is to grow the two shapes bigger before combining them. Similarly to when we created the circle, to grow a shape we subtract from it&rsquo;s distance to push the line where the signed distance is 0 further outside.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> radius <span style="color:#333">=</span> max(sin(_Time.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">5</span>) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.4</span>, <span style="color:#40e;font-weight:bold">0</span>);
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> round_intersect(squareShape, circleShape, radius);
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> length(intersectionSpace);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundInsideExpandedUnion.gif" alt=""></p>
+<p>This just grows our shape and makes sure the transition inside is smooth, but we don&rsquo;t want to grow the shapes, we just want a smooth transition. The solution for this is to subtract the radius again after we calculated the length, most parts will look just like before, except the transition between the shapes which is smoothed nicely based on the radius. Just ignore the outside of the shape for now.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> length(intersectionSpace) <span style="color:#333">-</span> radius;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundInsideSmoothedUnion.gif" alt=""></p>
+<p>The last step is to fix the outside of the shape. Also right now the inside of the shape is green which is the color we use for the outside. The first step is to flip inside and outside by simply inverting the signed distance. Then we replace the part where we subtract the radius. First we change it from a subtraction to a addition. That&rsquo;s because we invert the distance of the vector before combining it with the radius, so to keep in line with the inversion we also invert the math operation we use. Then we replace the radius with a regular union, this gives us correct values outside of the shape, but not close to the edge or inside it, to avoid that we take the maximum between it and the radius, this way we get the positive of correct values outside of the shape as well as the addition of the radius inside it we need.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> <span style="color:#333">-</span>length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleUnion <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> max(simpleUnion, radius);
+    <span style="color:#080;font-weight:bold">return</span>  insideDistance <span style="color:#333">+</span> outsideDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundUnion.gif" alt=""></p>
+<p>For the Intersection we have to do the opposite, we shrink the shapes by the radius, make sure the components of the vector are above 0 and take the length and don&rsquo;t invert it. This builds the outside of the shape. Then to create the inside we take a regular intersection and make sure it doesn&rsquo;t get lower than minus the radius. Then we add the inside and outside values just like before.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">+</span> radius, shape2 <span style="color:#333">+</span> radius);
+    intersectionSpace <span style="color:#333">=</span> max(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersection <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(simpleIntersection, <span style="color:#333">-</span>radius);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundIntersection.gif" alt=""></p>
+<p>And as a last point the subtraction can again be descibed as a intersection between the base shape and everything except the shape we&rsquo;re subtracting.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> radius){
+    round_intersect(base, <span style="color:#333">-</span>subtraction, radius);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/RoundSubtraction.gif" alt=""></p>
+<p>Especially in the subtraction you can see the artefacts that come from assuming that we can use the two shapes as coordinates, but the distance field is still good enough to use it for most purposes.</p>
+<h3 id="champfer">Champfer</h3>
+<p>Another thing we can do is to to champfer the transition to give it a bevel like corner. To get that effect we first create a new shape by adding the existing two. If we again assume the point where the two shapes meet is orthogonal this operation would give us a diagonal line which goes though the point where the two surfaces meet.</p>
+<p><img src="/assets/images/posts/035/ChampferLine.png" alt=""></p>
+<p>because we simply added the two components, the signed distance of this new line has the wrong scaling, but we can fix it by dividing it by the diagonal of a unit square,
+the square root of 2. Dividing by the square root of 2 is the same as multiplying it with the square root of 0.5 and we can simply write that value into our code to not make it calculate the same root every time.</p>
+<p>Now that we have a shape that has the shape of our champfer, we can expand it to make the chamfer be outside the shape. Just like previously, we subtract the amount we want to make the shape expand. Then we merge the champfer shape with the output of a regular merge and we have a champfered transition.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> champferSize <span style="color:#333">=</span> sin(_Time.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">5</span>) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.3</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.3</span>;
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> champfer_merge(circleShape, squareShape, champferSize);
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> champfer_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleMerge <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">-</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> merge(simpleMerge, champfer);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/ChampferUnion.gif" alt=""></p>
+<p>For the intersected champfer we add the two shapes like previously, but then we shrink the shape by adding the champfer amount and then doing a intersection with the regular intersected shape.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> champfer_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersect <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">+</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> intersect(simpleIntersect, champfer);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/ChampferIntersect.gif" alt=""></p>
+<p>And similarly to the previous subtractions we can also do a intersection with a inverted second shape here.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> champfer_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">return</span> champfer_intersect(base, <span style="color:#333">-</span>subtraction, champferSize);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/ChampferSubtract.gif" alt=""></p>
+<h3 id="round-intersection">Round Intersection</h3>
+<p>So far we only used boolean operators (apart from interpolating). But we can also combine the shapes in other ways, for example we can create new round shapes where the borders of two shapes overlap.</p>
+<p>To do this we again interpret the two shapes as the x and y axis of a point. Then we simply calculate that points distance from the origin. Where the shapes borders overlap, the distance of both shapes will be 0, giving us a distance of 0 from the origin in our made-up coordinate system. Then that we have the distance from the origin we can give it the same treatment as we did for circles and subtract the radius.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> round_border(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 position <span style="color:#333">=</span> float2(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> distanceFromBorderIntersection <span style="color:#333">=</span> length(position);
+    <span style="color:#080;font-weight:bold">return</span> distanceFromBorderIntersection <span style="color:#333">-</span> radius;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/BorderIntersection.png" alt=""></p>
+<h3 id="border-groove">Border Groove</h3>
+<p>The last technique I&rsquo;ll explain is a way to make a groove in one shape at the position of the border of another shape.</p>
+<p>We start by calculating the shape of the border of the circle. We do this by getting the absolute value of the distance of the first shape, this way inside as well as outside counts as inside the shape, but the border still has the value of 0. If we grow this shape by subtracting the width of the groove we get a shape around the border of the previous shape.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> max(sin(_Time.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">5</span>) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.4</span>, <span style="color:#40e;font-weight:bold">0</span>);
+<span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> groove_border(squareShape, circleShape, <span style="color:#60e;font-weight:bold">.3</span>, depth);
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">return</span> circleBorder;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/CircleBorder.png" alt=""></p>
+<p>Then we want the circle border to only go as deep as we specify. To do this we subtract a shrunk version of the base shape from it. The amount we shrink the base is the depth of the groove.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">float</span> grooveShape <span style="color:#333">=</span> subtract(circleBorder, base <span style="color:#333">+</span> depth);
+    <span style="color:#080;font-weight:bold">return</span> grooveShape;
+}
+</code></pre></div><p><img src="/assets/images/posts/035/GrooveShape.gif" alt=""></p>
+<p>Then as a last step we subtract the groove from the base shape and return the result.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">float</span> grooveShape <span style="color:#333">=</span> subtract(circleBorder, base <span style="color:#333">+</span> depth);
+    <span style="color:#080;font-weight:bold">return</span> subtract(base, grooveShape);
+}
+</code></pre></div><p><img src="/assets/images/posts/035/Groove.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="library">Library</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/2D_SDF.cginc</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef SDF_2D</span>
+<span style="color:#579">#define SDF_2D</span>
+
+<span style="color:#888">//transforms</span>
+
+float2 rotate(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> rotation){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> rotation <span style="color:#333">*</span> PI <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">2</span> <span style="color:#333">*</span> <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>;
+    <span style="color:#080;font-weight:bold">float</span> sine, cosine;
+    sincos(angle, sine, cosine);
+    <span style="color:#080;font-weight:bold">return</span> float2(cosine <span style="color:#333">*</span> samplePosition.x <span style="color:#333">+</span> sine <span style="color:#333">*</span> samplePosition.y, cosine <span style="color:#333">*</span> samplePosition.y <span style="color:#333">-</span> sine <span style="color:#333">*</span> samplePosition.x);
+}
+
+float2 translate(float2 samplePosition, float2 offset){
+    <span style="color:#888">//move samplepoint in the opposite direction that we want to move shapes in</span>
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">-</span> offset;
+}
+
+float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
+    <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
+}
+
+<span style="color:#888">//combinations</span>
+
+<span style="color:#888">///basic</span>
+<span style="color:#080;font-weight:bold">float</span> merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> min(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2){
+    <span style="color:#080;font-weight:bold">return</span> max(shape1, shape2);
+}
+
+<span style="color:#080;font-weight:bold">float</span> subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction){
+    <span style="color:#080;font-weight:bold">return</span> intersect(base, <span style="color:#333">-</span>subtraction);
+}
+
+<span style="color:#080;font-weight:bold">float</span> interpolate(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> amount){
+    <span style="color:#080;font-weight:bold">return</span> lerp(shape1, shape2, amount);
+}
+
+<span style="color:#888">/// round</span>
+<span style="color:#080;font-weight:bold">float</span> round_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">-</span> radius, shape2 <span style="color:#333">-</span> radius);
+    intersectionSpace <span style="color:#333">=</span> min(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> <span style="color:#333">-</span>length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleUnion <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> max(simpleUnion, radius);
+    <span style="color:#080;font-weight:bold">return</span>  insideDistance <span style="color:#333">+</span> outsideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 intersectionSpace <span style="color:#333">=</span> float2(shape1 <span style="color:#333">+</span> radius, shape2 <span style="color:#333">+</span> radius);
+    intersectionSpace <span style="color:#333">=</span> max(intersectionSpace, <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(intersectionSpace);
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersection <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(simpleIntersection, <span style="color:#333">-</span>radius);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#080;font-weight:bold">float</span> round_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#080;font-weight:bold">return</span> round_intersect(base, <span style="color:#333">-</span>subtraction, radius);
+}
+
+<span style="color:#888">///champfer</span>
+<span style="color:#080;font-weight:bold">float</span> champfer_merge(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleMerge <span style="color:#333">=</span> merge(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">-</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> merge(simpleMerge, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_intersect(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> SQRT_05 <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.70710678118</span>;
+    <span style="color:#080;font-weight:bold">float</span> simpleIntersect <span style="color:#333">=</span> intersect(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> champfer <span style="color:#333">=</span> (shape1 <span style="color:#333">+</span> shape2) <span style="color:#333">*</span> SQRT_05;
+    champfer <span style="color:#333">=</span> champfer <span style="color:#333">+</span> champferSize;
+    <span style="color:#080;font-weight:bold">return</span> intersect(simpleIntersect, champfer);
+}
+
+<span style="color:#080;font-weight:bold">float</span> champfer_subtract(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> subtraction, <span style="color:#080;font-weight:bold">float</span> champferSize){
+    <span style="color:#080;font-weight:bold">return</span> champfer_intersect(base, <span style="color:#333">-</span>subtraction, champferSize);
+}
+
+<span style="color:#888">/// round border intersection</span>
+<span style="color:#080;font-weight:bold">float</span> round_border(<span style="color:#080;font-weight:bold">float</span> shape1, <span style="color:#080;font-weight:bold">float</span> shape2, <span style="color:#080;font-weight:bold">float</span> radius){
+    float2 position <span style="color:#333">=</span> float2(shape1, shape2);
+    <span style="color:#080;font-weight:bold">float</span> distanceFromBorderIntersection <span style="color:#333">=</span> length(position);
+    <span style="color:#080;font-weight:bold">return</span> distanceFromBorderIntersection <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> groove_border(<span style="color:#080;font-weight:bold">float</span> base, <span style="color:#080;font-weight:bold">float</span> groove, <span style="color:#080;font-weight:bold">float</span> width, <span style="color:#080;font-weight:bold">float</span> depth){
+    <span style="color:#080;font-weight:bold">float</span> circleBorder <span style="color:#333">=</span> abs(groove) <span style="color:#333">-</span> width;
+    <span style="color:#080;font-weight:bold">float</span> grooveShape <span style="color:#333">=</span> subtract(circleBorder, base <span style="color:#333">+</span> depth);
+    <span style="color:#080;font-weight:bold">return</span> subtract(base, grooveShape);
+}
+
+<span style="color:#888">//shapes</span>
+
+<span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
+    <span style="color:#888">//get distance from center and grow it according to radius</span>
+    <span style="color:#080;font-weight:bold">return</span> length(samplePosition) <span style="color:#333">-</span> radius;
+}
+
+<span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
+    float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
+    <span style="color:#080;font-weight:bold">float</span> outsideDistance <span style="color:#333">=</span> length(max(componentWiseEdgeDistance, <span style="color:#40e;font-weight:bold">0</span>));
+    <span style="color:#080;font-weight:bold">float</span> insideDistance <span style="color:#333">=</span> min(max(componentWiseEdgeDistance.x, componentWiseEdgeDistance.y), <span style="color:#40e;font-weight:bold">0</span>);
+    <span style="color:#080;font-weight:bold">return</span> outsideDistance <span style="color:#333">+</span> insideDistance;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><h3 id="shader-base">Shader base</h3>
+<ul>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_union.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_union.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_intersect.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_intersect.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_subtract.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_subtract.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_interpolate.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Simple/sdf_interpolate.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_round.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_round.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_champfer.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_champfer.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_border_intersection.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_border_intersection.shader</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_groove.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/035_SDF_combining_repeating/Fancy/sdf_groove.shader</a></p>
+</li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">035</span>_2D_SDF_Combinations<span style="color:#333">/</span>Round<span style="color:#f00;background-color:#faa">&#34;</span>{
+    Properties{
+        _InsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Inside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+        _OutsideColor(<span style="color:#f00;background-color:#faa">&#34;</span>Outside Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">.5</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+
+        _LineDistance(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Distance<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">2</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _LineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Mayor Line Thickness<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.05</span>
+
+        [IntRange]_SubLines(<span style="color:#f00;background-color:#faa">&#34;</span>Lines between major lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">10</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">4</span>
+        _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thickness of inbetween lines<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.05</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.01</span>
+    }
+
+    SubShader{
+        <span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+        Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+        Pass{
+            CGPROGRAM
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#00d;font-weight:bold">2</span>D_SDF.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata{
+                float4 vertex <span style="color:#333">:</span> POSITION;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f{
+                float4 position <span style="color:#333">:</span> SV_POSITION;
+                float4 worldPos <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            v2f vert(appdata v){
+                v2f o;
+                <span style="color:#888">//calculate the position in clip space to render the object</span>
+                o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                <span style="color:#888">//calculate world position of vertex</span>
+                o.worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            <span style="color:#080;font-weight:bold">float</span> scene(float2 position) {
+                <span style="color:#080;font-weight:bold">const</span> <span style="color:#080;font-weight:bold">float</span> PI <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14159</span>;
+
+                float2 squarePosition <span style="color:#333">=</span> position;
+                squarePosition <span style="color:#333">=</span> translate(squarePosition, float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                squarePosition <span style="color:#333">=</span> rotate(squarePosition, <span style="color:#60e;font-weight:bold">.125</span>);
+                <span style="color:#080;font-weight:bold">float</span> squareShape <span style="color:#333">=</span> rectangle(squarePosition, float2(<span style="color:#00d;font-weight:bold">2</span>, <span style="color:#00d;font-weight:bold">2</span>));
+
+                float2 circlePosition <span style="color:#333">=</span> position;
+                circlePosition <span style="color:#333">=</span> translate(circlePosition, float2(<span style="color:#333">-</span><span style="color:#60e;font-weight:bold">1.5</span>, <span style="color:#40e;font-weight:bold">0</span>));
+                <span style="color:#080;font-weight:bold">float</span> circleShape <span style="color:#333">=</span> circle(circlePosition, <span style="color:#60e;font-weight:bold">2.5</span>);
+
+                <span style="color:#080;font-weight:bold">float</span> combination <span style="color:#333">=</span> <span style="color:#888">/* combination calculation here */</span>;
+
+                <span style="color:#080;font-weight:bold">return</span> combination;
+            }
+
+            float4 _InsideColor;
+            float4 _OutsideColor;
+
+            <span style="color:#080;font-weight:bold">float</span> _LineDistance;
+            <span style="color:#080;font-weight:bold">float</span> _LineThickness;
+
+            <span style="color:#080;font-weight:bold">float</span> _SubLines;
+            <span style="color:#080;font-weight:bold">float</span> _SubLineThickness;
+
+            fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+                <span style="color:#080;font-weight:bold">float</span> dist <span style="color:#333">=</span> scene(i.worldPos.xz);
+                fixed4 col <span style="color:#333">=</span> lerp(_InsideColor, _OutsideColor, step(<span style="color:#40e;font-weight:bold">0</span>, dist));
+
+                <span style="color:#080;font-weight:bold">float</span> distanceChange <span style="color:#333">=</span> fwidth(dist) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+                <span style="color:#080;font-weight:bold">float</span> majorLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> _LineDistance <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _LineDistance;
+                <span style="color:#080;font-weight:bold">float</span> majorLines <span style="color:#333">=</span> smoothstep(_LineThickness <span style="color:#333">-</span> distanceChange, _LineThickness <span style="color:#333">+</span> distanceChange, majorLineDistance);
+
+                <span style="color:#080;font-weight:bold">float</span> distanceBetweenSubLines <span style="color:#333">=</span> _LineDistance <span style="color:#333">/</span> _SubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLineDistance <span style="color:#333">=</span> abs(frac(dist <span style="color:#333">/</span> distanceBetweenSubLines <span style="color:#333">+</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> distanceBetweenSubLines;
+                <span style="color:#080;font-weight:bold">float</span> subLines <span style="color:#333">=</span> smoothstep(_SubLineThickness <span style="color:#333">-</span> distanceChange, _SubLineThickness <span style="color:#333">+</span> distanceChange, subLineDistance);
+
+                <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
+            }
+
+            ENDCG
+        }
+    }
+    FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

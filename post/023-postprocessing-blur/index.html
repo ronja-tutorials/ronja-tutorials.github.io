@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Blur Postprocessing Effect | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Blur Postprocessing Effect" />
+<meta property="og:description" content="Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/023-postprocessing-blur/" />
+<meta property="article:published_time" content="2018-08-27T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-08-27T00:00:00+00:00" />
+<meta itemprop="name" content="Blur Postprocessing Effect">
+<meta itemprop="description" content="Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.">
+<meta itemprop="datePublished" content="2018-08-27T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-08-27T00:00:00+00:00" />
+<meta itemprop="wordCount" content="3062">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Blur Postprocessing Effect"/>
+<meta name="twitter:description" content="Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Blur Postprocessing Effect</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-08-27T00:00:00Z">August 27, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+<p>A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write <a href="https://ronja-tutorials.com/post/016-postprocessing-basics/">postprocessing effects</a> before doing this tutorial.</p>
+<p><img src="/assets/images/posts/023/Result.gif" alt=""></p>
+<h2 id="boxblur">Boxblur</h2>
+<p>The easiest form of a blur is a box blur, it just takes the average of a square area and displays it. To access the many different points on the source texture we just iterate over them with a for loop. After reading the color at the different positions we add it to a color variable. And then after adding all of the texture colors we divide by the amount of samples we added to get the average.</p>
+<p>We can use the shader with the postprocessing script we made for the previous tutorial.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//init color variable</span>
+    float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">10</span>;index<span style="color:#333">++</span>){
+        <span style="color:#888">//add color at position to color</span>
+        col <span style="color:#333">+=</span> tex2D(_MainTex, i.uv);
+    }
+    <span style="color:#888">//divide the sum of values by the amount of samples</span>
+    col <span style="color:#333">=</span> col <span style="color:#333">/</span> <span style="color:#00d;font-weight:bold">10</span>;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><h3 id="1d-blur">1D Blur</h3>
+<p>Because we&rsquo;re reading the texture 10 times at the same point, our shader doesn&rsquo;t change anything yet, so the next step is to actually read from different positions on the screen. For this we add a new property and global variable called blur size. This way we can change how much the shader will blur the image. The variable will change the size of the rectangle we take the colors from relative to the screen. By taking the size relative to the screen instead of setting it in pixels ensures that the blurred image will look similar in different resolutions.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    _BlurSize(<span style="color:#f00;background-color:#faa">&#34;</span>Blur Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> _BlurSize;
+</code></pre></div><p>With this new value we can calculate a custom uv position for each sample. To do that we divide the index of the loop by the amount of overall samples minus 1 (in our case 9), that gives us a range from 0 on the first sample to 1 on the last sample. To move that range to be around the point and not on the point we then subtract 0.5 so it&rsquo;s from -0.5 to +0.5. Then we also multiply that result with the new blur size variable to make it customizable.</p>
+<p>After we calculate that value we add it as a y value to the existing uv coordinate.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//iterate over blur samples</span>
+<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">10</span>;index<span style="color:#333">++</span>){
+    <span style="color:#888">//get uv coordinate of sample</span>
+    float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(<span style="color:#40e;font-weight:bold">0</span>, (index<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">9</span> <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize);
+    <span style="color:#888">//add color at position to color</span>
+    col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+}
+</code></pre></div><p><img src="/assets/images/posts/023/VerticalBlur.gif" alt=""></p>
+<p>That gives us a blur along the y axis, but we want to blur along the x axis too. One way to do this would be to nest our for loop in another for loop and iterate over all points in the square, but that&rsquo;s very important and theres a better method. We can also take the result of the blit we just did and then do a second one along the x axis. So by blurring the image which is blurred along the y axis along the x axis we get a result which is the average of a square.</p>
+<h3 id="2d-blur">2D Blur</h3>
+<p>For the second blit we write a completely new shader pass. First we copy the old one, then we change it by moving the offset scalar value to the x component of the offset variable instead of the y component. Another change we make is that we multiply the offset by the inverse of the aspect ratio, that way the distance between samples is the same in the vertical and horizontal pass.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//calculate aspect ratio</span>
+    <span style="color:#080;font-weight:bold">float</span> invAspect <span style="color:#333">=</span> _ScreenParams.y <span style="color:#333">/</span> _ScreenParams.x;
+    <span style="color:#888">//init color variable</span>
+    float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#888">//iterate over blur samples</span>
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> <span style="color:#00d;font-weight:bold">10</span>; index<span style="color:#333">++</span>){
+        <span style="color:#888">//get uv coordinate of sample</span>
+        float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2((index<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">9</span> <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize <span style="color:#333">*</span> invAspect, <span style="color:#40e;font-weight:bold">0</span>);
+        <span style="color:#888">//add color at position to color</span>
+        col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+    }
+    <span style="color:#888">//divide the sum of values by the amount of samples</span>
+    col <span style="color:#333">=</span> col <span style="color:#333">/</span> <span style="color:#00d;font-weight:bold">10</span>;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>To use both passes we have to change our C# script now. Because we have a temporary result after the vertical and before the horizontal pass, we have to use a new rendertexture. We use the <code>RenderTexture.GetTemporary</code> utility for that. With this function we can request a rendertexture of a size and unity will manage the pooling in the background. Then we call our first blit function an additional fourth parameter <code>0</code>. That fourth parameter is the pass of the shader and in our shader the first pass is our horizontal pass. The blit has has to read from the source texture and write into our temporary texture. Then after the first blit we do another one which will read from the temporary, vertically blurred,  texture and write into the destination texture and will use the second pass with the index <code>1</code> to blur vertically. After blurring the texture we release the temporary texture again so other scripts can use it if they should need it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//method which is automatically called by unity after the camera is done rendering</span>
+<span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+    <span style="color:#888">//draws the pixels from the source texture to the destination texture</span>
+    var temporaryTexture <span style="color:#333">=</span> RenderTexture.GetTemporary(source.width, source.height);
+    Graphics.Blit(source, temporaryTexture, postprocessMaterial, <span style="color:#40e;font-weight:bold">0</span>);
+    Graphics.Blit(temporaryTexture, destination, postprocessMaterial, <span style="color:#00d;font-weight:bold">1</span>);
+    RenderTexture.ReleaseTemporary(temporaryTexture);
+}
+</code></pre></div><p><img src="/assets/images/posts/023/BoxBlur.gif" alt=""></p>
+<h3 id="customize-sample-amount">Customize Sample Amount</h3>
+<p>With this we have a simple blur. But I&rsquo;d like to make the amount of samples also customizable. We can&rsquo;t do that with a simple variable because unity has to know when it compiles how many samples there will be. That&rsquo;s because reading from textures in a loop isn&rsquo;t /really/ possible. The reason we can still do it is that the loop is so predictable that the shader compiler can &ldquo;unroll&rdquo; it. So in the compiled code the code in the loop is just put back to back multiple times with the parameters of the loop that change.</p>
+<p>The way to give unity variables that it knows during shader compilation is via <code>#define</code> definitions. So we add a defintion for a variable called samples and give it the value of 10 in the cgprogram outside of functions. Then in the fragment shader we replace everything that depends on the amount of samples with this new variable. It&rsquo;s important now that we make those changes in both shader passes!</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#define SAMPLES 10</span>
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    <span style="color:#888">//init color variable</span>
+    float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+    <span style="color:#888">//iterate over blur samples</span>
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> SAMPLES; index<span style="color:#333">++</span>){
+        <span style="color:#888">//get uv coordinate of sample</span>
+        float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(<span style="color:#40e;font-weight:bold">0</span>, (index<span style="color:#333">/</span>(SAMPLES<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize);
+        <span style="color:#888">//add color at position to color</span>
+        col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+    }
+    <span style="color:#888">//divide the sum of values by the amount of samples</span>
+    col <span style="color:#333">=</span> col <span style="color:#333">/</span> SAMPLES;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>With this change it&rsquo;s easy to adjust the samples in the code, but we can go one step further and make them changable in the inspector too. First we add a property with the <code>KeywordEnum</code> propertydrawer, with it the property shows the different possibilities and sets the according keywords in the shader.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    _BlurSize(<span style="color:#f00;background-color:#faa">&#34;</span>Blur Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    [KeywordEnum(Low, Medium, High)] _Samples (<span style="color:#f00;background-color:#faa">&#34;</span>Sample amount<span style="color:#f00;background-color:#faa">&#34;</span>, Float) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+}
+</code></pre></div><p>Then in the cgprogram we can declare that the shader will be compiled into multiple possibilitied with <code>multi_compile</code>. The keywords of the multicompile are the property name plus the different possibilities we entered.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#pragma multi_compile _SAMPLES_LOW _SAMPLES_MEDIUM _SAMPLES_HIGH</span>
+</code></pre></div><p>With this set up we can set up what will happen depending on the active keyword. In this case we will only change the samples variable depending on the keyword. Here it&rsquo;s again important to add the multicompile declaration and the different sample amounts to both shader passes!</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#if _SAMPLES_LOW</span>
+    <span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">10</span>
+<span style="color:#579">#elif _SAMPLES_MEDIUM</span>
+    <span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">30</span>
+<span style="color:#579">#else</span>
+    <span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">100</span>
+<span style="color:#579">#endif</span>
+</code></pre></div><p><img src="/assets/images/posts/023/QualitySettings.gif" alt=""></p>
+<p>With this change we can now chage the quality how it fits and have Implemented a box blur shader successfully.</p>
+<h2 id="gaussian-blur">Gaussian Blur</h2>
+<p>A more complex way to blur a image is to do a gaussian blur. It&rsquo;s similar to the box blur, but gives the pixels with a smaller offset to the center a lower priority. We can calculate the weight of every pixel with a gaussian function, it looks like this:</p>
+<p><img src="/assets/images/posts/023/Gauss.svg" alt=""></p>
+<p>We need 2 parameters for the function, the distance from the center x and the standart deviation σ. We already have x, because we used it for calculating the box blur. the standart deviation will be a new property. We will also add another new property which will allow us to toggle wether the shader uses gauss or box blur. The toggle propertydrawer allows us to show checkboxes in the inspector and when we pass it a shader feature it will also activate and deactivate that. Shader features act just like multi compile shaders, but it&rsquo;s easier to just have one variable and turn it on and off.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
+Properties{
+    [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+    _BlurSize(<span style="color:#f00;background-color:#faa">&#34;</span>Blur Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    [KeywordEnum(BoxLow, BoxMedium, BoxHigh, GaussLow, GaussHigh)] _Samples (<span style="color:#f00;background-color:#faa">&#34;</span>Sample amount<span style="color:#f00;background-color:#faa">&#34;</span>, Float) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    [Toggle(GAUSS)] _Gauss (<span style="color:#f00;background-color:#faa">&#34;</span>Gaussian Blur<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    _StandardDeviation(<span style="color:#f00;background-color:#faa">&#34;</span>Standard Deviation (Gauss only)<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0.1</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.02</span>
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#pragma shader_feature GAUSS</span>
+</code></pre></div><p>Another thing we need for the gaussian function is pi and Euler&rsquo;s number, so we also add them as defined constants.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#define PI 3.14159265359</span>
+<span style="color:#579">#define E 2.71828182846</span>
+</code></pre></div><p>By bringing in the gauss function we&rsquo;re not sure what the sum of all samples will be anymore, so we introduce a new local variable for the sum. If we&rsquo;re doing a gauss blur, we init the variable as 0 and add the gauss values in the for loop. When using a box blur we can continue to use the sample count as the sum of all sample influcences.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#if GAUSS</span>
+    <span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#579">#else</span>
+    <span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> SAMPLES;
+<span style="color:#579">#endif</span>
+</code></pre></div><p>Then we rewrite the part of the shader in the for loop. We first save the scalar offset in it&rsquo;s own variable and then build the uv coordinated based on it, that way we can use it later in the gaussian function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> SAMPLES; index<span style="color:#333">++</span>){
+    <span style="color:#080;font-weight:bold">float</span> offset <span style="color:#333">=</span> (index<span style="color:#333">/</span>(SAMPLES<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize;
+    <span style="color:#888">//get uv coordinate of sample</span>
+    float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(<span style="color:#40e;font-weight:bold">0</span>, offset);
+<span style="color:#579">#if !GAUSS</span>
+    col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+<span style="color:#579">#else</span>
+    <span style="color:#888">//gauss stuff</span>
+<span style="color:#579">#endif</span>
+}
+</code></pre></div><p>With this setup we can now also implement the gaussian blur. First we calculate the square of the standard deviation, because it&rsquo;s used twice in the function. Then we calculate the function itself. First the left half, we divide one by the square root of two times pi times the square of the standard deviation. Then we multiply it with the right part which is the Euler&rsquo;s number to the power of minus offset squared divided by 2 times the standard deviation squared.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//calculate the result of the gaussian function</span>
+<span style="color:#080;font-weight:bold">float</span> stDevSquared <span style="color:#333">=</span> _StandardDeviation<span style="color:#333">*</span>_StandardDeviation;
+<span style="color:#080;font-weight:bold">float</span> gauss <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">/</span> sqrt(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>PI<span style="color:#333">*</span>stDevSquared)) <span style="color:#333">*</span> pow(E, <span style="color:#333">-</span>((offset<span style="color:#333">*</span>offset)<span style="color:#333">/</span>(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>stDevSquared)));
+</code></pre></div><p>Then once we have that value we add it to our sum of all values and we multiply the texture color with it and add that to the sum of all colors. Once that&rsquo;s done we can add those changes to the other pass too and we have a working gaussian blur.</p>
+<p>One last thing about the gaussian blur is that it breaks when the standart deviation is 0, so we add a tiny failsafe at the beginning of the fragment shader to just not do any blurring if the standart deviation is 0.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+<span style="color:#579">#if GAUSS</span>
+    <span style="color:#888">//failsafe so we can use turn off the blur by setting the deviation to 0</span>
+    <span style="color:#080;font-weight:bold">if</span>(_StandardDeviation <span style="color:#333">==</span> <span style="color:#40e;font-weight:bold">0</span>)
+        <span style="color:#080;font-weight:bold">return</span> tex2D(_MainTex, i.uv);
+<span style="color:#579">#endif</span>
+    <span style="color:#888">//init color variable</span>
+    float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#579">#if GAUSS</span>
+    <span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+<span style="color:#579">#else</span>
+    <span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> SAMPLES;
+<span style="color:#579">#endif</span>
+    <span style="color:#888">//iterate over blur samples</span>
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> SAMPLES; index<span style="color:#333">++</span>){
+        <span style="color:#888">//get the offset of the sample</span>
+        <span style="color:#080;font-weight:bold">float</span> offset <span style="color:#333">=</span> (index<span style="color:#333">/</span>(SAMPLES<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize;
+        <span style="color:#888">//get uv coordinate of sample</span>
+        float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(<span style="color:#40e;font-weight:bold">0</span>, offset);
+    <span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> <span style="color:#333">!</span>GAUSS
+        <span style="color:#888">//simply add the color if we don&#39;t have a gaussian blur (box)</span>
+        col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+    <span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+        <span style="color:#888">//calculate the result of the gaussian function</span>
+        <span style="color:#080;font-weight:bold">float</span> stDevSquared <span style="color:#333">=</span> _StandardDeviation<span style="color:#333">*</span>_StandardDeviation;
+        <span style="color:#080;font-weight:bold">float</span> gauss <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">/</span> sqrt(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>PI<span style="color:#333">*</span>stDevSquared)) <span style="color:#333">*</span> pow(E, <span style="color:#333">-</span>((offset<span style="color:#333">*</span>offset)<span style="color:#333">/</span>(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>stDevSquared)));
+        <span style="color:#888">//add result to sum</span>
+        sum <span style="color:#333">+=</span> gauss;
+        <span style="color:#888">//multiply color with influence from gaussian function and add it to sum color</span>
+        col <span style="color:#333">+=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> gauss;
+    <span style="color:#f00;background-color:#faa">#</span>endif
+    }
+    <span style="color:#888">//divide the sum of values by the amount of samples</span>
+    col <span style="color:#333">=</span> col <span style="color:#333">/</span> sum;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/023/Result.gif" alt=""></p>
+<p>There are two mayor improvements that could be done to this shader that come to my mind, but I won&rsquo;t get into right here. First, you could put some of the code into a include file, that way a lot of the code that&rsquo;s in both shader passes only has to be written once and we can use it in both passes. Secondly you could calculate the results of the gaussian function in C# and then pass them to the shader, calculating them in the shader is pretty expensive.</p>
+<h2 id="source">Source</h2>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+
+<span style="color:#888">//behaviour which should lie on the same gameobject as the main camera
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">PostprocessingBlur</span> : MonoBehaviour {
+	<span style="color:#888">//material that&#39;s applied when doing postprocessing
+</span><span style="color:#888"></span><span style="color:#00c">	[SerializeField]</span>
+	<span style="color:#080;font-weight:bold">private</span> Material postprocessMaterial;
+
+	<span style="color:#888">//method which is automatically called by unity after the camera is done rendering
+</span><span style="color:#888"></span>	<span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination){
+		<span style="color:#888">//draws the pixels from the source texture to the destination texture
+</span><span style="color:#888"></span>		<span style="color:#339;font-weight:bold">var</span> temporaryTexture = RenderTexture.GetTemporary(source.width, source.height);
+		Graphics.Blit(source, temporaryTexture, postprocessMaterial, <span style="color:#60e;font-weight:bold">0</span>);
+		Graphics.Blit(temporaryTexture, destination, postprocessMaterial, <span style="color:#60e;font-weight:bold">1</span>);
+		RenderTexture.ReleaseTemporary(temporaryTexture);
+	}
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">023</span>_Postprocessing_Blur<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		[HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+		_BlurSize(<span style="color:#f00;background-color:#faa">&#34;</span>Blur Size<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>,<span style="color:#60e;font-weight:bold">0.5</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		[KeywordEnum(Low, Medium, High)] _Samples (<span style="color:#f00;background-color:#faa">&#34;</span>Sample amount<span style="color:#f00;background-color:#faa">&#34;</span>, Float) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		[Toggle(GAUSS)] _Gauss (<span style="color:#f00;background-color:#faa">&#34;</span>Gaussian Blur<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#080;font-weight:bold">float</span>) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		[PowerSlider(<span style="color:#00d;font-weight:bold">3</span>)]_StandardDeviation(<span style="color:#f00;background-color:#faa">&#34;</span>Standard Deviation (Gauss only)<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#60e;font-weight:bold">0.00</span>, <span style="color:#60e;font-weight:bold">0.3</span>)) <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">0.02</span>
+	}
+
+	SubShader{
+		<span style="color:#888">// markers that specify that we don&#39;t need culling </span>
+		<span style="color:#888">// or reading/writing to the depth buffer</span>
+		Cull Off
+		ZWrite Off 
+		ZTest Always
+
+
+		<span style="color:#888">//Vertical Blur</span>
+		Pass{
+			CGPROGRAM
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma multi_compile _SAMPLES_LOW _SAMPLES_MEDIUM _SAMPLES_HIGH
+			<span style="color:#f00;background-color:#faa">#</span>pragma shader_feature GAUSS
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			<span style="color:#080;font-weight:bold">float</span> _BlurSize;
+			<span style="color:#080;font-weight:bold">float</span> _StandardDeviation;
+
+			<span style="color:#f00;background-color:#faa">#</span>define PI <span style="color:#60e;font-weight:bold">3.14159265359</span>
+			<span style="color:#f00;background-color:#faa">#</span>define E <span style="color:#60e;font-weight:bold">2.71828182846</span>
+
+		<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> _SAMPLES_LOW
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">10</span>
+		<span style="color:#f00;background-color:#faa">#</span>elif _SAMPLES_MEDIUM
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">30</span>
+		<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">100</span>
+		<span style="color:#f00;background-color:#faa">#</span>endif
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> GAUSS
+				<span style="color:#888">//failsafe so we can use turn off the blur by setting the deviation to 0</span>
+				<span style="color:#080;font-weight:bold">if</span>(_StandardDeviation <span style="color:#333">==</span> <span style="color:#40e;font-weight:bold">0</span>)
+				<span style="color:#080;font-weight:bold">return</span> tex2D(_MainTex, i.uv);
+			<span style="color:#f00;background-color:#faa">#</span>endif
+				<span style="color:#888">//init color variable</span>
+				float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> GAUSS
+				<span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+				<span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> SAMPLES;
+			<span style="color:#f00;background-color:#faa">#</span>endif
+				<span style="color:#888">//iterate over blur samples</span>
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> SAMPLES; index<span style="color:#333">++</span>){
+					<span style="color:#888">//get the offset of the sample</span>
+					<span style="color:#080;font-weight:bold">float</span> offset <span style="color:#333">=</span> (index<span style="color:#333">/</span>(SAMPLES<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize;
+					<span style="color:#888">//get uv coordinate of sample</span>
+					float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(<span style="color:#40e;font-weight:bold">0</span>, offset);
+				<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> <span style="color:#333">!</span>GAUSS
+					<span style="color:#888">//simply add the color if we don&#39;t have a gaussian blur (box)</span>
+					col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+				<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+					<span style="color:#888">//calculate the result of the gaussian function</span>
+					<span style="color:#080;font-weight:bold">float</span> stDevSquared <span style="color:#333">=</span> _StandardDeviation<span style="color:#333">*</span>_StandardDeviation;
+					<span style="color:#080;font-weight:bold">float</span> gauss <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">/</span> sqrt(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>PI<span style="color:#333">*</span>stDevSquared)) <span style="color:#333">*</span> pow(E, <span style="color:#333">-</span>((offset<span style="color:#333">*</span>offset)<span style="color:#333">/</span>(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>stDevSquared)));
+					<span style="color:#888">//add result to sum</span>
+					sum <span style="color:#333">+=</span> gauss;
+					<span style="color:#888">//multiply color with influence from gaussian function and add it to sum color</span>
+					col <span style="color:#333">+=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> gauss;
+				<span style="color:#f00;background-color:#faa">#</span>endif
+				}
+				<span style="color:#888">//divide the sum of values by the amount of samples</span>
+				col <span style="color:#333">=</span> col <span style="color:#333">/</span> sum;
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+
+		<span style="color:#888">//Horizontal Blur</span>
+		Pass{
+			CGPROGRAM
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#f00;background-color:#faa">#</span>pragma multi_compile _SAMPLES_LOW _SAMPLES_MEDIUM _SAMPLES_HIGH
+			<span style="color:#f00;background-color:#faa">#</span>pragma shader_feature GAUSS
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			<span style="color:#080;font-weight:bold">float</span> _BlurSize;
+			<span style="color:#080;font-weight:bold">float</span> _StandardDeviation;
+
+			<span style="color:#f00;background-color:#faa">#</span>define PI <span style="color:#60e;font-weight:bold">3.14159265359</span>
+			<span style="color:#f00;background-color:#faa">#</span>define E <span style="color:#60e;font-weight:bold">2.71828182846</span>
+
+		<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> _SAMPLES_LOW
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">10</span>
+		<span style="color:#f00;background-color:#faa">#</span>elif _SAMPLES_MEDIUM
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">30</span>
+		<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+			<span style="color:#f00;background-color:#faa">#</span>define SAMPLES <span style="color:#00d;font-weight:bold">100</span>
+		<span style="color:#f00;background-color:#faa">#</span>endif
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> v.uv;
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> GAUSS
+				<span style="color:#888">//failsafe so we can use turn off the blur by setting the deviation to 0</span>
+				<span style="color:#080;font-weight:bold">if</span>(_StandardDeviation <span style="color:#333">==</span> <span style="color:#40e;font-weight:bold">0</span>)
+				<span style="color:#080;font-weight:bold">return</span> tex2D(_MainTex, i.uv);
+			<span style="color:#f00;background-color:#faa">#</span>endif
+				<span style="color:#888">//calculate aspect ratio</span>
+				<span style="color:#080;font-weight:bold">float</span> invAspect <span style="color:#333">=</span> _ScreenParams.y <span style="color:#333">/</span> _ScreenParams.x;
+				<span style="color:#888">//init color variable</span>
+				float4 col <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> GAUSS
+				<span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+			<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+				<span style="color:#080;font-weight:bold">float</span> sum <span style="color:#333">=</span> SAMPLES;
+			<span style="color:#f00;background-color:#faa">#</span>endif
+				<span style="color:#888">//iterate over blur samples</span>
+				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">float</span> index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index <span style="color:#333">&lt;</span> SAMPLES; index<span style="color:#333">++</span>){
+					<span style="color:#888">//get the offset of the sample</span>
+					<span style="color:#080;font-weight:bold">float</span> offset <span style="color:#333">=</span> (index<span style="color:#333">/</span>(SAMPLES<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>) <span style="color:#333">*</span> _BlurSize <span style="color:#333">*</span> invAspect;
+					<span style="color:#888">//get uv coordinate of sample</span>
+					float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> float2(offset, <span style="color:#40e;font-weight:bold">0</span>);
+				<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">if</span> <span style="color:#333">!</span>GAUSS
+					<span style="color:#888">//simply add the color if we don&#39;t have a gaussian blur (box)</span>
+					col <span style="color:#333">+=</span> tex2D(_MainTex, uv);
+				<span style="color:#f00;background-color:#faa">#</span><span style="color:#080;font-weight:bold">else</span>
+					<span style="color:#888">//calculate the result of the gaussian function</span>
+					<span style="color:#080;font-weight:bold">float</span> stDevSquared <span style="color:#333">=</span> _StandardDeviation<span style="color:#333">*</span>_StandardDeviation;
+					<span style="color:#080;font-weight:bold">float</span> gauss <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">/</span> sqrt(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>PI<span style="color:#333">*</span>stDevSquared)) <span style="color:#333">*</span> pow(E, <span style="color:#333">-</span>((offset<span style="color:#333">*</span>offset)<span style="color:#333">/</span>(<span style="color:#00d;font-weight:bold">2</span><span style="color:#333">*</span>stDevSquared)));
+					<span style="color:#888">//add result to sum</span>
+					sum <span style="color:#333">+=</span> gauss;
+					<span style="color:#888">//multiply color with influence from gaussian function and add it to sum color</span>
+					col <span style="color:#333">+=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> gauss;
+				<span style="color:#f00;background-color:#faa">#</span>endif
+				}
+				<span style="color:#888">//divide the sum of values by the amount of samples</span>
+				col <span style="color:#333">=</span> col <span style="color:#333">/</span> sum;
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><p>You can also find the source here:</p>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/023_PostprocessingBlur/PostprocessingBlur.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/023_PostprocessingBlur/PostprocessingBlur.cs</a></li>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/023_PostprocessingBlur/PostprocessingBlur.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/023_PostprocessingBlur/PostprocessingBlur.shader</a></li>
+</ul>
+<p>I hope I was able to show you another nice postprocessing effect which you can use to do many cool things.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "disqus_vlgXjcPhg1" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

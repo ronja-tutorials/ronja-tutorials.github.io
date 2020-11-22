@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+      
+        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+        <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="Ronja&#39;s tutorials" />
+      
+    
+    
+    <meta property="og:title" content="Posts" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://ronja-tutorials.com/post/" />
+<meta property="og:updated_time" content="2020-09-16T00:00:00+00:00" />
+<meta itemprop="name" content="Posts">
+<meta itemprop="description" content="">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Posts"/>
+<meta name="twitter:description" content=""/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+
+  <header>
+    <div class="pb3-m pb6-l bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+      <div class="tc-l pv3 ph3 ph4-ns">
+        <h1 class="f2 f-subheadline-l fw2 light-silver mb0 lh-title">
+          Posts
+        </h1>
+        
+      </div>
+    </div>
+  </header>
+
+
+    <main class="pb7" role="main">
+      
+
+  <article class="pa3 pa4-ns nested-copy-line-height nested-img">
+    <section class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center measure-wide lh-copy mid-gray">
+      
+    </section>
+    <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        October 20, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/031-single-step-toon/" class="link black dim">
+        Single Step Toon Light
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      I thought about how to make a toon shader and this is the result. There are obviously many different toon styles, so this is just one possiblity of many, but even if it&rsquo;s not the result you want in your game this tutorial can give you some insight in how I work and how to do stuff with shaders. The main advantage for me to use this toon shader in opposition to one that reads from ramp texures is that I can dynamically change the parameters without editing a texture first.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        October 13, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/030-baking_shaders/" class="link black dim">
+        Baking Shaders into Textures
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        October 6, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/029-tiling-noise/" class="link black dim">
+        Tiling Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.
+I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 29, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/028-voronoi-noise/" class="link black dim">
+        Voronoi Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood the basics of shaders in unity and how to generate random values in shaders.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 22, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/027-layered-noise/" class="link black dim">
+        Layered Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Layered Noise So far the noise we generated always looked either very soft, or very noisy. We can improve that by layering multiple layers of noise on top of each other. That way we get the structure of the soft noise as well as the interresting details of the more high frequency noise. Layering noise works well for value noise as well as perlin noise. While layering noise might give you patterns that are closer to what you intend to see, you also have to be careful if you worry about performance because each layer of noise you add costs you about as much performance as the first.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 15, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/026-perlin-noise/" class="link black dim">
+        Perlin Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Perlin Noise One of other common form of noise is perlin noise. Perlin noise is one implementation of so called &ldquo;gradient noise&rdquo; similarly to value noise it&rsquo;s based on cells so it can be easily repeated and looks smooth. What differentiates it from value noise is that instead of interpolating the values, the values are based on inclinations. Because noise in general is a pretty complex topic I recommend you to read the tutorials on white noise and value noise first.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 8, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/025-value-noise/" class="link black dim">
+        Value Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary In the last tutorial we learned how to generate random numbers in a shader. In this one we&rsquo;ll go into interpolating between random numbers to generate noise that&rsquo;s smoother and gradually changes. Because we need random values to interpolate between for value noise, you should know how to generate random values in shaders before doing this tutorial. Value noise is similar to perlin noise, but different because we always interpolate between the center of the cells, perlin noise will be explained in a later tutorial.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        September 2, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/024-white-noise/" class="link black dim">
+        White Noise
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary For many effects we want random numbers to generate patterns or other things in our shaders. Directly using those random values generates a pattern we call &ldquo;white noise&rdquo;. There are other patterns which have more structure we can generate based on that which we will explore in other tutorials, for example perlin and voronoi noise. For this tutorial we will implement the noise in a surface shader so you should know how to write a basic surface shader).
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        August 27, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/023-postprocessing-blur/" class="link black dim">
+        Blur Postprocessing Effect
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.
+    </div>
+  </div>
+
+        </div>
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        August 18, 2018
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://ronja-tutorials.com/post/022-stencil-buffers/" class="link black dim">
+        Stencil Buffers
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Summary The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.
+The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply.
+    </div>
+  </div>
+
+        </div>
+      
+    </aside>
+    
+<ul class="pagination">
+  <li class="page-item">
+    <a href="/post/" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/2/" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/">1</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/2/">2</a>
+  </li>
+  <li class="page-item active">
+    <a class="page-link" href="/post/page/3/">3</a>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/4/">4</a>
+  </li>
+  <li class="page-item disabled">
+    <span aria-hidden="true">&nbsp;&hellip;&nbsp;</span>
+  </li>
+  <li class="page-item">
+    <a class="page-link" href="/post/page/6/">6</a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/4/" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+  </li>
+  <li class="page-item">
+    <a href="/post/page/6/" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+  </li>
+</ul>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

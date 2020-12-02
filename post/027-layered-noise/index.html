@@ -10,7 +10,8 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
 
     
     
@@ -492,13 +493,13 @@ float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWor
 			<span style="color:#080;font-weight:bold">float</span> interpolatorY <span style="color:#333">=</span> easeInOut(fraction.y);
 			<span style="color:#080;font-weight:bold">float</span> interpolatorZ <span style="color:#333">=</span> easeInOut(fraction.z);
 
-			float3 cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
+			<span style="color:#080;font-weight:bold">float</span> cellNoiseZ[<span style="color:#00d;font-weight:bold">2</span>];
 			[unroll]
 			<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> z<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;z<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;z<span style="color:#333">++</span>){
-				float3 cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
+				<span style="color:#080;font-weight:bold">float</span> cellNoiseY[<span style="color:#00d;font-weight:bold">2</span>];
 				[unroll]
 				<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> y<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;y<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;y<span style="color:#333">++</span>){
-					float3 cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
+					<span style="color:#080;font-weight:bold">float</span> cellNoiseX[<span style="color:#00d;font-weight:bold">2</span>];
 					[unroll]
 					<span style="color:#080;font-weight:bold">for</span>(<span style="color:#080;font-weight:bold">int</span> x<span style="color:#333">=</span><span style="color:#40e;font-weight:bold">0</span>;x<span style="color:#333">&lt;=</span><span style="color:#00d;font-weight:bold">1</span>;x<span style="color:#333">++</span>){
 						float3 cell <span style="color:#333">=</span> floor(value) <span style="color:#333">+</span> float3(x, y, z);
@@ -510,7 +511,7 @@ float2 bitangentPosValue <span style="color:#333">=</span> mul(unity_ObjectToWor
 				}
 				cellNoiseZ[z] <span style="color:#333">=</span> lerp(cellNoiseY[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseY[<span style="color:#00d;font-weight:bold">1</span>], interpolatorY);
 			}
-			float3 noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
+			<span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> lerp(cellNoiseZ[<span style="color:#40e;font-weight:bold">0</span>], cellNoiseZ[<span style="color:#00d;font-weight:bold">1</span>], interpolatorZ);
 			<span style="color:#080;font-weight:bold">return</span> noise;
 		}
 

@@ -3,12 +3,17 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://www.ronja-tutorials.com/post/051-draw-procedural/</loc>
-    <lastmod>2020-09-16T00:00:00+00:00</lastmod>
+    <loc>https://www.ronja-tutorials.com/post/052-object-outline/</loc>
+    <lastmod>2020-11-25T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://www.ronja-tutorials.com/post/</loc>
+    <lastmod>2020-11-25T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://www.ronja-tutorials.com/post/051-draw-procedural/</loc>
     <lastmod>2020-09-16T00:00:00+00:00</lastmod>
   </url>
   

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Object Outlines | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="I have made multiple tutorials about outlines already, doing them with a inverted hull, as a postprocessing effect using the depth and normal buffers or by sampling neighboring pixels of a sprite, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Object Outlines" />
+<meta property="og:description" content="I have made multiple tutorials about outlines already, doing them with a inverted hull, as a postprocessing effect using the depth and normal buffers or by sampling neighboring pixels of a sprite, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/052-object-outline/" />
+<meta property="article:published_time" content="2020-11-25T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-11-25T00:00:00+00:00" />
+<meta itemprop="name" content="Object Outlines">
+<meta itemprop="description" content="I have made multiple tutorials about outlines already, doing them with a inverted hull, as a postprocessing effect using the depth and normal buffers or by sampling neighboring pixels of a sprite, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose.">
+<meta itemprop="datePublished" content="2020-11-25T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-11-25T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1349">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Object Outlines"/>
+<meta name="twitter:description" content="I have made multiple tutorials about outlines already, doing them with a inverted hull, as a postprocessing effect using the depth and normal buffers or by sampling neighboring pixels of a sprite, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Object Outlines</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2020-11-25T00:00:00Z">November 25, 2020</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I have made multiple tutorials about outlines already, doing them with a <a href="https://www.ronja-tutorials.com/post/020-hull-outline/">inverted hull</a>, as a <a href="https://www.ronja-tutorials.com/post/019-postprocessing-outlines/">postprocessing effect using the depth and normal buffers</a> or by <a href="https://www.ronja-tutorials.com/post/049-sprite-outlines/">sampling neighboring pixels of a sprite</a>, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose. Because of those properties this technique is mostly useful to show selected objects in 3d contexts.</p>
+<p>All this works by rendering the objects we want outlined into a separate texture and creating outlines based on that.</p>
+<p><img src="/assets/images/posts/052/result.gif" alt=""></p>
+<h2 id="building-the-selection-buffer">Building the Selection Buffer</h2>
+<p>We start by using a <a href="https://www.ronja-tutorials.com/post/016-postprocessing-basics/">simple postprocessing effect like in previous tutorials</a> with OnRenderImage. But this time I want to use the <code>CommandBuffer</code> API, solely because it has one function not present in the <code>Graphics</code> class that will make our lives easier.</p>
+<p>We start by creating a new commandbuffer, then getting a tempoary rendertexture. Because we don&rsquo;t juggle with <code>RenderTexture</code> instances in commandbuffer land, we need to get a shader property id that we can fill the new rendertexture into first. To define the size and other parameters of the render texture we can just pass in the RenderTextureDescriptor of the source texture that holds all relevant information.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//setup stuff</span>
+var commands <span style="color:#333">=</span> new CommandBuffer();
+<span style="color:#080;font-weight:bold">int</span> objectBuffer <span style="color:#333">=</span> Shader.PropertyToID(<span style="color:#f00;background-color:#faa">&#34;</span>_SelectionBuffer<span style="color:#f00;background-color:#faa">&#34;</span>);
+commands.GetTemporaryRT(objectBuffer, source.descriptor);
+</code></pre></div><p>With this set up we can continue by setting that new texture as the render target and clearing it with a transparent black. Those steps work similarly to the API in <code>UnityEngine.Graphics</code>.
+Then we render the object we want outlined into said texture, if it exists. To do this we used the function I mentioned before, <code>DrawRenderer</code>, as the name suggests it allows us to just draw a renderer into the current rendertarget. If you want to allow multiple outlined objects this is where you&rsquo;d render all of them in a loop.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//render selection buffer</span>
+commands.SetRenderTarget(selectionBuffer);
+commands.ClearRenderTarget(<span style="color:#080;font-weight:bold">true</span>, <span style="color:#080;font-weight:bold">true</span>, Color.clear);
+<span style="color:#080;font-weight:bold">if</span> (OutlinedObject <span style="color:#333">!=</span> null)
+{
+  commands.DrawRenderer(OutlinedObject, WriteObject);
+}
+</code></pre></div><p>We haven&rsquo;t defined <code>OutlinedObject</code> and <code>WriteObject</code> yet. The first one is a public Renderer we can assign from the inspector, the other one a simple material we can assign the same way. I used a material using the unlit shader from the very first tutorials, but for this simple implementation almost any material does the trick.</p>
+<p>We&rsquo;ll change this later when we write the shader, but for now we&rsquo;ll blit the selection buffer we just made into the destination render texture. After thats done we release the buffer again so unity can re-use it.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//apply everything and clean up in commandbuffer</span>
+commands.Blit(selectionBuffer, destination);
+commands.ReleaseTemporaryRT(selectionBuffer);
+</code></pre></div><p>All of this means the command buffer is complete. To execute it immediately we pass it into <code>Graphics.ExecuteCommandBuffer</code> and after its done its job we call <code>Dispose</code> on it to signal we don&rsquo;t need it anymore.</p>
+<p>An optimization I would recommend, but is over the scope of this tutorial, is to create one command buffer at the start and keep reusing it, using <code>.Clear</code> to fill it anew, but even only do that when something actually changes and not every frame.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//apply everything and clean up in commandbuffer</span>
+commands.Blit(selectionBuffer, destination);
+commands.ReleaseTemporaryRT(selectionBuffer);
+
+<span style="color:#888">//execute and clean up commandbuffer itself</span>
+Graphics.ExecuteCommandBuffer(commands);
+commands.Dispose();
+</code></pre></div><p>With this work done, a simple material as well as a renderer in the camera frustum applied and the game running we should now see the renderer of our choice on a black background.</p>
+<p><img src="/assets/images/posts/052/BunnyBuffer.png" alt=""></p>
+<h2 id="actually-calculating-outlines-based-on-that">Actually calculating Outlines based on that</h2>
+<p>To now use the buffer we just created, all we have to to on the C# side is to not blit the buffer to the destination, but instead blit the source and use a new material to do so, this material will use a shader which puts the buffer back into the equation. The new material in this case comes from a new public field. The core of the shader is the same as in the previous tutorial about <a href="https://www.ronja-tutorials.com/post/049-sprite-outlines/">sprite outlines</a>, but this time applied to the buffer we just prepared.</p>
+<p>A interresting side-effect of using commandbuffers like we do is that theres no need to pass the buffer into the shader, just creating a field with the same name as the property we created the id from is enough. When transferring the shader from the sprite outlines to here we can simplyfy it a bit by only correcting the sample distance for the aspect ratio, worldspace shenenigans arent really possible here. Also after getting the core plus the outline we simply remove the core by subtracting it (and taking the maximum with 0 to not get negative values in some areas). With that done we can interpolate from the source color to the outline color using the outline we just calculated like before.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target
+{
+  <span style="color:#888">//sample directions</span>
+  <span style="color:#f00;background-color:#faa">#</span>define DIV_SQRT_2 <span style="color:#60e;font-weight:bold">0.70710678118</span>
+  float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
+    float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
+    float2(<span style="color:#333">-</span>DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2), float2(DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2)};
+
+  <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">*</span> (_ScreenParams.w <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>); <span style="color:#888">//width times 1/height</span>
+  float2 sampleDistance <span style="color:#333">=</span> float2(_OutlineWidth <span style="color:#333">/</span> aspect, _OutlineWidth);
+  
+  <span style="color:#888">//generate outline</span>
+  <span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+  <span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+    float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> sampleDistance;
+    maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_SelectionBuffer, sampleUV).a);
+  }
+  <span style="color:#888">//remove core</span>
+  <span style="color:#080;font-weight:bold">float</span> border <span style="color:#333">=</span> max(<span style="color:#40e;font-weight:bold">0</span>, maxAlpha <span style="color:#333">-</span> tex2D(_SelectionBuffer, i.uv).a);
+  
+  <span style="color:#888">// sample the texture</span>
+  fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+  col <span style="color:#333">=</span> lerp(col, _OutlineColor, border);
+  <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/052/result.png" alt=""></p>
+<h2 id="choosing-outlines">Choosing Outlines</h2>
+<p>The last bit I want to add to this is a system that allows putting an outline on objects by clicking on them. To do that I put a polygon collider on each of the gameobjects with meshes, added a &ldquo;Selectable&rdquo; <a href="https://docs.unity3d.com/Manual/Tags.html">tag</a> and then added a small raycast functionality to the update method of our postprocessing behaviour that, if it hits a gameobject with the tag, assigns that objects renderer to the OutlinedObject field we&rsquo;ve been using for outline rendering so far.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> Update() {
+  <span style="color:#080;font-weight:bold">if</span> (Input.GetMouseButtonDown(<span style="color:#60e;font-weight:bold">0</span>)) {
+    <span style="color:#339;font-weight:bold">var</span> ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    <span style="color:#339;font-weight:bold">bool</span> hitSelectable = Physics.Raycast(ray, <span style="color:#080;font-weight:bold">out</span> <span style="color:#339;font-weight:bold">var</span> hit) &amp;&amp; hit.transform.CompareTag(<span style="background-color:#fff0f0">&#34;Selectable&#34;</span>);
+    <span style="color:#080;font-weight:bold">if</span> (hitSelectable) {
+      OutlinedObject = hit.transform.GetComponent&lt;Renderer&gt;();
+    } <span style="color:#080;font-weight:bold">else</span> {
+      OutlinedObject = <span style="color:#080;font-weight:bold">null</span>;
+    }
+  }
+}
+</code></pre></div><p><img src="/assets/images/posts/052/BunnyInspector.png" alt=""></p>
+<p><img src="/assets/images/posts/052/result.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ObjectOutline.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ObjectOutline.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections.Generic</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine.Rendering</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ObjectOutline</span> : MonoBehaviour
+{
+	<span style="color:#080;font-weight:bold">public</span> Renderer OutlinedObject;
+
+	<span style="color:#080;font-weight:bold">public</span> Material WriteObject;
+	<span style="color:#080;font-weight:bold">public</span> Material ApplyOutline;
+
+	<span style="color:#080;font-weight:bold">void</span> Update()
+	{
+		<span style="color:#080;font-weight:bold">if</span> (Input.GetMouseButtonDown(<span style="color:#60e;font-weight:bold">0</span>))
+		{
+			<span style="color:#339;font-weight:bold">var</span> ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			<span style="color:#339;font-weight:bold">bool</span> hitSelectable = Physics.Raycast(ray, <span style="color:#080;font-weight:bold">out</span> <span style="color:#339;font-weight:bold">var</span> hit) &amp;&amp; hit.transform.CompareTag(<span style="background-color:#fff0f0">&#34;Selectable&#34;</span>);
+			<span style="color:#080;font-weight:bold">if</span> (hitSelectable) {
+				OutlinedObject = hit.transform.GetComponent&lt;Renderer&gt;();
+			} <span style="color:#080;font-weight:bold">else</span> {
+				OutlinedObject = <span style="color:#080;font-weight:bold">null</span>;
+			}
+		}
+	}
+
+	<span style="color:#080;font-weight:bold">void</span> OnRenderImage(RenderTexture source, RenderTexture destination)
+	{
+		<span style="color:#888">//setup stuff
+</span><span style="color:#888"></span>		<span style="color:#339;font-weight:bold">var</span> commands = <span style="color:#080;font-weight:bold">new</span> CommandBuffer();
+		<span style="color:#339;font-weight:bold">int</span> selectionBuffer = Shader.PropertyToID(<span style="background-color:#fff0f0">&#34;_SelectionBuffer&#34;</span>);
+		commands.GetTemporaryRT(selectionBuffer, source.descriptor);
+		<span style="color:#888">//render selection buffer
+</span><span style="color:#888"></span>		commands.SetRenderTarget(selectionBuffer);
+		commands.ClearRenderTarget(<span style="color:#080;font-weight:bold">true</span>, <span style="color:#080;font-weight:bold">true</span>, Color.clear);
+		<span style="color:#080;font-weight:bold">if</span> (OutlinedObject != <span style="color:#080;font-weight:bold">null</span>)
+		{
+			commands.DrawRenderer(OutlinedObject, WriteObject);
+		}
+		<span style="color:#888">//apply everything and clean up in commandbuffer
+</span><span style="color:#888"></span>		commands.Blit(source, destination, ApplyOutline);
+		commands.ReleaseTemporaryRT(selectionBuffer);
+		
+		<span style="color:#888">//execute and clean up commandbuffer itself
+</span><span style="color:#888"></span>		Graphics.ExecuteCommandBuffer(commands);
+		commands.Dispose();
+	}
+	
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ApplyOutline.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ApplyOutline.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Unlit<span style="color:#333">/</span>ApplyOutline<span style="color:#f00;background-color:#faa">&#34;</span>
+{
+    Properties
+    {
+        [HideInInspector]_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+        _OutlineWidth (<span style="color:#f00;background-color:#faa">&#34;</span>OutlineWidth<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">1</span>
+        _OutlineColor (<span style="color:#f00;background-color:#faa">&#34;</span>OutlineColor<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    }
+    SubShader
+    {
+        Tags { <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> }
+        LOD <span style="color:#00d;font-weight:bold">100</span>
+
+        Pass
+        {
+            CGPROGRAM
+            <span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+            <span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+            <span style="color:#888">// make fog work</span>
+            <span style="color:#f00;background-color:#faa">#</span>pragma multi_compile_fog
+
+            <span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+            <span style="color:#080;font-weight:bold">struct</span> appdata
+            {
+                float4 vertex <span style="color:#333">:</span> POSITION;
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+            };
+
+            <span style="color:#080;font-weight:bold">struct</span> v2f
+            {
+                float2 uv <span style="color:#333">:</span> TEXCOORD0;
+                UNITY_FOG_COORDS(<span style="color:#00d;font-weight:bold">1</span>)
+                float4 vertex <span style="color:#333">:</span> SV_POSITION;
+            };
+            
+            <span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+            float4 _MainTex_ST;
+            
+            <span style="color:#080;font-weight:bold">float</span> _OutlineWidth;
+            float4 _OutlineColor;
+            <span style="color:#080;font-weight:bold">sampler2D</span> _SelectionBuffer;
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+                o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+                UNITY_TRANSFER_FOG(o,o.vertex);
+                <span style="color:#080;font-weight:bold">return</span> o;
+            }
+
+            fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target
+            {
+                <span style="color:#888">//sample directions</span>
+                <span style="color:#f00;background-color:#faa">#</span>define DIV_SQRT_2 <span style="color:#60e;font-weight:bold">0.70710678118</span>
+                float2 directions[<span style="color:#00d;font-weight:bold">8</span>] <span style="color:#333">=</span> {float2(<span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>), float2(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>, <span style="color:#40e;font-weight:bold">0</span>), float2(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>),
+                  float2(DIV_SQRT_2, DIV_SQRT_2), float2(<span style="color:#333">-</span>DIV_SQRT_2, DIV_SQRT_2),
+                  float2(<span style="color:#333">-</span>DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2), float2(DIV_SQRT_2, <span style="color:#333">-</span>DIV_SQRT_2)};
+
+                <span style="color:#080;font-weight:bold">float</span> aspect <span style="color:#333">=</span> _ScreenParams.x <span style="color:#333">*</span> (_ScreenParams.w <span style="color:#333">-</span> <span style="color:#00d;font-weight:bold">1</span>); <span style="color:#888">//width times 1/height</span>
+                float2 sampleDistance <span style="color:#333">=</span> float2(_OutlineWidth <span style="color:#333">/</span> aspect, _OutlineWidth);
+                
+                <span style="color:#888">//generate outline</span>
+                <span style="color:#080;font-weight:bold">float</span> maxAlpha <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
+                <span style="color:#080;font-weight:bold">for</span>(uint index <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>; index<span style="color:#333">&lt;</span><span style="color:#00d;font-weight:bold">8</span>; index<span style="color:#333">++</span>){
+                  float2 sampleUV <span style="color:#333">=</span> i.uv <span style="color:#333">+</span> directions[index] <span style="color:#333">*</span> sampleDistance;
+                  maxAlpha <span style="color:#333">=</span> max(maxAlpha, tex2D(_SelectionBuffer, sampleUV).a);
+                }
+                <span style="color:#888">//remove core</span>
+                <span style="color:#080;font-weight:bold">float</span> border <span style="color:#333">=</span> max(<span style="color:#40e;font-weight:bold">0</span>, maxAlpha <span style="color:#333">-</span> tex2D(_SelectionBuffer, i.uv).a);
+                
+                <span style="color:#888">// sample the texture</span>
+                fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, i.uv);
+                col <span style="color:#333">=</span> lerp(col, _OutlineColor, border);
+                <span style="color:#080;font-weight:bold">return</span> col;
+            }
+            ENDCG
+        }
+    }
+}
+</code></pre></div><ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "ronja-tutorials" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2020 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

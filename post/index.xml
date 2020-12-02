@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Ronja&#39;s tutorials</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 16 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 25 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Object Outlines</title>
+      <link>https://www.ronja-tutorials.com/post/052-object-outline/</link>
+      <pubDate>Wed, 25 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.ronja-tutorials.com/post/052-object-outline/</guid>
+      <description>I have made multiple tutorials about outlines already, doing them with a inverted hull, as a postprocessing effect using the depth and normal buffers or by sampling neighboring pixels of a sprite, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose.</description>
+    </item>
+    
     <item>
       <title>Graphics.DrawProcedural</title>
       <link>https://www.ronja-tutorials.com/post/051-draw-procedural/</link>

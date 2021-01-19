@@ -725,7 +725,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">2D Signed Distance Field Basics So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+            <p style="display: none;">2D Signed Distance Field Basics So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields(or SDF). Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
 We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.</p>
             
 <article class="bb b--black-10">
@@ -862,7 +862,7 @@ We&rsquo;re going to make a little editor tool in this tutorial that can be used
             
 <article class="bb b--black-10">
   <div class="db pv1 ph3 ph0-l no-underline dark-gray">
-    <a href="https://www.ronja-tutorials.com/post/030-baking_shaders/" class="color-inherit link">
+    <a href="https://www.ronja-tutorials.com/post/030-baking-shaders/" class="color-inherit link">
       <div class="flex flex-column flex-row-ns" style="height: 80px;">
         <div class="blah w-100 w-80-ns pl3-ns">
           <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
@@ -1083,7 +1083,7 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">Blur Postprocessing Effect Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
+            <p style="display: none;">Blur Postprocessing Effect (Box and Gauss) Summary A effect that&rsquo;s useful for example to show exhaustion or to make transitions is a blur. To blur the screen we take the average of the surrounding pixels. You can use the effect in many places, but the easiest and most straightforward is probably as a postprocessing effect, so it&rsquo;s best for you to know how to write postprocessing effects before doing this tutorial.
 Boxblur The easiest form of a blur is a box blur, it just takes the average of a square area and displays it.</p>
             
 <article class="bb b--black-10">
@@ -1092,7 +1092,7 @@ Boxblur The easiest form of a blur is a box blur, it just takes the average of a
       <div class="flex flex-column flex-row-ns" style="height: 80px;">
         <div class="blah w-100 w-80-ns pl3-ns">
           <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
-            Blur Postprocessing Effect
+            Blur Postprocessing Effect (Box and Gauss)
           </h1>
           
         </div>
@@ -1104,7 +1104,7 @@ Boxblur The easiest form of a blur is a box blur, it just takes the average of a
             
           
           <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
-            <img src="https://www.ronja-tutorials.com/assets/images/posts/023/Result_hua99d1cd378a9ead067cfeac68d876b1b_12842963_0x128_resize_q30_bgffffff_box.jpg" alt="image from Blur Postprocessing Effect" 
+            <img src="https://www.ronja-tutorials.com/assets/images/posts/023/Result_hua99d1cd378a9ead067cfeac68d876b1b_12842963_0x128_resize_q30_bgffffff_box.jpg" alt="image from Blur Postprocessing Effect (Box and Gauss)" 
               style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
           </div>
         
@@ -1349,7 +1349,7 @@ Postprocessing still uses the same shader language and structure as shaders that
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">Wobble Displacement Summary So far we only used the vertex shader to move vertices from their object coordinates to their clip space coordinates (or to the world space coordinates which we then used for other things). But there are more things we can do with vertex shaders. As a introduction I’m going to show you how to apply a simple sine wave to a model, making it wobble.
+            <p style="display: none;">Vertex Displacement Summary So far we only used the vertex shader to move vertices from their object coordinates to their clip space coordinates (or to the world space coordinates which we then used for other things). But there are more things we can do with vertex shaders. As a introduction I’m going to show you how to apply a simple sine wave to a model, making it wobble.
 I will make the shader with a surface shader so you should know the basics of surface shaders, but it works the same with any other type of shader.</p>
             
 <article class="bb b--black-10">
@@ -1358,7 +1358,7 @@ I will make the shader with a surface shader so you should know the basics of su
       <div class="flex flex-column flex-row-ns" style="height: 80px;">
         <div class="blah w-100 w-80-ns pl3-ns">
           <h1 class="f3 fw1 sans-serif mt0 lh-title dim">
-            Wobble Displacement
+            Vertex Displacement
           </h1>
           
         </div>
@@ -1370,7 +1370,7 @@ I will make the shader with a surface shader so you should know the basics of su
             
           
           <div class="pr1-ns mb1 mb0-ns w-100 w-20-ns">
-            <img src="https://www.ronja-tutorials.com/assets/images/posts/015/Result_huf8f21bcce2cc8fd1302685e5de7bdea2_1860769_0x128_resize_q30_bgffffff_box.jpg" alt="image from Wobble Displacement" 
+            <img src="https://www.ronja-tutorials.com/assets/images/posts/015/Result_huf8f21bcce2cc8fd1302685e5de7bdea2_1860769_0x128_resize_q30_bgffffff_box.jpg" alt="image from Vertex Displacement" 
               style="height:100%;width:100%;object-fit:contain;object-position:right;"/>
           </div>
         
@@ -1956,7 +1956,7 @@ Most modern shaders have a variable pipeline that consists out of at least a ver
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
-    &copy;  Ronja's tutorials 2020 
+    &copy;  Ronja's tutorials 2021 
   </a>
     <div>
 

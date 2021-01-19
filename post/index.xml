@@ -183,7 +183,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
       <pubDate>Sat, 10 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.ronja-tutorials.com/post/034-2d-sdf-basics/</guid>
-      <description>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields. Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
+      <description>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields(or SDF). Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
 We&amp;rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.</description>
     </item>
     
@@ -219,10 +219,10 @@ Improved shadows for multiple lights.</description>
     
     <item>
       <title>Baking Shaders into Textures</title>
-      <link>https://www.ronja-tutorials.com/post/030-baking_shaders/</link>
+      <link>https://www.ronja-tutorials.com/post/030-baking-shaders/</link>
       <pubDate>Sat, 13 Oct 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.ronja-tutorials.com/post/030-baking_shaders/</guid>
+      <guid>https://www.ronja-tutorials.com/post/030-baking-shaders/</guid>
       <description>Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&amp;rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&amp;rsquo;t depend on external parameters like object position or lighting.
 We&amp;rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&amp;rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.</description>
     </item>
@@ -283,7 +283,7 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
     </item>
     
     <item>
-      <title>Blur Postprocessing Effect</title>
+      <title>Blur Postprocessing Effect (Box and Gauss)</title>
       <link>https://www.ronja-tutorials.com/post/023-postprocessing-blur/</link>
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
       
@@ -365,7 +365,7 @@ Postprocessing still uses the same shader language and structure as shaders that
     </item>
     
     <item>
-      <title>Wobble Displacement</title>
+      <title>Vertex Displacement</title>
       <link>https://www.ronja-tutorials.com/post/015-wobble-displacement/</link>
       <pubDate>Sat, 16 Jun 2018 00:00:00 +0000</pubDate>
       

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Baking Shaders into Textures | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Baking Shaders into Textures" />
+<meta property="og:description" content="Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/030-baking-shaders/" />
+<meta property="article:published_time" content="2018-10-13T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-10-13T00:00:00+00:00" />
+<meta itemprop="name" content="Baking Shaders into Textures">
+<meta itemprop="description" content="Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures.">
+<meta itemprop="datePublished" content="2018-10-13T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2018-10-13T00:00:00+00:00" />
+<meta itemprop="wordCount" content="5074">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Baking Shaders into Textures"/>
+<meta name="twitter:description" content="Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.
+We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      
+      
+      <h1 class="f1 athelas mt3 mb1">Baking Shaders into Textures</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2018-10-13T00:00:00Z">October 13, 2018</time>
+
+      
+      
+    </header>
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>Calculating everything ony the fly in the shader gives us the most flexibility and is even needed for many effects, but if we don&rsquo;t need the noise to be dynamic we can save it to a texture to save a lot of performance in the shader. You can bake all shader output into textures as long as it doesn&rsquo;t depend on external parameters like object position or lighting.</p>
+<p>We&rsquo;re going to make a little editor tool in this tutorial that can be used to bake any shader output into a texture, but I&rsquo;ll work with noise functions for now, because they can be kinda expensive and are easily repeatable which allows us to use smaller textures. If you want to understand and also use noise functions, I have my tutorials about noise listed here: <a href="/noise.html">ronja-tutorials.com/noise.html</a>.</p>
+<p><img src="/assets/images/posts/030/MagicEditor.png" alt=""></p>
+<h2 id="simple-editor">Simple Editor</h2>
+<p>For the editor we&rsquo;re going to make our own unity editor window. Editor windows are tabs similar to the scene or inspector tab. You&rsquo;ll be able to dock it anywhere or move it as it&rsquo;s own window. To create the window we create a new C# script. We&rsquo;ll put it in a folder called &ldquo;Editor&rdquo; or a subfolder of a editor folder. That way the script will not be included if we export our game, but will allow us to access some functions that are only for the unity editor and not games.</p>
+<p>First we let the script inherit from the <code>EditorWindow</code> class, that will allow us to expand it to make our own window. To have access to that class, we&rsquo;ll import the <code>UnityEditor</code> namespace. Then we add a a function to open a new window. We&rsquo;ll mark it with the <code>static</code> keyword, that way it can be called even when no window is open currently. In the function we&rsquo;ll call <code>EditorWindow.GetWindow</code>. It&rsquo;s a function that will create a new window if none exists or returns a old one if we created one earlier. We&rsquo;ll have to specify what kind of window we want to create though. This is a generic function, so we can put the type in angle brackets between the function name and the round brackets we use for the arguments. This then looks like this: <code>EditorWindow.GetWindow&lt;YourWindowClass&gt;()</code>. We then save the return value of the GetWindow function in a variable and call the <code>Show</code> method so show the window to the user. To be able to open the window in the Editor, we&rsquo;ll simply add the <code>MenuItem</code> attribute to the function, it will add a item to the menu at the top of the menu which will call this function when we click it, it takes the name of the item as a parameter, slashes allow us to put the item in directories.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEditor</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">BakeTextureWindow</span> : EditorWindow {
+<span style="color:#00c">    [MenuItem (&#34;Tools/Bake material to texture&#34;)]</span>
+    <span style="color:#080;font-weight:bold">static</span> <span style="color:#080;font-weight:bold">void</span> OpenWindow() {
+        <span style="color:#888">//create window
+</span><span style="color:#888"></span>        BakeTextureWindow window = EditorWindow.GetWindow&lt;BakeTextureWindow&gt;();
+        window.Show();
+    }
+}
+</code></pre></div><p><img src="/assets/images/posts/030/MenuItem.png" alt=""></p>
+<p><img src="/assets/images/posts/030/EmptyEditor.png" alt=""></p>
+<p>As you can see the editor is completely empty so far, so the next step is to add variables to edit. We want to know which material we want to bake into a texture, how big the texture is and what file we want to save the texture to. We add those variables at the top of our class. The material to bake is a normal material, the image size can be summarized as a 2 dimensional integer vector and the file path is a normal string. We&rsquo;ll also have to declare that we&rsquo;re using the <code>UnityEngine</code> namespace to have access to the material and vector classes.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">Material ImageMaterial;
+<span style="color:#339;font-weight:bold">string</span> FilePath = <span style="background-color:#fff0f0">&#34;Assets/MaterialImage.png&#34;</span>;
+Vector2Int Resolution;
+</code></pre></div><p>This doesn&rsquo;t show the variables to the user though. To display them we have to write our own user interface. To do that we simply create a function called <code>OnGUI</code>. It will be called automatically by unity whenever the GUI refreshes. The field for the material basically holds a reference to the material object in our files, so we use <code>EditorGUILayout.ObjectField</code>. The first parameter of the ObjectField function is the name we want to display for the field, the second is the value the material has right now, the third is the type of the object (in our case it&rsquo;s a material) and the third parameter is wether we allow users to add objects from the scene to the field, because materials can&rsquo;t exist on their own in the scene we&rsquo;ll just deny that. The ObjectField function will then return the new value as a Object, so to put the new value into our material variable we&rsquo;ll have to cast it to a material.</p>
+<p>The second parameter is our resolution. Luckily there is the <code>EditorGUILayout.Vector2IntField</code> function, so we can just pass the display name of the variable as the first parameter and the current value as the second. We then directly apply the return value to the resolution again. Similarly for the file path, we&rsquo;ll use a <code>EditorGUILayout.TextField</code> for now with the display name and the current value as arguments just like previously.</p>
+<p>Now we can already enter all of the values we need to bake a texture, but we can&rsquo;t trigger the texture baking yet. To trigger the baking, we&rsquo;ll add a button. We add buttons in GUI by calling <code>GUILayout.Button</code>. We can give it a string as a argument and it&rsquo;ll use it as a label. The function then returns a boolean which is true in the one frame that a user clicks it, so we can directly use the function as the value for a if condition.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> OnGUI() {
+    ImageMaterial = (Material)EditorGUILayout.ObjectField(<span style="background-color:#fff0f0">&#34;Material&#34;</span>, ImageMaterial, <span style="color:#080;font-weight:bold">typeof</span>(Material), <span style="color:#080;font-weight:bold">false</span>);
+    Resolution = EditorGUILayout.Vector2IntField(<span style="background-color:#fff0f0">&#34;Image Resolution&#34;</span>, Resolution);
+    FilePath = EditorGUILayout.TextField(<span style="background-color:#fff0f0">&#34;Image Path&#34;</span>, FilePath);
+
+    <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+        <span style="color:#888">//bake texture
+</span><span style="color:#888"></span>    }
+}
+</code></pre></div><p><img src="/assets/images/posts/030/VariablesEditor.png" alt=""></p>
+<h2 id="2d-texture-baking">2D Texture Baking</h2>
+<p>Now that we have a editor, we can implement the baking logic. For easier code management, we&rsquo;ll write the baking logic into it&rsquo;s own function which we&rsquo;ll call when the bake button is pressed.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+    BakeTexture();
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> BakeTexture(){
+    <span style="color:#888">// Bake texture
+</span><span style="color:#888"></span>}
+</code></pre></div><p>Similarly as in postprocessing, we&rsquo;ll deal with images via rendertextures here. Because we only need the rendertexture for a short time, we can use a temporary rendertexture which is more convenient and faster than creating a new one. We get the rendertexture by calling <code>RenderTexture.GetTemporary</code> and pass the resolution x and y components as the width and height of the rendertexture. After fetching the rendertexture we can then write to it with <code>Graphics.Blit</code>. The blit function expects us to give it a input as well as a output texture, but because we&rsquo;ll take all of our data directly from our material we pass <code>null</code> as the first parameter. The second parameter is the output texture, so we pass it the new rendertexture we just got. The last parameter is the material we use, so that&rsquo;s the material we set in the inspector.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//render material to rendertexture
+</span><span style="color:#888"></span>RenderTexture renderTexture = RenderTexture.GetTemporary(Resolution.x, Resolution.y);
+Graphics.Blit(<span style="color:#080;font-weight:bold">null</span>, renderTexture, ImageMaterial);
+</code></pre></div><p>Now, that we have the output of the shader, the next step is to save it to a texture2d to be able to save it. First we create a new texture2d with the size of the resolution. Then we set the rendertexture with our shader output as the active rendertexture, that way it is written to the texture when we call <code>ReadPixels</code> on the texture variable. The <code>ReadPixels</code> function wants to know which area of the rendertexture we want to copy, so to copy the whole area, we give it a rectangle that starts in the <code>(0, 0)</code> corner and has the size of the whole resolution. As the position of where to insert the texture, we also tell it to start in the <code>(0, 0)</code> corner. This way the function will copy the whole rendertexture to the texture.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//transfer image from rendertexture to texture
+</span><span style="color:#888"></span>Texture2D texture = <span style="color:#080;font-weight:bold">new</span> Texture2D(Resolution.x, Resolution.y);
+RenderTexture.active = renderTexture;
+texture.ReadPixels(<span style="color:#080;font-weight:bold">new</span> Rect(Vector2.zero, Resolution), <span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>);
+</code></pre></div><p>Now we have the image in a texture we can save it as a png. First we encode into png and save the bytes. Then we write the bytes to the path we declared. As a last step we tell unity to refresh it&rsquo;s asset database, this way we make sure it will find the new file and show it to us in the editor. Writing the bytes to a file means we&rsquo;ll have to declare that we&rsquo;re using the <code>System.IO</code> namespace, where most C# file input and output classes are located.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//save texture to file
+</span><span style="color:#888"></span><span style="color:#339;font-weight:bold">byte</span>[] png = texture.EncodeToPNG();
+File.WriteAllBytes(ImageFile, png);
+AssetDatabase.Refresh();
+</code></pre></div><p>At the end of the function we should clean up our variables. We release the rendertexture to be reused by other functions. We&rsquo;ll also set the active rendertexture to null, this shouldn&rsquo;t be nessecary, but it can avoid unexpected behaviour, so we do it just in case. And then we also destroy the texture so it doesn&rsquo;t take up any ram anymore, we have it saved on the harddrive now so we don&rsquo;t need it here anymore. We use DestroyImmediate here because we&rsquo;re running the script while the game is not running and Destroy only works when the game is running.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//clean up variables
+</span><span style="color:#888"></span>RenderTexture.active = <span style="color:#080;font-weight:bold">null</span>;
+RenderTexture.ReleaseTemporary(renderTexture);
+DestroyImmediate(texture);
+</code></pre></div><p>And with this function we have everything we need to bake the output of a shader to a texture. We can then use those textures just like we use all other textures.</p>
+<p><img src="/assets/images/posts/030/SimpleEditorFilled.png" alt=""></p>
+<p><img src="/assets/images/posts/030/BakedPerlin.png" alt=""></p>
+<h2 id="better-editor">Better Editor</h2>
+<p>Our editor is functional, but it breaks easily if you enter the wrong input, could be better explained and especially entering the path is unnessecarily compicated, so let&rsquo;s improve that.</p>
+<p>First we&rsquo;re going to add a function that checks what variables are entered. We&rsquo;ll declare boolean variables in the class so we can access which inputs are valid from everywhere. The material counts as entered when it&rsquo;s not null, the resolution counts as valid if both components are above 0 and the file path counts as entered if it points to a png file. The first two are pretty easily checked, for the last one we&rsquo;ll use the utility of the <code>Path</code> class. <code>Path.GetExtension</code> returns the extension of a path, so we can easily check if that extension is <code>.png</code>. But if we give the GetExtension function a invalid path it&rsquo;ll throw a exception which can crash our script. To avoid the exception crashing our script we first set the boolean which saves wether we have a valid file path to false and then check the extension in a try/catch block. That way if the function returns a exception it will just not touch the variable and it&rsquo;ll stay false, which is the value we want it to have for invalid paths. To be able to access the ArgumentException which is the exception type GetExtension can throw we&rsquo;ll also have to declare that we&rsquo;re using the System namespace.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#339;font-weight:bold">bool</span> hasMaterial;
+<span style="color:#339;font-weight:bold">bool</span> hasResolution;
+<span style="color:#339;font-weight:bold">bool</span> hasImageFile;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> CheckInput(){
+    <span style="color:#888">//check which values are entered already
+</span><span style="color:#888"></span>    hasMaterial = ImageMaterial != <span style="color:#080;font-weight:bold">null</span>;
+    hasResolution = Resolution.x &gt; <span style="color:#60e;font-weight:bold">0</span> &amp;&amp; Resolution.y &gt; <span style="color:#60e;font-weight:bold">0</span>;
+    hasImageFile = <span style="color:#080;font-weight:bold">false</span>;
+    <span style="color:#080;font-weight:bold">try</span>{
+        <span style="color:#339;font-weight:bold">string</span> ext = Path.GetExtension(ImageFile);
+        hasImageFile = ext.Equals(<span style="background-color:#fff0f0">&#34;.png&#34;</span>);
+    } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+}
+</code></pre></div><p>Now that we have this function, we should call it to update the variables in 2 situations. When we open a new window and when one of the variables changes. The first one is pretty easy, we just call it on the new window in our static function where we create a new window.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#00c">[MenuItem (&#34;Tools/Bake material to texture&#34;)]</span>
+<span style="color:#080;font-weight:bold">static</span> <span style="color:#080;font-weight:bold">void</span> OpenWindow() {
+    <span style="color:#888">//create window
+</span><span style="color:#888"></span>    BakeTextureWindow window = EditorWindow.GetWindow&lt;BakeTextureWindow&gt;();
+    window.Show();
+
+    window.CheckInput();
+}
+</code></pre></div><p>For the other situation we have to create a change check scope around the variable fields. We can do that either by using <code>EditorGUI.BeginChangeCheck</code> and <code>EditorGUI.EndChangeCheck</code> or we can use a <code>ChangeCheckScope</code> inside of a using block. I personally prefer the second solution, so we&rsquo;ll do that. We write a using block around the variable fields, saving a new <code>ChangeCheckScope</code> at it&rsquo;s beginning. Then, after the fields are drawn, we can access it&rsquo;s <code>changed</code> property to see wether one of the variables was edited. If it was, we call <code>CheckInput</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> OnGUI(){
+    using(<span style="color:#339;font-weight:bold">var</span> check = <span style="color:#080;font-weight:bold">new</span> EditorGUI.ChangeCheckScope()){
+        ImageMaterial = (Material)EditorGUILayout.ObjectField(<span style="background-color:#fff0f0">&#34;Material&#34;</span>, ImageMaterial, <span style="color:#080;font-weight:bold">typeof</span>(Material), <span style="color:#080;font-weight:bold">false</span>);
+        Resolution = EditorGUILayout.Vector2IntField(<span style="background-color:#fff0f0">&#34;Image Resolution&#34;</span>, Resolution);
+        FilePath = EditorGUILayout.TextField(<span style="background-color:#fff0f0">&#34;Image Path&#34;</span>, FilePath);
+
+        <span style="color:#080;font-weight:bold">if</span>(check.changed){
+            CheckInput();
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+        BakeTexture();
+    }
+}
+</code></pre></div><p>Now we always know which input is valid and can work with that information. The first thing we do is to only enable the bake button if all inputs are valid. We toggle wether the button is interactable or not by setting <code>GUI.enabled</code> before drawing it. After we&rsquo;ve drawn the button we&rsquo;ll set <code>GUI.enabled</code> back to true so we don&rsquo;t mess with other interfaces.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">GUI.enabled = hasMaterial &amp;&amp; hasResolution &amp;&amp; hasFilePath;
+<span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+    BakeTexture();
+}
+GUI.enabled = <span style="color:#080;font-weight:bold">true</span>;
+</code></pre></div><p>Then we can also show warnings to the user if specific inputs are not set yet, so they know what&rsquo;s missing. I&rsquo;ll use the <code>EditorGUILayout.HelpBox</code> function for this feedback, but there are also other ways, like labels that are less intrusive. We can also set how the helpbox should look like. I use the <code>MessagyType.Warning</code> version so we get a obvious yellow triangle showing the user that something is missing.</p>
+<p>Put the code for the help boxes where you want to see them in the UI, I put mine at the very bottom under the bake button.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//tell the user what inputs are missing
+</span><span style="color:#888"></span><span style="color:#080;font-weight:bold">if</span>(!hasMaterial){
+    EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;You&#39;re still missing a material to bake.&#34;</span>, MessageType.Warning);
+}
+<span style="color:#080;font-weight:bold">if</span>(!hasResolution){
+    EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Please set a size bigger than zero.&#34;</span>, MessageType.Warning);
+}
+<span style="color:#080;font-weight:bold">if</span>(!hasFilePath){
+    EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;No file to save the image to given.&#34;</span>, MessageType.Warning);
+}
+</code></pre></div><p>Similarly I put a helpbox at the top of the <code>OnGUI</code> function to roughly explain how the interface works.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Set the material you want to bake as well as the size &#34;</span>+
+        <span style="background-color:#fff0f0">&#34;and location of the texture you want to bake to, then press the \&#34;Bake\&#34; button.&#34;</span>, MessageType.None);
+</code></pre></div><p>For the last improvement to the editor we&rsquo;re going to improve how choosing the file path works. For this we&rsquo;ll add another method for drawing a textfield with a choose file button. This new function will take the current value of the path as a argument and will return the new path value. We&rsquo;ll start our custom field by displaying a labelfield with the display name of the path. A labelfield will simply display the text you pass it, not allowing the user to edit anything. I give the labelfield it&rsquo;s own line by doing this, and put the rest of the path field another line because the path can get pretty long.</p>
+<p>Then we&rsquo;ll start a horizontal scope. This will change the gui so everything in this scope will be drawn next to each other from left to right instead of under each other. Just like the changecheck field we can either use <code>BeginHorizontal</code> and <code>EndHorizontal</code> in <code>EditorGUILayout</code> or we can use a <code>HorizontalScope</code>. I&rsquo;ll also use the second solution here, but you&rsquo;re free to do whatever feels right to you.</p>
+<p>Inside the horizonal scope, we&rsquo;ll display two fields, one the textfield we already used previously, but this time we&rsquo;ll only pass it one parameter, this way it just displays a text, without a name in front of it. Second, we display a button to choose a file.</p>
+<p>If we press the button we first need to find out the current directory and file name of the path, but similarly to where we&rsquo;re checking the extension we have to expect having a invalid path. So we set a directory and a file name of our choice as default values and then try to overwrite them with the correct values from the path we get from <code>Path.GetDirectoryName</code> and <code>Path.GetFileName</code>. If they fail, they&rsquo;ll throw a <code>ArgumentException</code> which we&rsquo;ll catch and then completely ignore because we know the default values are still in the variables so we can use them. After we have those values, we can call <code>EditorUtility.SaveFilePanelInProject</code> to find a place for our image file. The first argument of the function is the panel header, the second is the file name where to start, the third is the file extension, the fourth is a more detailed description of what we want to file for, as far as I&rsquo;ve seen it&rsquo;s not visible when opening the dialogue in windows, but I think it&rsquo;s visible on macOS systems? And the final argument we&rsquo;ll use is the directory where to put the file. We will save the output of this panel in a new string because if we close the panel instead of pressing save, it will return a empty string. Then we check if the string is empty and if isn&rsquo;t we then apply the new path to our path variable. After chosing the path, we&rsquo;ll also manually trigger a redraw of the whole window to update the textfield which doesn&rsquo;t know theres a new value for the image path yet.</p>
+<p>At the end of this custom field function we&rsquo;ll simply return the new path. With this new function we can replace the textfield as a means to get the file path and now have a easier way of choosing a file to write to.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#339;font-weight:bold">string</span> FileField(<span style="color:#339;font-weight:bold">string</span> path){
+    <span style="color:#888">//allow the user to enter output file both as text or via file browser
+</span><span style="color:#888"></span>    EditorGUILayout.LabelField(<span style="background-color:#fff0f0">&#34;Output file&#34;</span>);
+    using(<span style="color:#080;font-weight:bold">new</span> GUILayout.HorizontalScope()){
+        path = EditorGUILayout.TextField(path);
+        <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;choose&#34;</span>)){
+            <span style="color:#888">//set default values for directory, then try to override them with values of existing path
+</span><span style="color:#888"></span>            <span style="color:#339;font-weight:bold">string</span> directory = <span style="background-color:#fff0f0">&#34;Assets&#34;</span>;
+            <span style="color:#339;font-weight:bold">string</span> fileName = <span style="background-color:#fff0f0">&#34;MaterialImage.png&#34;</span>;
+            <span style="color:#080;font-weight:bold">try</span>{
+                directory = Path.GetDirectoryName(path);
+                fileName = Path.GetFileName(path);
+            } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+            <span style="color:#339;font-weight:bold">string</span> chosenFile = EditorUtility.SaveFilePanelInProject(<span style="background-color:#fff0f0">&#34;Choose image file&#34;</span>, fileName, 
+                    <span style="background-color:#fff0f0">&#34;png&#34;</span>, <span style="background-color:#fff0f0">&#34;Please enter a file name to save the image to&#34;</span>, directory);
+            <span style="color:#080;font-weight:bold">if</span>(!<span style="color:#339;font-weight:bold">string</span>.IsNullOrEmpty(chosenFile)){
+                path = chosenFile;
+            }
+            <span style="color:#888">//repaint editor because the file changed and we can&#39;t set it in the textfield retroactively
+</span><span style="color:#888"></span>            Repaint();
+        }
+    }
+    <span style="color:#080;font-weight:bold">return</span> path;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">FilePath = FileField(FilePath);
+</code></pre></div><p><img src="/assets/images/posts/030/EditorWithFileChooser.png" alt=""></p>
+<h2 id="3d-texture-baking">3D Texture Baking</h2>
+<p>We can get even more flexibility out of our textures by baking them into a volumetric 3d texture. There is no texture format for 3d textures, but we can use unity&rsquo;s internal Texture3D format and save that as a asset. Theres also no easy way I know of to output a 3d volume out of a shader without using compute shaders, something I don&rsquo;t want to get into here. My solution for this is to render different &ldquo;slices&rdquo; of the 3d texture, one 2d image at a time and then manually feed them into the 3d texture. To get the different slices out of a shader, I&rsquo;ll add a height property to the shader which we can change between rendering slices.</p>
+<p>For the 3d texture baking we&rsquo;ll start with the 2d version of the texture baking tools, rename the class and menuitem so it doesn&rsquo;t clash with the 2d version and change the resolution. We change the resolution to a <code>Vector3Int</code>, change it&rsquo;s gui field to a <code>Vector3IntField</code> and make sure the z coordinate is also above 0 in the <code>CheckInput</code> method. We&rsquo;ll also save the 3d texture as a unity asset instead of a texture, so we&rsquo;ll change all occurances of <code>png</code> to <code>asset</code>. After that we&rsquo;ll just have to rewrite the <code>BakeTexture</code> function.</p>
+<p>Because we&rsquo;ll be rendering several times, we&rsquo;ll create our texture variable right at the beginning with the rendertexture. We&rsquo;ll also create a 2d texture together with our 2d texture, that&rsquo;s so we can use it to access the data of the rendertexture. The 3d texture has to have a textureformat. I use ARGB32, which means it has 32 bit color depth, or 8 bit per channel which gives us 256 different color values per channel. It also wants to know wether we want to generate mipmaps. I&rsquo;ve declined that here, because 3d textures can become pretty big without mipmaps and just become bigger when we enable them(if you make a 128x128x128 px 3d texture, that&rsquo;s the about as big as 128 128x128 2d textures).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> BakeTexture(){
+    <span style="color:#888">//get rendertexture to render layers to and texture3d to save values to as well as 2d texture for transferring data
+</span><span style="color:#888"></span>    RenderTexture renderTexture = RenderTexture.GetTemporary(Resolution.x, Resolution.y);
+    Texture3D volumeTexture = <span style="color:#080;font-weight:bold">new</span> Texture3D(Resolution.x, Resolution.y, Resolution.z, TextureFormat.ARGB32, <span style="color:#080;font-weight:bold">false</span>);
+    Texture2D tempTexture = <span style="color:#080;font-weight:bold">new</span> Texture2D(Resolution.x, Resolution.y);
+
+    <span style="color:#888">//TODO: loop through slices and write them to 3d texture
+</span><span style="color:#888"></span>
+    <span style="color:#888">//TODO: save 3d texture
+</span><span style="color:#888"></span>}
+</code></pre></div><p>Before we start the loop we calculate how many voxels the 3d texture has by multiplying the width, height and depth and how many pixels a single slice has by just multiplying the width and height. We then create a array of colors the size of the voxel amount of the texture so we can slowly fill it. We&rsquo;ll use the <code>Color32</code> because <code>Texture2D</code> as well as <code>Texture3D</code> use it internally, so it&rsquo;s a bit faster. We&rsquo;ll also set the rendertexture we have as the active rendertexture so we don&rsquo;t have to do that every iteration of the loop.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">RenderTexture.active = renderTexture;
+<span style="color:#339;font-weight:bold">int</span> voxelAmount = Resolution.x * Resolution.y * Resolution.z;
+<span style="color:#339;font-weight:bold">int</span> slicePixelAmount = Resolution.x * Resolution.y;
+Color32[] colors = <span style="color:#080;font-weight:bold">new</span> Color32[voxelAmount];
+</code></pre></div><p>Then we loop through the slices. We have as many slices as we have resolution in the z axis, so we loop that amount of times. We start the loop calculating the height of the slice. We do that by adding 0.5 to the slice index and dividing it my the depth of the resolution. The 0.5 is so we always hit the middle of the voxels, so a 2 voxel tall texture would have the voxel midpoints at 0.25 and 0.75 instead of 0 and 0.5 which would be edges of the voxels. After we have that value, we can apply it to our material. I&rsquo;ll use the repeating 3d voronoi noise in the material, so the height property is called <code>_Height</code>, but you can use a different name or even expose the height property name to the inspector if you want to use different names for the variable in different shaders.</p>
+<p>After that we get the slice by just calling the blit function and letting it write to the rendertexture. Then we copy the content of the rendertexture to out temporary texture. The size of the area we copy is the width and height of the volumetric texture. After we have the data in a texture we can retrieve the colors of the texture. Then we calculate the start of the indices of this slice. We get that by simply multiplying the index of the current slice by the amount of pixels in a slice. Then we loop though all pixels in the current slice and copy them into the array of colors for the 3d texture. The index in the target array is the baseIndex of the slice plus the index of the pixel in the slice texture.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">for</span>(<span style="color:#339;font-weight:bold">int</span> slice=<span style="color:#60e;font-weight:bold">0</span>; slice&lt;Resolution.z; slice++){
+    <span style="color:#339;font-weight:bold">float</span> height = (slice + <span style="color:#60e;font-weight:bold">0.5f</span>) / Resolution.z;
+    ImageMaterial.SetFloat(<span style="background-color:#fff0f0">&#34;_Height&#34;</span>, height);
+
+    Graphics.Blit(<span style="color:#080;font-weight:bold">null</span>, renderTexture, ImageMaterial);
+    tempTexture.ReadPixels(<span style="color:#080;font-weight:bold">new</span> Rect(<span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>, Resolution.x, Resolution.y), <span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>);
+    Color32[] sliceColors = tempTexture.GetPixels32();
+
+    <span style="color:#339;font-weight:bold">int</span> sliceBaseIndex = slice * slicePixelAmount;
+    <span style="color:#080;font-weight:bold">for</span>(<span style="color:#339;font-weight:bold">int</span> pixel=<span style="color:#60e;font-weight:bold">0</span>; pixel&lt;slicePixelAmount; pixel++){
+        colors[sliceBaseIndex + pixel] = sliceColors[pixel];
+    }
+}
+</code></pre></div><p>After the loop we put the pixels into the 3d texture via the <code>SetPixels32</code> function. After we did that we save the texture to a file by calling the <code>AssetDatabase.CreateAsset</code> function. We pass it the 3d texture as a first parameter and the path as a second.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//apply and save 3d texture
+</span><span style="color:#888"></span>volumeTexture.SetPixels32(colors);
+AssetDatabase.CreateAsset(volumeTexture, FilePath);
+</code></pre></div><p>At the end we clean up by destroying the textures and releasing the rendertexture.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#888">//clean up variables
+</span><span style="color:#888"></span>RenderTexture.active = <span style="color:#080;font-weight:bold">null</span>;
+RenderTexture.ReleaseTemporary(renderTexture);
+DestroyImmediate(volumeTexture);
+DestroyImmediate(tempTexture);
+</code></pre></div><p><img src="/assets/images/posts/030/3dTex.png" alt=""></p>
+<h2 id="use-3d-textures">Use 3d textures</h2>
+<p>So far we&rsquo;ve always used 2d textures in our shaders, but using 3d textures isn&rsquo;t much more difficult. We change the property from <code>2D</code> to <code>3D</code>, change the sampler to a <code>sampler3D</code> and read pixels from it with the <code>tex3D</code> instead of <code>tex2D</code> function which takes a 3d vector as a input. I&rsquo;ll show you a little example shader which takes a height variable from outside, but you can just as well use a position or any other 3d vector. The main downside I see of 3d textures against 2d ones is that the scaling and offset of the UVs only works for 2 dimensions, so we can&rsquo;t do everything with the transforms next to the texture that we can do with them for 2d textures.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties{
+    _Height(<span style="color:#f00;background-color:#faa">&#34;</span>Height<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+    _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+    _MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">3</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//texture and transforms of the texture</span>
+sampler3D _MainTex;
+float4 _MainTex_ST;
+
+<span style="color:#080;font-weight:bold">float</span> _Height;
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+    fixed4 col <span style="color:#333">=</span> tex3D(_MainTex, float3(i.uv, _Height));
+    col <span style="color:#333">*=</span> _Color;
+    <span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/030/StepThrough3dTex.gif" alt=""></p>
+<h2 id="source">Source</h2>
+<h3 id="bake-texture-window">Bake Texture Window</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Editor/BakeTextureWindow.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Editor/BakeTextureWindow.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEditor</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.IO</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">BakeTextureWindow</span> : EditorWindow {
+
+    Material ImageMaterial;
+    <span style="color:#339;font-weight:bold">string</span> FilePath = <span style="background-color:#fff0f0">&#34;Assets/MaterialImage.png&#34;</span>;
+    Vector2Int Resolution;
+
+    <span style="color:#339;font-weight:bold">bool</span> hasMaterial;
+    <span style="color:#339;font-weight:bold">bool</span> hasResolution;
+    <span style="color:#339;font-weight:bold">bool</span> hasFilePath;
+<span style="color:#00c">
+</span><span style="color:#00c">    [MenuItem (&#34;Tools/Bake material to texture&#34;)]</span>
+    <span style="color:#080;font-weight:bold">static</span> <span style="color:#080;font-weight:bold">void</span> OpenWindow() {
+        <span style="color:#888">//create window
+</span><span style="color:#888"></span>        BakeTextureWindow window = EditorWindow.GetWindow&lt;BakeTextureWindow&gt;();
+        window.Show();
+
+        window.CheckInput();
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> OnGUI(){
+        EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Set the material you want to bake as well as the size &#34;</span>+
+                <span style="background-color:#fff0f0">&#34;and location of the texture you want to bake to, then press the \&#34;Bake\&#34; button.&#34;</span>, MessageType.None);
+
+        using(<span style="color:#339;font-weight:bold">var</span> check = <span style="color:#080;font-weight:bold">new</span> EditorGUI.ChangeCheckScope()){
+            ImageMaterial = (Material)EditorGUILayout.ObjectField(<span style="background-color:#fff0f0">&#34;Material&#34;</span>, ImageMaterial, <span style="color:#080;font-weight:bold">typeof</span>(Material), <span style="color:#080;font-weight:bold">false</span>);
+            Resolution = EditorGUILayout.Vector2IntField(<span style="background-color:#fff0f0">&#34;Image Resolution&#34;</span>, Resolution);
+            FilePath = FileField(FilePath);
+
+            <span style="color:#080;font-weight:bold">if</span>(check.changed){
+                CheckInput();
+            }
+        }
+
+        GUI.enabled = hasMaterial &amp;&amp; hasResolution &amp;&amp; hasFilePath;
+        <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+            BakeTexture();
+        }
+        GUI.enabled = <span style="color:#080;font-weight:bold">true</span>;
+
+        <span style="color:#888">//tell the user what inputs are missing
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span>(!hasMaterial){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;You&#39;re still missing a material to bake.&#34;</span>, MessageType.Warning);
+        }
+        <span style="color:#080;font-weight:bold">if</span>(!hasResolution){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Please set a size bigger than zero.&#34;</span>, MessageType.Warning);
+        }
+        <span style="color:#080;font-weight:bold">if</span>(!hasFilePath){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;No file to save the image to given.&#34;</span>, MessageType.Warning);
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> CheckInput(){
+        <span style="color:#888">//check which values are entered already
+</span><span style="color:#888"></span>        hasMaterial = ImageMaterial != <span style="color:#080;font-weight:bold">null</span>;
+        hasResolution = Resolution.x &gt; <span style="color:#60e;font-weight:bold">0</span> &amp;&amp; Resolution.y &gt; <span style="color:#60e;font-weight:bold">0</span>;
+        hasFilePath = <span style="color:#080;font-weight:bold">false</span>;
+        <span style="color:#080;font-weight:bold">try</span>{
+            <span style="color:#339;font-weight:bold">string</span> ext = Path.GetExtension(FilePath);
+            hasFilePath = ext.Equals(<span style="background-color:#fff0f0">&#34;.png&#34;</span>);
+        } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+    }
+
+    <span style="color:#339;font-weight:bold">string</span> FileField(<span style="color:#339;font-weight:bold">string</span> path){
+        <span style="color:#888">//allow the user to enter output file both as text or via file browser
+</span><span style="color:#888"></span>        EditorGUILayout.LabelField(<span style="background-color:#fff0f0">&#34;Image Path&#34;</span>);
+        using(<span style="color:#080;font-weight:bold">new</span> GUILayout.HorizontalScope()){
+            path = EditorGUILayout.TextField(path);
+            <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;choose&#34;</span>)){
+                <span style="color:#888">//set default values for directory, then try to override them with values of existing path
+</span><span style="color:#888"></span>                <span style="color:#339;font-weight:bold">string</span> directory = <span style="background-color:#fff0f0">&#34;Assets&#34;</span>;
+                <span style="color:#339;font-weight:bold">string</span> fileName = <span style="background-color:#fff0f0">&#34;MaterialImage.png&#34;</span>;
+                <span style="color:#080;font-weight:bold">try</span>{
+                    directory = Path.GetDirectoryName(path);
+                    fileName = Path.GetFileName(path);
+                } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+                <span style="color:#339;font-weight:bold">string</span> chosenFile = EditorUtility.SaveFilePanelInProject(<span style="background-color:#fff0f0">&#34;Choose image file&#34;</span>, fileName, 
+                        <span style="background-color:#fff0f0">&#34;png&#34;</span>, <span style="background-color:#fff0f0">&#34;Please enter a file name to save the image to&#34;</span>, directory);
+                <span style="color:#080;font-weight:bold">if</span>(!<span style="color:#339;font-weight:bold">string</span>.IsNullOrEmpty(chosenFile)){
+                    path = chosenFile;
+                }
+                <span style="color:#888">//repaint editor because the file changed and we can&#39;t set it in the textfield retroactively
+</span><span style="color:#888"></span>                Repaint();
+            }
+        }
+        <span style="color:#080;font-weight:bold">return</span> path;
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> BakeTexture(){
+        <span style="color:#888">//render material to rendertexture
+</span><span style="color:#888"></span>        RenderTexture renderTexture = RenderTexture.GetTemporary(Resolution.x, Resolution.y);
+        Graphics.Blit(<span style="color:#080;font-weight:bold">null</span>, renderTexture, ImageMaterial);
+
+        <span style="color:#888">//transfer image from rendertexture to texture
+</span><span style="color:#888"></span>        Texture2D texture = <span style="color:#080;font-weight:bold">new</span> Texture2D(Resolution.x, Resolution.y);
+        RenderTexture.active = renderTexture;
+        texture.ReadPixels(<span style="color:#080;font-weight:bold">new</span> Rect(Vector2.zero, Resolution), <span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>);
+
+        <span style="color:#888">//save texture to file
+</span><span style="color:#888"></span>        <span style="color:#339;font-weight:bold">byte</span>[] png = texture.EncodeToPNG();
+        File.WriteAllBytes(FilePath, png);
+        AssetDatabase.Refresh();
+
+        <span style="color:#888">//clean up variables
+</span><span style="color:#888"></span>        RenderTexture.active = <span style="color:#080;font-weight:bold">null</span>;
+        RenderTexture.ReleaseTemporary(renderTexture);
+        DestroyImmediate(texture);
+    }
+}
+</code></pre></div><h3 id="bake-texture3d-window">Bake Texture3d Window</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Editor/BakeTexture3dWindow.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Editor/BakeTexture3dWindow.cs</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEditor</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.IO</span>;
+<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System</span>;
+
+<span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">BakeTexture3dWindow</span> : EditorWindow {
+
+    Material ImageMaterial;
+    <span style="color:#339;font-weight:bold">string</span> FilePath = <span style="background-color:#fff0f0">&#34;Assets/MaterialImage.asset&#34;</span>;
+    Vector3Int Resolution;
+
+    <span style="color:#339;font-weight:bold">bool</span> hasMaterial;
+    <span style="color:#339;font-weight:bold">bool</span> hasResolution;
+    <span style="color:#339;font-weight:bold">bool</span> hasFilePath;
+<span style="color:#00c">
+</span><span style="color:#00c">    [MenuItem (&#34;Tools/Bake material to 3d texture&#34;)]</span>
+    <span style="color:#080;font-weight:bold">static</span> <span style="color:#080;font-weight:bold">void</span> OpenWindow() {
+        <span style="color:#888">//create window
+</span><span style="color:#888"></span>        BakeTexture3dWindow window = EditorWindow.GetWindow&lt;BakeTexture3dWindow&gt;();
+        window.Show();
+
+        window.CheckInput();
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> OnGUI(){
+        EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Set the material you want to bake as well as the size &#34;</span>+
+                <span style="background-color:#fff0f0">&#34;and location of the texture you want to bake to, then press the \&#34;Bake\&#34; button.&#34;</span>, MessageType.None);
+
+        using(<span style="color:#339;font-weight:bold">var</span> check = <span style="color:#080;font-weight:bold">new</span> EditorGUI.ChangeCheckScope()){
+            ImageMaterial = (Material)EditorGUILayout.ObjectField(<span style="background-color:#fff0f0">&#34;Material&#34;</span>, ImageMaterial, <span style="color:#080;font-weight:bold">typeof</span>(Material), <span style="color:#080;font-weight:bold">false</span>);
+            Resolution = EditorGUILayout.Vector3IntField(<span style="background-color:#fff0f0">&#34;Image Resolution&#34;</span>, Resolution);
+            FilePath = FileField(FilePath);
+
+            <span style="color:#080;font-weight:bold">if</span>(check.changed){
+                CheckInput();
+            }
+        }
+
+        GUI.enabled = hasMaterial &amp;&amp; hasResolution &amp;&amp; hasFilePath;
+        <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;Bake&#34;</span>)){
+            BakeTexture();
+        }
+        GUI.enabled = <span style="color:#080;font-weight:bold">true</span>;
+
+        <span style="color:#888">//tell the user what inputs are missing
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">if</span>(!hasMaterial){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;You&#39;re still missing a material to bake.&#34;</span>, MessageType.Warning);
+        }
+        <span style="color:#080;font-weight:bold">if</span>(!hasResolution){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;Please set a size bigger than zero.&#34;</span>, MessageType.Warning);
+        }
+        <span style="color:#080;font-weight:bold">if</span>(!hasFilePath){
+            EditorGUILayout.HelpBox(<span style="background-color:#fff0f0">&#34;No file to save the image to given.&#34;</span>, MessageType.Warning);
+        }
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> CheckInput(){
+        <span style="color:#888">//check which values are entered already
+</span><span style="color:#888"></span>        hasMaterial = ImageMaterial != <span style="color:#080;font-weight:bold">null</span>;
+        hasResolution = Resolution.x &gt; <span style="color:#60e;font-weight:bold">0</span> &amp;&amp; Resolution.y &gt; <span style="color:#60e;font-weight:bold">0</span> &amp;&amp; Resolution.z &gt; <span style="color:#60e;font-weight:bold">0</span>;
+        hasFilePath = <span style="color:#080;font-weight:bold">false</span>;
+        <span style="color:#080;font-weight:bold">try</span>{
+            <span style="color:#339;font-weight:bold">string</span> ext = Path.GetExtension(FilePath);
+            hasFilePath = ext.Equals(<span style="background-color:#fff0f0">&#34;.asset&#34;</span>);
+        } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+    }
+
+    <span style="color:#339;font-weight:bold">string</span> FileField(<span style="color:#339;font-weight:bold">string</span> path){
+        <span style="color:#888">//allow the user to enter output file both as text or via file browser
+</span><span style="color:#888"></span>        EditorGUILayout.LabelField(<span style="background-color:#fff0f0">&#34;Image Path&#34;</span>);
+        using(<span style="color:#080;font-weight:bold">new</span> GUILayout.HorizontalScope()){
+            path = EditorGUILayout.TextField(path);
+            <span style="color:#080;font-weight:bold">if</span>(GUILayout.Button(<span style="background-color:#fff0f0">&#34;choose&#34;</span>)){
+                <span style="color:#888">//set default values for directory, then try to override them with values of existing path
+</span><span style="color:#888"></span>                <span style="color:#339;font-weight:bold">string</span> directory = <span style="background-color:#fff0f0">&#34;Assets&#34;</span>;
+                <span style="color:#339;font-weight:bold">string</span> fileName = <span style="background-color:#fff0f0">&#34;MaterialImage.asset&#34;</span>;
+                <span style="color:#080;font-weight:bold">try</span>{
+                    directory = Path.GetDirectoryName(path);
+                    fileName = Path.GetFileName(path);
+                } <span style="color:#080;font-weight:bold">catch</span>(ArgumentException){}
+                <span style="color:#339;font-weight:bold">string</span> chosenFile = EditorUtility.SaveFilePanelInProject(<span style="background-color:#fff0f0">&#34;Choose image file&#34;</span>, fileName, 
+                        <span style="background-color:#fff0f0">&#34;asset&#34;</span>, <span style="background-color:#fff0f0">&#34;Please enter a file name to save the image to&#34;</span>, directory);
+                <span style="color:#080;font-weight:bold">if</span>(!<span style="color:#339;font-weight:bold">string</span>.IsNullOrEmpty(chosenFile)){
+                    path = chosenFile;
+                }
+                <span style="color:#888">//repaint editor because the file changed and we can&#39;t set it in the textfield retroactively
+</span><span style="color:#888"></span>                Repaint();
+            }
+        }
+        <span style="color:#080;font-weight:bold">return</span> path;
+    }
+
+    <span style="color:#080;font-weight:bold">void</span> BakeTexture(){
+        <span style="color:#888">//get rendertexture to render layers to and texture3d to save values to as well as 2d texture for transferring data
+</span><span style="color:#888"></span>        RenderTexture renderTexture = RenderTexture.GetTemporary(Resolution.x, Resolution.y);
+        Texture3D volumeTexture = <span style="color:#080;font-weight:bold">new</span> Texture3D(Resolution.x, Resolution.y, Resolution.z, TextureFormat.ARGB32, <span style="color:#080;font-weight:bold">false</span>);
+        Texture2D tempTexture = <span style="color:#080;font-weight:bold">new</span> Texture2D(Resolution.x, Resolution.y);
+
+        <span style="color:#888">//prepare for loop
+</span><span style="color:#888"></span>        RenderTexture.active = renderTexture;
+        <span style="color:#339;font-weight:bold">int</span> voxelAmount = Resolution.x * Resolution.y * Resolution.z;
+        <span style="color:#339;font-weight:bold">int</span> slicePixelAmount = Resolution.x * Resolution.y;
+        Color32[] colors = <span style="color:#080;font-weight:bold">new</span> Color32[voxelAmount];
+
+        <span style="color:#888">//loop through slices
+</span><span style="color:#888"></span>        <span style="color:#080;font-weight:bold">for</span>(<span style="color:#339;font-weight:bold">int</span> slice=<span style="color:#60e;font-weight:bold">0</span>; slice&lt;Resolution.z; slice++){
+            <span style="color:#888">//set z coodinate in shader
+</span><span style="color:#888"></span>            <span style="color:#339;font-weight:bold">float</span> height = (slice + <span style="color:#60e;font-weight:bold">0.5f</span>) / Resolution.z;
+            ImageMaterial.SetFloat(<span style="background-color:#fff0f0">&#34;_Height&#34;</span>, height);
+
+            <span style="color:#888">//get shader result
+</span><span style="color:#888"></span>            Graphics.Blit(<span style="color:#080;font-weight:bold">null</span>, renderTexture, ImageMaterial);
+            tempTexture.ReadPixels(<span style="color:#080;font-weight:bold">new</span> Rect(<span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>, Resolution.x, Resolution.y), <span style="color:#60e;font-weight:bold">0</span>, <span style="color:#60e;font-weight:bold">0</span>);
+            Color32[] sliceColors = tempTexture.GetPixels32();
+
+            <span style="color:#888">//copy slice to data for 3d texture
+</span><span style="color:#888"></span>            <span style="color:#339;font-weight:bold">int</span> sliceBaseIndex = slice * slicePixelAmount;
+            <span style="color:#080;font-weight:bold">for</span>(<span style="color:#339;font-weight:bold">int</span> pixel=<span style="color:#60e;font-weight:bold">0</span>; pixel&lt;slicePixelAmount; pixel++){
+                colors[sliceBaseIndex + pixel] = sliceColors[pixel];
+            }
+        }
+
+        <span style="color:#888">//apply and save 3d texture
+</span><span style="color:#888"></span>        volumeTexture.SetPixels32(colors);
+        AssetDatabase.CreateAsset(volumeTexture, FilePath);
+
+        <span style="color:#888">//clean up variables
+</span><span style="color:#888"></span>        RenderTexture.active = <span style="color:#080;font-weight:bold">null</span>;
+        RenderTexture.ReleaseTemporary(renderTexture);
+        DestroyImmediate(volumeTexture);
+        DestroyImmediate(tempTexture);
+    }
+}
+</code></pre></div><h3 id="read-from-3d-texture">Read from 3d Texture</h3>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Read3dTexture.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/030_Bake_Material/Read3dTexture.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">030</span>_BakeTextures<span style="color:#333">/</span>Read3dTexture<span style="color:#f00;background-color:#faa">&#34;</span>
+{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+        _Height(<span style="color:#f00;background-color:#faa">&#34;</span>Height<span style="color:#f00;background-color:#faa">&#34;</span>, Range(<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)) <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">3</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			sampler3D _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+            <span style="color:#080;font-weight:bold">float</span> _Height;
+
+			<span style="color:#888">//the object data that&#39;s put into the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				fixed4 col <span style="color:#333">=</span> tex3D(_MainTex, float3(i.uv, _Height));
+				col <span style="color:#333">*=</span> _Color;
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div><p>I hope this tool will be as useful to you as it is to me in helpling you create textures to reuse and make shaders that are way cheaper to calculate than they would be with procedural noise.</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+        <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "ronja-tutorials" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

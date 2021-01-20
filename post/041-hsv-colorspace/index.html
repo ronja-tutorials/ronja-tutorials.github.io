@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">HSV Color Space</h1>
       
       
@@ -107,13 +106,36 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the color. This is great if we want to render the color or tint it, but adjusting the hue or saturation becomes very bothersome. For those kinds of operations we can use the HSV color space. In addition to the HSV color space there are also other similar color spaces, like the HSL or CIE color models. Some of them are very similar to the HSL model while others get way closer to the visible spectrum at the cost of higher cost of calculating them. For simplicities sake I&rsquo;m only going to explain the HSV model here.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#how-does-it-work">How does it work?</a></li>
+    <li><a href="#generating-a-rgb-color-from-hue">Generating a RGB Color from Hue</a></li>
+    <li><a href="#full-hsv-to-rgb-conversion">Full HSV to RGB conversion</a></li>
+    <li><a href="#rgb-to-hsv-conversion">RGB to HSV conversion</a></li>
+    <li><a href="#source">Source</a>
+      <ul>
+        <li><a href="#function-library">Function Library</a></li>
+        <li><a href="#hsv-to-rgb-test">HSV to RGB Test</a></li>
+        <li><a href="#hue-cycle">Hue Cycle</a></li>
+        <li><a href="#hsv-adjustment">HSV Adjustment</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>So far we always used RGB colors in our shaders, meaning the components of our color vector always map to the red green and blue components of the color. This is great if we want to render the color or tint it, but adjusting the hue or saturation becomes very bothersome. For those kinds of operations we can use the HSV color space. In addition to the HSV color space there are also other similar color spaces, like the HSL or CIE color models. Some of them are very similar to the HSL model while others get way closer to the visible spectrum at the cost of higher cost of calculating them. For simplicities sake I&rsquo;m only going to explain the HSV model here.</p>
 <p><img src="/assets/images/posts/041/Result.gif" alt=""></p>
-<h2 id="how-does-it-work">How does it work?</h2>
+<h2 id="how-does-it-work">How does it work? <a href="#how-does-it-work" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>When using the HSV model we also have 3 components which define our color, but in this case they map to the hue, saturation and value of the color. Because the maximum and minimum value of the hue map to the same value (red), we can view it as a circle. This concept can be taken a step further to imagine the color space as a cylinder where the hue is the rotation around the center, the saturation is the proximity to the center and the value is represented by the relative height of the point in the cylinder.</p>
 <p><img src="/assets/images/posts/041/hsvCylinder.png" alt=""></p>
-<h2 id="generating-a-rgb-color-from-hue">Generating a RGB Color from Hue</h2>
+<h2 id="generating-a-rgb-color-from-hue">Generating a RGB Color from Hue <a href="#generating-a-rgb-color-from-hue" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The most critical step in converting colors from HSV to RGB is to convert the hue of a HSV color to a RGB color, that&rsquo;s why we&rsquo;re writing a function to do only this. In our implementation the hue will be between 0 and 1. Other implementations define it to be between 0 and 360, similar to degree numbers in a circle, but I personally prefer 0 to 1 scaling since it makes it easier to work with functions like <code>saturate</code> or <code>frac</code> which assume we&rsquo;re working in those dimensions.</p>
 <p>In the range from 0 to 1 each of the 3 components has one third where it has a value of 1, one third where it has a value of 0 and two sixths where it&rsquo;s linearly growing from 0 to 1 or decreasing from 1 to 0 accordingly. Those changes in values are offset in a way that each hue generates a different color.</p>
 <p><img src="/assets/images/posts/041/rgbHueValues.png" alt=""></p>
@@ -136,7 +158,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 	<span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
 }
 </code></pre></div><p><img src="/assets/images/posts/041/SimpleRainbow.png" alt=""></p>
-<h2 id="full-hsv-to-rgb-conversion">Full HSV to RGB conversion</h2>
+<h2 id="full-hsv-to-rgb-conversion">Full HSV to RGB conversion <a href="#full-hsv-to-rgb-conversion" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>After being able to convert the hue into a rgb color that looks correct we next also have to make the output color respect the saturation and value. To apply the saturation to the already generated color, we do a linear interpolation from 1 to the color and use the saturation component of the vector as the argument. Since 1 stands for full white in thic context, this makes the hue vanish for low saturation color while preserving it for high saturation ones.</p>
 <p>The last step to take is to appy the value. Since the value stands for the brightness of the color the operation to apply it is to simply multiply the color so far by the value component.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 hsv2rgb(float3 hsv)
@@ -155,7 +177,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET
 	<span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
 }
 </code></pre></div><p><img src="/assets/images/posts/041/FullHsvTest.png" alt=""></p>
-<h2 id="rgb-to-hsv-conversion">RGB to HSV conversion</h2>
+<h2 id="rgb-to-hsv-conversion">RGB to HSV conversion <a href="#rgb-to-hsv-conversion" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Unlike the conversion from rgb to hsv, the data we&rsquo;re using to generate the hsv color is a bit more entangled between the different components of the output vector so we won&rsquo;t split this into several functions.</p>
 <p>Which variables we&rsquo;re using to get the hue depends on which component of the rgb color has the highest value, additionally we also need the difference between the highest and lowest component to calculate it. So after calculating the highest and lowest components of the input color via the builtin <code>min</code> and <code>max</code> functions and using them to get the difference between them we first create the hue and then check which of the components is equal to the highest value. We then subtract the two values that are not the highest value from each other, divide them by the difference between minimum and maximum value and then add 0, 2 or 4 depending on the color that&rsquo;s the highest. Afterwards we divide the resulting hue by 6 and only use the fractional part.</p>
 <p>By getting the biggest component we ensure that the other 2 components are the minimum component and the component that&rsquo;s changing in the third we&rsquo;re in right now (see graph further up the article). For example when red is the most intense color, either blue has the lowest value and the difference between green to blue is calculated or green has the lowest value, in that case the resulting difference has a negative value. One thing that distorts this value is that because the value and saturation are also part of the input value, the hue might be way off from the &ldquo;completely red/green/blue&rdquo; points, but since max and min values are super close the difference we just calculated is still very small. This is luckily easy to fix by dividing the difference by the difference between the biggest and smallest component of the input color we calculated earlier. With those modifications we get a value of 0 if the colors that aren&rsquo;t the biggest color are the same, a.k.a. the hue is red/green/blue or a value of -1/1 if it&rsquo;s yellow/magenta/cyan and a value inbetween for the other hues. By adding a value based on the hue of the most intense input component we&rsquo;re remapping the colors to -1 to 1 for the redish colors, 1 to 3 for the greenish colors and 3 to 5 for the blueish colors. The division afterwards pulls this into the range of -1/6 to 5/6 and taking the fractional part of that makes the negative values wrap around so it&rsquo;s in the range of 0 to 1 as expected.</p>
@@ -200,9 +222,9 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
     col <span style="color:#333">=</span> hsv2rgb(hsv);
     <span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
 }
-</code></pre></div><h2 id="source">Source</h2>
+</code></pre></div><h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>I used include files in the building of those examples, I explain how to use them more extensively in <a href="https://www.ronja-tutorials.com/post/024-white-noise/">the tutorial about random number generation</a>.</p>
-<h3 id="function-library">Function Library</h3>
+<h3 id="function-library">Function Library <a href="#function-library" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVLibrary.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVLibrary.cginc</a></li>
 </ul>
@@ -247,7 +269,7 @@ float3 rgb2hsv(float3 rgb)
 }
 
 <span style="color:#579">#endif</span>
-</code></pre></div><h3 id="hsv-to-rgb-test">HSV to RGB Test</h3>
+</code></pre></div><h3 id="hsv-to-rgb-test">HSV to RGB Test <a href="#hsv-to-rgb-test" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueTest.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueTest.shader</a></li>
 </ul>
@@ -299,7 +321,7 @@ float3 rgb2hsv(float3 rgb)
         }
     }
 }
-</code></pre></div><h3 id="hue-cycle">Hue Cycle</h3>
+</code></pre></div><h3 id="hue-cycle">Hue Cycle <a href="#hue-cycle" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueCycle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HueCycle.shader</a></li>
 </ul>
@@ -365,7 +387,7 @@ float3 rgb2hsv(float3 rgb)
         }
     }
 }
-</code></pre></div><h3 id="hsv-adjustment">HSV Adjustment</h3>
+</code></pre></div><h3 id="hsv-adjustment">HSV Adjustment <a href="#hsv-adjustment" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVAdjust.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/041_HSV_Colorspace/HSVAdjust.shader</a></li>
 </ul>
@@ -438,7 +460,11 @@ float3 rgb2hsv(float3 rgb)
     }
 }
 </code></pre></div><p>As always thank you so much for reading and supporting me, your messages of support mean the world to me 💖.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

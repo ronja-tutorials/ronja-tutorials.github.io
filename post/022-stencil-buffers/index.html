@@ -11,14 +11,15 @@ The stencil buffer is also used by unity internally for the deferred graphics pi
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ The stencil buffer is also used by unity internally for the deferred graphics pi
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Stencil Buffers</h1>
       
       
@@ -111,13 +110,28 @@ The stencil buffer is also used by unity internally for the deferred graphics pi
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#reading-from-the-stencil-buffer">Reading from the Stencil Buffer</a></li>
+    <li><a href="#writing-to-the-stencil-buffer">Writing to the Stencil Buffer</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The depth buffer helps us compare depths of objects to ensure they occlude each other properly. But theres also a part of the stencil buffer reserved for &ldquo;stencil operations&rdquo;. This part of the depth buffer is commonly referred to as stencil buffer. Stencil buffers are mostly used to only render parts of objects while discarding others.</p>
 <p>The stencil buffer is also used by unity internally for the deferred graphics pipeline, so if you do deferred rendering, some limitations apply. For those limitations and other more indepth information on how to use the stencil buffer in unity you can read here: <a href="https://docs.unity3d.com/Manual/SL-Stencil.html">https://docs.unity3d.com/Manual/SL-Stencil.html</a>.</p>
 <p>This tutorial will go into some of the basics of the stencil buffer and show read and write from it. We will start with the <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">basic surface shader</a>) but it works just as well with all other types of shaders including unlit and postprocessing ones. In any case you should understand <a href="/basics.html">basics shaders</a> before getting into manipulating stencil buffers.</p>
 <p><img src="/assets/images/posts/022/Result.gif" alt=""></p>
-<h2 id="reading-from-the-stencil-buffer">Reading from the Stencil Buffer</h2>
+<h2 id="reading-from-the-stencil-buffer">Reading from the Stencil Buffer <a href="#reading-from-the-stencil-buffer" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The shader which will read from the stencil buffer will draw itself, but only where the buffer has a specific value, everywhere else it will be discarded.</p>
 <p>All stencil operations are done via a small stencil code block outside of our hlsl code. Like most shaderlab things we can write them in our subshader to use them for the whole subshader or in the shader pass to use them only in that one shader pass. Because in surface shaders our shader passes are generated automatically by unity, we&rsquo;ll write it in the subshader in this case.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">SubShader {
@@ -156,7 +170,7 @@ The stencil buffer is also used by unity internally for the deferred graphics pi
     Ref [_StencilRef]
     Comp Equal
 }
-</code></pre></div><h2 id="writing-to-the-stencil-buffer">Writing to the Stencil Buffer</h2>
+</code></pre></div><h2 id="writing-to-the-stencil-buffer">Writing to the Stencil Buffer <a href="#writing-to-the-stencil-buffer" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To make real use from our shader which reads from the stencil buffer, we&rsquo;ll write a second one which reads from it. This second shader will not write to the screen itself and will render before the first shader, so we make sure the stencil buffer already has the correct values written to it when we read from it.</p>
 <p>For this shader we start with a basic unlit shader, like in <a href="/basics.html">the basics</a> because it&rsquo;s so simple and we don&rsquo;t need much. For it to not render to the screen at all and just manipulate the stencil buffer we&rsquo;ll add a few other small detail to it though.</p>
 <p>First we let the fragment shader just return 0, because we don&rsquo;t care about the return value anyways. Then we set the blending to <code>Zero One</code>, which means that the the color that is returned by the shader will be completely ignored and the color that was rendered before will be preserved completely. Another change to make the shader not render is that we&rsquo;ll tell it to not write to the Z buffer. Otherwise it would occlude objects behind it and because we want to see other things though the surface we don&rsquo;t want that at all. And the last change is to ensure the material renders before the materials which might read from the stencil buffer: We change the queue from <code>geometry</code> to <code>geomety-1</code> which puts it earlier in the render queue.</p>
@@ -187,7 +201,7 @@ Properties{
 <p><img src="/assets/images/posts/022/WriteInspector.png" alt=""></p>
 <p><img src="/assets/images/posts/022/ReadInspector.png" alt=""></p>
 <p><img src="/assets/images/posts/022/Result.gif" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">022</span>_stencil_buffer<span style="color:#333">/</span>read<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
 		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
@@ -292,7 +306,11 @@ Properties{
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_read.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_read.shader</a></li>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_write.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/022_Stencil_Buffer/stencil_write.shader</a></li>
 </ul>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

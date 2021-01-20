@@ -12,14 +12,15 @@ Stripes I will take the world position of the surface to generate the chessboard
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -106,8 +107,6 @@ Stripes I will take the world position of the surface to generate the chessboard
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Checkerboard Pattern</h1>
       
       
@@ -115,12 +114,28 @@ Stripes I will take the world position of the surface to generate the chessboard
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#stripes">Stripes</a></li>
+    <li><a href="#checkerboard-in-2d-and-3d">Checkerboard in 2d and 3d</a></li>
+    <li><a href="#scaling">Scaling</a></li>
+    <li><a href="#customizable-colors">Customizable Colors</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For me, one of the most interresting things to do with shaders is procedural images. To get started with that, we’re going to create a simple Checkerboard pattern.</p>
 <p>This tutorial will build on the <a href="/basics.html">simple shader with only properties</a>, but as always, you can also use the technique to generate colors in more complex shaders.</p>
 <p><img src="/assets/images/posts/011/Result.png" alt="Result of the tutorial"></p>
-<h2 id="stripes">Stripes</h2>
+<h2 id="stripes">Stripes <a href="#stripes" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>I will take the world position of the surface to generate the chessboard texture, that way we can later move and rotate the model around and the generated patterns will fit together. If you want to pattern to move and rotate with the model, you can also use the object space coordinates (the ones from appdata, not multiplied with anything).</p>
 <p>To use the worldposition in the fragment shader, we add the world position to the vertex to fragment struct and then generate the world position in the vertex shader and write it into the struct.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> v2f{
@@ -148,7 +163,7 @@ v2f vert(appdata v){
     <span style="color:#080;font-weight:bold">return</span> chessboard;
 }
 </code></pre></div><p><img src="/assets/images/posts/011/1d.png" alt="stripes on a material"></p>
-<h2 id="checkerboard-in-2d-and-3d">Checkerboard in 2d and 3d</h2>
+<h2 id="checkerboard-in-2d-and-3d">Checkerboard in 2d and 3d <a href="#checkerboard-in-2d-and-3d" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Next, we make the pattern two dimensional. To do that we only have to add a additional axis to the value we’re evaluating. That’s because when we add one to our rows all of the even values become odd and the odd values become even. This is also the main reason why we floor our values. We easily could have made the pattern work in one dimension without flooring them, but this makes it easier to add more dimensions.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
     <span style="color:#888">//add different dimensions</span>
@@ -172,7 +187,7 @@ v2f vert(appdata v){
     <span style="color:#080;font-weight:bold">return</span> chessboard;
 }
 </code></pre></div><p><img src="/assets/images/posts/011/3d.png" alt="checkerboard pattern on a sphere"></p>
-<h2 id="scaling">Scaling</h2>
+<h2 id="scaling">Scaling <a href="#scaling" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Next I’d like to add the ability to make the pattern bigger or smaller. For that, we add a new property for the scale of the pattern. We divide the position by the scale before we do anything else with it, that way, if the scale is smaller than one, the pattern is generated as if the object is bigger than it is and as such it has more pattern density per surface area.</p>
 <p>Another small change I made is that we now use floor on the whole vector instead of the components separately. That doesn’t change anything, I just think it’s nicer to read.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
@@ -202,7 +217,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 
 <span style="color:#888">//...</span>
 </code></pre></div><p><img src="/assets/images/posts/011/Scaling.gif" alt="scaling checkerboard bigger and smaller"></p>
-<h2 id="customizable-colors">Customizable Colors</h2>
+<h2 id="customizable-colors">Customizable Colors <a href="#customizable-colors" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Finally I’d like to add the possibility to add Colors to the Pattern, One for the even areas, one for the odd. We add two new Properties and the matching values for those colors to the shader.</p>
 <p>Then at the end of our fragment shader, we do a linear interpolation between the two colors. Since we only have two different values (zero and one), we can expect the interpolation to return either the color it interpolates from(for a input of 0) or the color it interpolates towards(for a input of 1). (If you’re confused by the interpolation, I explain it more thouroghly in <a href="https://www.ronja-tutorials.com/post/009-interpolating-colors/">another tutorial</a>.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//...</span>
@@ -305,7 +320,11 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 }
 </code></pre></div><p>I hope you liked making this simple chess board shader and it helped you understand how to create patterns in shaders with simple math operations.</p>
 <p>You can also find the source code for this shader here: <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/011_ChessBoard/Chessboard.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/011_ChessBoard/Chessboard.shader</a></p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

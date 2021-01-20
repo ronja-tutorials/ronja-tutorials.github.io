@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">2D SDF Space Manipulation</h1>
       
       
@@ -107,10 +106,36 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) and [combine sdf shapes]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#space-repetition">Space Repetition</a>
+      <ul>
+        <li><a href="#mirror">Mirror</a></li>
+      </ul>
+    </li>
+    <li><a href="#cells">Cells</a></li>
+    <li><a href="#radial-cells">Radial Cells</a></li>
+    <li><a href="#wobbly-space">Wobbly space</a></li>
+    <li><a href="#sources">Sources</a>
+      <ul>
+        <li><a href="#2d-sdf-library">2D SDF Library</a></li>
+        <li><a href="#base-demo-shader">Base Demo Shader</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) and [combine sdf shapes]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
 <p><img src="/assets/images/posts/036/Result.gif" alt=""></p>
-<h2 id="setup">Setup</h2>
+<h2 id="setup">Setup <a href="#setup" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For this tutorial I&rsquo;ll modify a union between a square and a circle, but you can use it on any shape you want. It&rsquo;s similar to the setup for the [previous tutorial]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
 <p>Important here is that the part we will modify is before we use the position to generate shapes.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">036</span>_SDF_Space_Manpulation<span style="color:#333">/</span>Type<span style="color:#f00;background-color:#faa">&#34;</span>{
@@ -318,8 +343,8 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
 
 <span style="color:#579">#endif</span>
 </code></pre></div><p><img src="/assets/images/posts/036/BaseShape.png" alt=""></p>
-<h2 id="space-repetition">Space Repetition</h2>
-<h3 id="mirror">Mirror</h3>
+<h2 id="space-repetition">Space Repetition <a href="#space-repetition" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="mirror">Mirror <a href="#mirror" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>One of the simplest things we can do is to mirror the world around a axis. To mirror it around the y axis we take the absolute value of the x component of our position. This way the coordinates on the right and the left of the axis are the same. <code>(-1, 1)</code> becomes <code>(1, 1)</code> and by that it&rsquo;s inside a circle that uses <code>(1, 1)</code> as it&rsquo;s origin with a radius greater than 0.</p>
 <p>Because most of the time the code using this function would look like <code>position = mirror(position);</code> anyways, we can use a small shortcut here. We simply declare the position argument as inout. This way when we write to the argument it&rsquo;ll also change the variable where we pass it into the function. The return type can then be void because we&rsquo;re not using the return value anyways.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
@@ -339,7 +364,7 @@ position <span style="color:#333">=</span> rotate(position, rotation);
 mirror(position);
 position <span style="color:#333">=</span> rotate(position, <span style="color:#333">-</span>rotation);
 </code></pre></div><p><img src="/assets/images/posts/036/RotatingMirror.gif" alt=""></p>
-<h2 id="cells">Cells</h2>
+<h2 id="cells">Cells <a href="#cells" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>If you know how <a href="/noise.html">generating noise</a> works, you know that for procedural generation we often repeat the position and have small cells which are essentially the same except for a few paramters. For distance fields we can do the same.</p>
 <p>Because the <code>fmod</code> function (as well as using % for the modulo) gives us the remainder instead of the definition of a modulo we want we&rsquo;ll have to use some trickery. We first take the modulo with the fmod function. For positive numbers that&rsquo;s what we want, for negative numbers though, it&rsquo;s the result we want minus the period. The fix for this is to add the period and take the modulo again. Adding the period will give us the result we want for negative input values and a value that&rsquo;s one period too high for positive input values. The second modulo will do nothing to the values for negative input values, because they&rsquo;re already between 0 and the period, for positive input values, it&rsquo;ll basically subtract one period.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
@@ -382,7 +407,7 @@ float2 cell <span style="color:#333">=</span> cells(position, period);
 float2 flip <span style="color:#333">=</span> abs(fmod(cell, <span style="color:#00d;font-weight:bold">2</span>));
 position <span style="color:#333">=</span> lerp(position, period <span style="color:#333">-</span> position, flip);
 </code></pre></div><p><img src="/assets/images/posts/036/FlippedCells.png" alt=""></p>
-<h2 id="radial-cells">Radial Cells</h2>
+<h2 id="radial-cells">Radial Cells <a href="#radial-cells" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Another cool thing is to repeat the space in a radial pattern.</p>
 <p>To get that effect, we first calculate the radial position. For that we encode the angle around the center in the x axis and the distance from the center in the y axis.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 radialPosition <span style="color:#333">=</span> float2(atan2(position.x, position.y), length(position));
@@ -448,7 +473,7 @@ radial_cells(position, period, <span style="color:#080;font-weight:bold">false</
 float2 period <span style="color:#333">=</span> <span style="color:#00d;font-weight:bold">6</span>;
 radial_cells(position, period, <span style="color:#080;font-weight:bold">true</span>);
 </code></pre></div><p><img src="/assets/images/posts/036/MirroredRadialSymmetry.png" alt=""></p>
-<h2 id="wobbly-space">Wobbly space</h2>
+<h2 id="wobbly-space">Wobbly space <a href="#wobbly-space" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>But we don&rsquo;t have to repeat the space to change it. In the tutorial about basics we rotate, transform and scale it for example. Another thing we can do is to move each axis based on the other one with a sine wave. This does make the distances of the signed distance funciton less precise, but as long as we don&rsquo;t make it wobble too much it should be fine.</p>
 <p>We first calculate the amount we change the position by flipping the x and y components and then multiplying them by the frequency of the wobble. Then we take the sine of that value and multiply it by the amount of wobble we want to add. After that we simply add that wobble factor to the position and apply the result to the position again.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in 2D_SDF.cginc</span>
@@ -472,8 +497,8 @@ position <span style="color:#333">=</span> translate(position, offset);
 wobble(position, <span style="color:#00d;font-weight:bold">5</span>, <span style="color:#60e;font-weight:bold">.05</span>);
 position <span style="color:#333">=</span> translate(position, <span style="color:#333">-</span>offset);
 </code></pre></div><p><img src="/assets/images/posts/036/AnimatedWobble.gif" alt=""></p>
-<h2 id="sources">Sources</h2>
-<h3 id="2d-sdf-library">2D SDF Library</h3>
+<h2 id="sources">Sources <a href="#sources" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="2d-sdf-library">2D SDF Library <a href="#2d-sdf-library" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/2D_SDF.cginc</a></li>
 </ul>
@@ -638,7 +663,7 @@ float2 cells(<span style="color:#080;font-weight:bold">inout</span> float2 posit
 }
 
 <span style="color:#579">#endif</span>
-</code></pre></div><h3 id="base-demo-shader">Base Demo Shader</h3>
+</code></pre></div><h3 id="base-demo-shader">Base Demo Shader <a href="#base-demo-shader" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_mirror.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_mirror.shader</a></li>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_cells.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/036_SDF_space_manipulation/sdf_cells.shader</a></li>
@@ -735,7 +760,11 @@ float2 cells(<span style="color:#080;font-weight:bold">inout</span> float2 posit
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
 }
 </code></pre></div><p>With this you know all of the basics about signed distance functions that come to my mind off the top of my head. I&rsquo;ll try to do something interresting with them in the next tutorial.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

@@ -11,14 +11,15 @@ We&rsquo;re going to start by generating signed distance fields with functions i
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ We&rsquo;re going to start by generating signed distance fields with functions i
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">2D Signed Distance Field Basics</h1>
       
       
@@ -111,11 +110,43 @@ We&rsquo;re going to start by generating signed distance fields with functions i
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields(or SDF). Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#base-setup">Base Setup</a></li>
+    <li><a href="#circle">Circle</a></li>
+    <li><a href="#moving">Moving</a></li>
+    <li><a href="#rectangle">Rectangle</a></li>
+    <li><a href="#rotating">Rotating</a></li>
+    <li><a href="#scaling">Scaling</a></li>
+    <li><a href="#visualisation">Visualisation</a>
+      <ul>
+        <li><a href="#hard-shape">Hard Shape</a></li>
+        <li><a href="#height-lines">Height Lines</a></li>
+      </ul>
+    </li>
+    <li><a href="#source">Source</a>
+      <ul>
+        <li><a href="#2d-sdf-functions">2d SDF Functions</a></li>
+        <li><a href="#circle-example">Circle Example</a></li>
+        <li><a href="#rectangle-example">Rectangle Example</a></li>
+        <li><a href="#cutoff">Cutoff</a></li>
+        <li><a href="#distance-lines">Distance Lines</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields(or SDF). Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.</p>
 <p>We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d. I&rsquo;m going to use the worldspace coordinates to make everything as independent from scaling and uv coordinates as possible, so if you&rsquo;re unsure how that works, look at <a href="https://www.ronja-tutorials.com/post/008-planar-mapping/">this tutorial about planar mapping</a> which explains what&rsquo;s happening.</p>
 <p><img src="/assets/images/posts/034/Result.gif" alt=""></p>
-<h2 id="base-setup">Base Setup</h2>
+<h2 id="base-setup">Base Setup <a href="#base-setup" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>From the base of the planar mapping shader we throw out the properties for now because we&rsquo;ll do the technical base for now. Then we&rsquo;ll write the world position to the vertex to fragment struct directly instead of transforming it to the uvs first. As a last point for preparation we&rsquo;ll write a new function which will calculate the scene and return the distance to the nearest surface. Then we&rsquo;ll call the function and use the result as the color.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">034</span>_2D_SDF_Basics<span style="color:#f00;background-color:#faa">&#34;</span>{
     SubShader{
@@ -180,7 +211,7 @@ We&rsquo;re going to start by generating signed distance fields with functions i
 <span style="color:#579">#include &#34;2D_SDF.cginc&#34;</span>
 </code></pre></div><p>With this we just see a black surface on our rendered surface and are ready to display the signed distance on it.</p>
 <p><img src="/assets/images/posts/034/NoSdf.png" alt=""></p>
-<h2 id="circle">Circle</h2>
+<h2 id="circle">Circle <a href="#circle" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The simplest signed distance field function is the one for a circle. The function will only take a sample position and a radius of the circle. We start by simply taking the length of the sample position vector. With this we have a point at the (0, 0) position, which is the same as a circle with the radius of 0.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> circle(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> radius){
     <span style="color:#080;font-weight:bold">return</span> length(samplePosition);
@@ -197,7 +228,7 @@ We&rsquo;re going to start by generating signed distance fields with functions i
 }
 </code></pre></div><p><img src="/assets/images/posts/034/Circle.png" alt=""></p>
 <p>Now the only thing we can&rsquo;t do is to move the circle away from the center. To fix that we can either add a new argument to the circle function to calculate the distance between the sample position and the circle center and subtract the radius from that to define our circle. Or we can redefine the origin by moving the space of the sample point and then get the circle in that space. The later option seems a lot more complex, but because moving things is a operation we want to use on all shapes it&rsquo;s a lot more flexible and is the way I&rsquo;m going to explain here.</p>
-<h2 id="moving">Moving</h2>
+<h2 id="moving">Moving <a href="#moving" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>&ldquo;Transforming the space of a point&rdquo; sounds a lot more scary than it is. It means that we pass the point into a function and the function changes it so we can still use it afterwards. In the case of translation we simply subtract the offset from the point. The reason we subtract the position when we want to move the shapes in the positive direction is that the shapes we render in a space move in the opposite direction than we move the space into.</p>
 <p>For example if we want to draw a sphere at the position <code>(3, 4)</code> we have to change the space so <code>(3, 4)</code> becomes <code>(0, 0)</code> and the operation to do that is to subtract <code>(3, 4)</code>. Now if we draw a sphere around the NEW origin it&rsquo;s at the OLD <code>(3, 4)</code> point.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">// in sdf functions include file</span>
@@ -211,7 +242,7 @@ float2 translate(float2 samplePosition, float2 offset){
     <span style="color:#080;font-weight:bold">return</span> sceneDistance;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/TranslatedCircle.png" alt=""></p>
-<h2 id="rectangle">Rectangle</h2>
+<h2 id="rectangle">Rectangle <a href="#rectangle" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Another simple shape is a rectangle. We start by seeing the components independently. First we get the distance from the center by taking the absolute value. Then, similarly to the circle, we subtract the half size (which is basically like the radius for rectangles). For simply showing how the result looks like we&rsquo;ll then return one of the components for now.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> rectangle(float2 samplePosition, float2 halfSize){
     float2 componentWiseEdgeDistance <span style="color:#333">=</span> abs(samplePosition) <span style="color:#333">-</span> halfSize;
@@ -236,7 +267,7 @@ float2 translate(float2 samplePosition, float2 offset){
     <span style="color:#080;font-weight:bold">return</span> sceneDistance;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/Rectangle.png" alt=""></p>
-<h2 id="rotating">Rotating</h2>
+<h2 id="rotating">Rotating <a href="#rotating" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Rotating shapes works similarly to moving them. We rotate the coordinate in the opposite direction before calculating the distance to the shape. To make rotations as easy to understand as possible, we multiply the rotation by 2 times pi to get the angle in radians. This way the rotation we pass the function is in rotations, 0.25 is a quarter rotation, 0.5 is half a rotation and 1 is a full rotation (Feel free to convert in another way if that comes more natural to you). Then we also invert it because we have to rotate the position in the inverse direction as the direction we want to rotate the shape in for the same reason we move the position into the negative direction to move the object into the positive direction for the translation.</p>
 <p>To calculate the rotated coordinates we first calculate the sine and cosine based on our angle. Hlsl provides the sincos function which calculates both of those values quicker than if we would calculate them independently.</p>
 <p>Then we build a new vector, for the x component we use the original x component multiplied by the cosine and the y component multiplied by the sine. We can easily remember this by remembering that the cosine of 0 is 1 and with a rotation of 0 we want the x component of the new vector to be exactly the same as before (multiplying it by 1). The y part that points upwards previously, not contributing anything to the x component of the vector gets rotated to the right, starting at 0 and becoming bigger at first, so that&rsquo;s exactly the motion a sine describes.</p>
@@ -266,7 +297,7 @@ float2 translate(float2 samplePosition, float2 offset){
     <span style="color:#080;font-weight:bold">return</span> sceneDistance;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/RotateShape.gif" alt=""></p>
-<h2 id="scaling">Scaling</h2>
+<h2 id="scaling">Scaling <a href="#scaling" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Scaling works in a similar way to the other ways of transforming shapes. We divide the coordinates by the scale and by drawing the shape in a scaled down space, they look bigger in the base coordinate system.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">float</span> scale){
     <span style="color:#080;font-weight:bold">return</span> samplePosition <span style="color:#333">/</span> scale;
@@ -292,9 +323,9 @@ float2 translate(float2 samplePosition, float2 offset){
     <span style="color:#080;font-weight:bold">return</span> sceneDistance;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/ScaleShape.gif" alt=""></p>
-<h2 id="visualisation">Visualisation</h2>
+<h2 id="visualisation">Visualisation <a href="#visualisation" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Signed distance fields can be used for a lot of things, for example shadows, 3d scene rendering, physics and text rendering. But we don&rsquo;t want to get into too complex stuff right now, so I&rsquo;ll just explain two techniques of visualising them. One a hard shape with antialiasing and the other one renders lines based on the distance.</p>
-<h3 id="hard-shape">Hard Shape</h3>
+<h3 id="hard-shape">Hard Shape <a href="#hard-shape" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>This is a method similar to what&rsquo;s often used in text rendering and produces a clean shape. If we don&rsquo;t generate the distance field from a function and instead read it from a texture instead this allows us to use textures with way less resolution than usual and still have a nice result. TextMesh Pro uses this technique for text rendering.</p>
 <p>For this technique we use the fact that the data in signed distance fields is continuous and we know the cutoff point. We start by calculating how much the distance field changes to the next pixel. This should be the same amount as the length of the change of the coordinates, but it&rsquo;s easier and more reliable to evaluate the signed distance.</p>
 <p>After we have the change in distance, we can do a smoothstep from half the change in distance to minus plus half the change in distance. That will do a simple cutoff around 0, but with antialiasing. We can then use this antialiased value for whatever we binary value we need. In this example I&rsquo;m going to change the shader to a transparent shader and use it for the alpha channel. The reason why we do the smoothstep from the positive to the negative value is that we want the negative value of the distance field to be visible. And if you don&rsquo;t completely understand how the transparent rendering works here, I recommend you read <a href="https://www.ronja-tutorials.com/post/006-simple-transparency/">this tutorial</a> I made about transparent rendering.</p>
@@ -315,7 +346,7 @@ ZWrite Off
     <span style="color:#080;font-weight:bold">return</span> col;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/Cutoff.gif" alt=""></p>
-<h3 id="height-lines">Height Lines</h3>
+<h3 id="height-lines">Height Lines <a href="#height-lines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>Another common techique of visualising distance fields is to show the distances as lines. In our implementation I&rsquo;m going to add thick lines and a few smaller ones inbetween. I&rsquo;m also going to tint the inside and outside of the shape in different colors to make clear where the object is.</p>
 <p>We start by showing the difference between the inside and outside of the shape. The colors will be adjustable in the material, so we add new properties as well as shader variables for the inner and outer color of the shape.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties{
@@ -380,8 +411,8 @@ _SubLineThickness(<span style="color:#f00;background-color:#faa">&#34;</span>Thi
     <span style="color:#080;font-weight:bold">return</span> col <span style="color:#333">*</span> majorLines <span style="color:#333">*</span> subLines;
 }
 </code></pre></div><p><img src="/assets/images/posts/034/Result.gif" alt=""></p>
-<h2 id="source">Source</h2>
-<h3 id="2d-sdf-functions">2d SDF Functions</h3>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="2d-sdf-functions">2d SDF Functions <a href="#2d-sdf-functions" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/2D_SDF.cginc</a></li>
 </ul>
@@ -418,7 +449,7 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
 }
 
 <span style="color:#579">#endif</span>
-</code></pre></div><h3 id="circle-example">Circle Example</h3>
+</code></pre></div><h3 id="circle-example">Circle Example <a href="#circle-example" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Circle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Circle.shader</a></li>
 </ul>
@@ -471,7 +502,7 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
     }
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
 }
-</code></pre></div><h3 id="rectangle-example">Rectangle Example</h3>
+</code></pre></div><h3 id="rectangle-example">Rectangle Example <a href="#rectangle-example" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Rectangle.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Rectangle.shader</a></li>
 </ul>
@@ -527,7 +558,7 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
     }
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
 }
-</code></pre></div><h3 id="cutoff">Cutoff</h3>
+</code></pre></div><h3 id="cutoff">Cutoff <a href="#cutoff" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Cutoff.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/Cutoff.shader</a></li>
 </ul>
@@ -590,7 +621,7 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
     }
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
 }
-</code></pre></div><h3 id="distance-lines">Distance Lines</h3>
+</code></pre></div><h3 id="distance-lines">Distance Lines <a href="#distance-lines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/DistanceLines.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/034_2D_SDF/DistanceLines.shader</a></li>
 </ul>
@@ -675,7 +706,11 @@ float2 scale(float2 samplePosition, <span style="color:#080;font-weight:bold">fl
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#888">//fallback adds a shadow pass so we get shadows on other objects</span>
 }
 </code></pre></div><p>I hope I was able to explain the basics of signed distance fields to you and that you&rsquo;re exited for the next few tutorials where I explain more ways to do things with them.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

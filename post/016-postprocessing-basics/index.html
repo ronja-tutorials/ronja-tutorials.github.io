@@ -11,14 +11,15 @@ Postprocessing still uses the same shader language and structure as shaders that
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ Postprocessing still uses the same shader language and structure as shaders that
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Postprocessing Basics</h1>
       
       
@@ -111,12 +110,27 @@ Postprocessing still uses the same shader language and structure as shaders that
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#postprocessing-shader">Postprocessing Shader</a></li>
+    <li><a href="#postprocessing-c-script">Postprocessing C# Script</a></li>
+    <li><a href="#negative-colors-effect">Negative Colors Effect</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We used all shaders we wrote in this tutorial until now to render models to the screen. Another way shaders are commonly used is to manipulate images with them. That includes the image we’re drawing to the screen as we render our game. When manipulating the render output after we rendered our objects to the screen it’s called postprocessing.</p>
 <p>Postprocessing still uses the same shader language and structure as shaders that render surfaces, so I’d recommend you to know how to render surfaces first. If you have read/understand my <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial about rendering rextures</a> you should be fine.</p>
 <p><img src="/assets/images/posts/016/Result.jpg" alt="Result"></p>
-<h2 id="postprocessing-shader">Postprocessing Shader</h2>
+<h2 id="postprocessing-shader">Postprocessing Shader <a href="#postprocessing-shader" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>As a simple introduction into postprocessing, I’m going to show you how to make a shader which inverts the colors of an image.</p>
 <p>Because most of the structure is the same as other shaders, we’re going to use the textured shader as a base for this one, you can find it <a href="https://www.ronja-tutorials.com/post/004-basic/">here</a></p>
 <p>This simple shader already has some things we don’t need if we don’t render surfaces with it which we’re going to remove. I’m removing the tint color(we can keep it if we wanted to tint the image), the tags (unity can read when and how to render objects, but like I mentioned, we’re not rendering objects with the shader), the texture transforms (maintex will be the image before we apply the shader to it and we always want the whole scene), the transform tex macro (because it uses the texture transform and we don’t use that anymore, but we still want to write the uv coordinates into the v2f struct) and the part where the tint color is used.</p>
@@ -179,7 +193,7 @@ Postprocessing still uses the same shader language and structure as shaders that
         }
     }
 }
-</code></pre></div><h2 id="postprocessing-c-script">Postprocessing C# Script</h2>
+</code></pre></div><h2 id="postprocessing-c-script">Postprocessing C# Script <a href="#postprocessing-c-script" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Now that we have the base of our postprocessing shader, we can write the C# script that will make the camera use the script.</p>
 <p>We will need a normal monobehaviour, with only one method called OnRenderImage. The method will automatically be called by unity. It’s passed two arguments, one rendertexture with the rendered image and one rendertexture we can write into that’s used as the rendered image afterwards. To move image data from one rendertexture to the other, we use the blit method.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
@@ -212,7 +226,7 @@ Postprocessing still uses the same shader language and structure as shaders that
 <p><img src="/assets/images/posts/016/EmptyMaterial.png" alt="The inspector of the material without properties"></p>
 <p>Then we take the gameobject with our camera on it and the C# script we wrote. Then we add our new material to the component.</p>
 <p><img src="/assets/images/posts/016/PostprocessingComponent.png" alt="the camera gameobject with the postprocessing component"></p>
-<h2 id="negative-colors-effect">Negative Colors Effect</h2>
+<h2 id="negative-colors-effect">Negative Colors Effect <a href="#negative-colors-effect" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>With this our setup is complete, we should see the image like normal. To use this to invert the colors of our image, we go back into our shader and edit the fragment function. Instead of just returning the color of the input texture, we first invert the color by calculating 1 minus the color and then return it.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
 fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
@@ -301,7 +315,11 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.shader</a><!-- raw HTML omitted -->
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/016_Postprocessing/Postprocessing.cs</a><!-- raw HTML omitted --></p>
 <p>I hope you learned how to do simple postprocessing in unity and are ready to make simple postprocessing shaders yourself.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

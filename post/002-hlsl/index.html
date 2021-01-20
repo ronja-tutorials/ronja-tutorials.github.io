@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">HLSL</h1>
       
       
@@ -107,18 +106,48 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="hlsl">HLSL?</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#hlsl">HLSL?</a></li>
+    <li><a href="#builtin-types">Builtin Types</a>
+      <ul>
+        <li><a href="#scalar-values">Scalar Values</a></li>
+        <li><a href="#vector-values">Vector Values</a></li>
+        <li><a href="#matrix-values">Matrix Values</a></li>
+        <li><a href="#textures">Textures</a></li>
+      </ul>
+    </li>
+    <li><a href="#math">Math</a></li>
+    <li><a href="#custom-types">Custom Types</a></li>
+    <li><a href="#variables">Variables</a></li>
+    <li><a href="#functions">Functions</a></li>
+    <li><a href="#control-flow">Control Flow</a>
+      <ul>
+        <li><a href="#if-statements">if statements</a></li>
+        <li><a href="#loops">Loops</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="hlsl">HLSL? <a href="#hlsl" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Hlsl is the language the &ldquo;juicy&rdquo; parts of unity shaders are written in. The parts that contain custom logic and eventually decide what is drawn where on screen. It&rsquo;s the language Microsoft designed to work with their Direct3D API to write gpu programs. Strictly speaking most Unity shaders are tagged as being written in CG which is short for <code>C for Graphics</code>, but CG shares most of it&rsquo;s syntax and features with hlsl and was deprecated in 2012, so wrongly referring to it as hlsl leads to you being able to find better results in search engines and not much else. In theory Unity also supports writing glsl shaders, the language designed for OpenGL, but since there are more examples for hlsl and in the end the languages will be converted into whatever language the platform we&rsquo;re exporting to needs anyways we&rsquo;re gonna stick to hlsl.</p>
 <p>For learning shaders in Unity I recommend you do not start your programming jouney here. Shaders are tricky to debug, are pretty limited in the things they can do and in many cases you have to thing in a slightly different direction than in most programming contexts. So I&rsquo;m going to assume you know <code>types</code>, <code>variables</code>, <code>classes</code>, <code>methods</code>, <code>loops</code>, <code>if statements</code> and similar basics.</p>
-<h2 id="builtin-types">Builtin Types</h2>
+<h2 id="builtin-types">Builtin Types <a href="#builtin-types" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Heres some of the builtin types we&rsquo;re going to use when making shaders.</p>
-<h3 id="scalar-values">Scalar Values</h3>
+<h3 id="scalar-values">Scalar Values <a href="#scalar-values" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>The different number types in unity hlsl are <code>fixed</code>, <code>half</code> and <code>float</code> for the floating point numbers and <code>int</code> as well as <code>uint</code> for integer numbers.</p>
 <p>On mobile GPUs fixed is a number between -2 and 2 with 1/256th precision, half is a 16bit floating point number and float a 32bit floating point number. On Desktop GPUs all of those values are 32bit floating point numbers, so you often see me use float everywhere out of convenience, but its a nice tool to have for optimisation later.</p>
 <p>Integers are numbers that can only have whole values, int can hold positive and negative values, uint only negative ones, which can have a slight performance benefit.</p>
 <p>In addition there is also the simple datatype bool which simple holds the value <code>true</code> or <code>false</code> so we can store the result of checks in them. If you use boolean values with other numbers (like adding or multiplying them) they behave like the number 0 in case its <code>false</code> or 1 if its <code>true</code>.</p>
-<h3 id="vector-values">Vector Values</h3>
+<h3 id="vector-values">Vector Values <a href="#vector-values" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>On top of the one dimensional types we can also access several vector types with up to 4 values by just adding a number to the end of a scalar(simple, one dimensional) type like <code>fixed4</code>, <code>float2</code> or <code>half3</code>. We use those types for example to save texture coordinates, colors and positions.</p>
 <p>When accessing one of the values inside a vector we use in order either <code>vector.x</code>,<code>vector.y</code>,<code>vector.z</code>, and <code>vector.w</code> in the context of coordinates or <code>vector.r</code>,<code>vector.g</code>,<code>vector.b</code>, and <code>vector.a</code> in the context of colors. Alternatively we can also access values like this: <code>vector[2]</code> (this is 0 based so the 4 values of a 4d vector would be 0, 1, 2, and 3).</p>
 <p>In case we want to get multiple values from a vector and put them in another vector, we don&rsquo;t have to construct that new vector ourselves, we can use swizzling. Swizzling means writing multiple vector subvalues after the dot. It looks like this:</p>
@@ -127,17 +156,17 @@
 <li><code>vector.zyx</code> - get first 3 values of vector and reverse their order.</li>
 <li><code>vector.xxxx</code> - take the first value of a vector and construct a 4d vector full of that value.</li>
 </ul>
-<h3 id="matrix-values">Matrix Values</h3>
+<h3 id="matrix-values">Matrix Values <a href="#matrix-values" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>Like vectors expand types in one direction, matrices expand them in 2 directions. The syntax for them is to append <code>number x number</code> to the sclar types. Like <code>float4x4</code>, <code>half3x2</code> or even <code>bool2x4</code>. Accessing the members of matrices works either via the square brackets like <code>matrix[3][2]</code> with the numbers first declaring the row, then the column. Or via accessors like <code>_m32</code>. Those accessors can also be used for swizzling which looks like this <code>matrix._m03_m13_m23</code> to get the 3 first values of the last column and write them into a 3d vector. If we use the square bracket version and only use one pair of brackets we get the vector that defined that row.</p>
 <p>Luckily we nearly never have to access values in matrices, so thats more a tool to come back to than something you have to understand now.</p>
-<h3 id="textures">Textures</h3>
+<h3 id="textures">Textures <a href="#textures" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>Hlsl also has types to describe textures. For the most part those aren&rsquo;t that exiting, but you can read their pixels with the tex2D(texture, coordinate) function&hellip;? We&rsquo;re gonna learn more about them soon, I promise.</p>
-<h2 id="math">Math</h2>
+<h2 id="math">Math <a href="#math" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In addition to the regular + - * / operators for simple math and &gt; &lt; == != ! &gt;= &lt;= &amp;&amp; and || for comparisons, hlsl also gives us access to many math functions like <code>abs</code>, <code>dot</code>, <code>lerp</code>, <code>pow</code>, <code>min</code>, <code>atan2</code> as its intrinsic functions (you can look up all of them <a href="https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-intrinsic-functions">here</a>).</p>
 <p>There are also a few shorthands like += *= -= and /= which modify a variable and then assign to itself again as well as var++ and var&ndash; which add or subtract 1 from a given variable.</p>
 <p>Multiplications of a scalar type and a vector type return a vector type with the same amount of dimensions all of them multiplied by the number. so <code>float2(2, 7) * 3</code> is equal to <code>float2(6, 21)</code>.</p>
 <p>For multiplications of matrices with vectors to transform the vector we use the <a href="https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-mul">mul</a> function. I this is a bit black magic at the beginning, so my best recommendation is to learn how to copy the cases where matrix multiplcation is used into your context.</p>
-<h2 id="custom-types">Custom Types</h2>
+<h2 id="custom-types">Custom Types <a href="#custom-types" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In addition to the builtin types we can also add our own types. The syntax for adding your own types is like this (the semicolon at the end is important!):</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> typeName{
   <span style="color:#080;font-weight:bold">float</span> variable;
@@ -145,14 +174,14 @@
 };
 </code></pre></div><p>In theory we can also use the <code>class</code> keyword and use inheritance, member functions amd even interfaces, but I&rsquo;ve never encountered them in any shaders so I won&rsquo;t explain them here, if they come up, the time is then. In case you do want to use those features, the <a href="https://docs.microsoft.com/en-us/windows/win32/direct3dhlsl/overviews-direct3d-11-hlsl-dynamic-linking-class">syntax is like in C++/C#</a>.</p>
 <p>Like with vector types we access member variables of a custom type with a dot so for example <code>instance.variable</code> or <code>instance.otherVariable.x</code> if we go into members of members.</p>
-<h2 id="variables">Variables</h2>
+<h2 id="variables">Variables <a href="#variables" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>All datatypes in hlsl are value types. That means as soon as we have a value we can change it, no need to create it via <code>new</code> or similar.</p>
 <p>If we want to create vector types we can do that by calling the types like functions. In those cases the amount of subvalues in the argument types have to add up to the amount of values in the target type. so we can create a float4 by passing in <code>4 floats</code>, <code>2 float2</code>, a float, a float2 and another float or just one other float4. So we can create datatypes like this:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">typeName instance;
 instance.variable <span style="color:#333">=</span> <span style="color:#60e;font-weight:bold">3.14</span>;
 instance.otherVariable <span style="color:#333">=</span> float2(<span style="color:#00d;font-weight:bold">3</span>, <span style="color:#60e;font-weight:bold">1.4</span>);
 </code></pre></div><p>Variables we declare can either be inside of a function, in which case they can only be accessed by other parts of that function that come <em>later</em> than the variable declaration(like in most programming languages) or be outside of functions in which case they can be accessed from all functions in the shader, no matter the order (but its common to declare them at the top, above the function to easily find them).</p>
-<h2 id="functions">Functions</h2>
+<h2 id="functions">Functions <a href="#functions" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Most functions in hlsl are in the global scope. That means they&rsquo;re not part of any datatypes and we can call them from anywhere. They can take multiple (or none) arguments and return a value. If your function doesn&rsquo;t return a value, you have to declare the return type as <code>void</code>. A typical function syntax looks like this:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">returnType functionName(argType arg1, otherArgType arg2){
   <span style="color:#888">//do some stuff and calculate returnValue</span>
@@ -160,9 +189,9 @@ instance.otherVariable <span style="color:#333">=</span> float2(<span style="col
   <span style="color:#080;font-weight:bold">return</span> returnValue;
 }
 </code></pre></div><p>To call a function we just write the function name followed by brackets and the arguments in the backets in case we need any. If there are multiple functions with the same name but different argument types, hlsl will automatically find the one that fits the arguments we called it with.</p>
-<h2 id="control-flow">Control Flow</h2>
+<h2 id="control-flow">Control Flow <a href="#control-flow" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For many shaders it&rsquo;s enough to execute one command after the next without missing or repeating any of them. For for a lot of them it&rsquo;s also important that we choose between two paths of code. It&rsquo;s common knowledge that using control flow in your shaders is detremental and especially on mobile GPUs will affect your performance and that you should use functions like <code>step</code> instead and multiply a bunch. This is plain wrong since those functions also use branching inside of them and making yourself work with them likely makes your code more complex and harder to read. It&rsquo;s true that it can happen that your GPU has to calculate both sides of a branch and throw away one of them, but thats also the case when using different techniques, so don&rsquo;t abstain from if statements for ideological reasons and make your code prettier instead.</p>
-<h3 id="if-statements">if statements</h3>
+<h3 id="if-statements">if statements <a href="#if-statements" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>If statements look like this, if the condition is true, the do thing block will be executed, otherwise the do other thing block, never both.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">if</span>(condition){
   <span style="color:#888">//do thing</span>
@@ -170,7 +199,7 @@ instance.otherVariable <span style="color:#333">=</span> float2(<span style="col
   <span style="color:#888">//do other thing</span>
 }
 </code></pre></div><p>In this the <code>else</code> and its block are optional. The brackets around the condition are mandatory. If you don&rsquo;t use the curly braces the statement will only affect the next line(til the next semicolon, not til the next newline), not the lines after that. The condition can either be a boolean, a number (in which case 0 is false and any other value including negative ones are true) or a operation returning one of the two. A small beginner tip is that if you have a value that is the opposite of what you want it to be (false when you want to execute some code and true if you don&rsquo;t), just prefix it with a exclamation mark, that flips true values to false and false ones to true.</p>
-<h3 id="loops">Loops</h3>
+<h3 id="loops">Loops <a href="#loops" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>The other way of controlling which code is executed and which isn&rsquo;t are loops. While loops are the simpler kind of loop. They are executed perpetually as long as the condition they&rsquo;re defined with isn&rsquo;t true anymore. If it isn&rsquo;t true at the beginning they&rsquo;re not executed at all. They look like this:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">while</span>(condition){
   <span style="color:#888">//do things</span>
@@ -194,7 +223,11 @@ instance.otherVariable <span style="color:#333">=</span> float2(<span style="col
 </code></pre></div><p>Both loops also support the keywords <code>break</code> and <code>continue</code>.</p>
 <p>Having a <code>break</code> statement in your code makes the code jump to the end of the next loop. This also allows for escaping while loops that would otherwise be infinite.</p>
 <p>Having a <code>continue</code> statement makes the loop jump to the start of the next iteration of the loop instead.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

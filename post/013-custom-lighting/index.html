@@ -11,14 +11,15 @@ This tutorial is about a surface shader specific feature, while the basics of li
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ This tutorial is about a surface shader specific feature, while the basics of li
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Custom Lighting</h1>
       
       
@@ -111,13 +110,27 @@ This tutorial is about a surface shader specific feature, while the basics of li
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#use-custom-lighting-function">Use Custom Lighting Function</a></li>
+    <li><a href="#implement-lighting-ramp">Implement Lighting Ramp</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Surface shaders are wonderful and being able to use the Standard PBR model is very powerful. But we don’t always want the PBR light. Sometimes we want to change the way we treat lighting to get a different, often more cartoonish, look. Custom lighting functions allow us to do exactly that.</p>
 <p>This tutorial is about a surface shader specific feature, while the basics of lighting are the same in all shaders, you need a lot more code to archieve the same result from a non-surface shader and I won’t explain it in this tutorial.</p>
 <p>This tutorial will build on the result of the <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">surface shader basics tutorial</a> and I recommend you to have understood it first.</p>
 <p><img src="/assets/images/posts/013/Result.png" alt="Result"></p>
-<h2 id="use-custom-lighting-function">Use Custom Lighting Function</h2>
+<h2 id="use-custom-lighting-function">Use Custom Lighting Function <a href="#use-custom-lighting-function" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We start by changing the lighting function to a custom lighting function we’ll write ourselves.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the shader is a surface shader, meaning that it will be extended by unity in the background to have fancy lighting and other features</span>
 <span style="color:#888">//our surface shader function is called surf and we use our custom lighting model</span>
@@ -142,7 +155,7 @@ float4 LightingCustom(SurfaceOutput s, float3 lightDir, <span style="color:#080;
 </code></pre></div><p>After doing this, we should have a lighting function that unity uses, but it returns 0 (black), so we can’t see any lights.</p>
 <p><img src="/assets/images/posts/013/Dark.png" alt="A model with only global illumination"></p>
 <p>The reason we can still make out shapes and it’s not solid black is that unity does global illumination and tries to approximate environment lighing by looking at the skybox, if we change environment lighting to black in the lighting tab, we will see our shape solid black, but our lighting will work anyways, so you can try out what you think makes your game look most like you want it to (I’ll keep it at the default settings).</p>
-<h2 id="implement-lighting-ramp">Implement Lighting Ramp</h2>
+<h2 id="implement-lighting-ramp">Implement Lighting Ramp <a href="#implement-lighting-ramp" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Next we’ll implement a simple lighting model. The first step is to get the dot product between the vector from the surface to the light and the normal. Luckily unity provides both to us, and both are already in worldspace as well as normalized(they have the length of 1), so we don’t have to convert them.</p>
 <p>The dot product then tells us how much the surface points towards the light. It has a value of 0 where the surface is paralell to the direction to the light, is has a value of 1 where the light points towards the light and a value of -1 where the surface points away.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//our lighting function. Will be called once per light</span>
@@ -277,7 +290,11 @@ float4 LightingCustom(SurfaceOutput s, float3 lightDir, <span style="color:#080;
 }
 </code></pre></div><p>I hope I could explain how to implement custom lighting functions into surface shaders.</p>
 <p>You can also find the source code for this shader here: <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/013_CustomSurfaceLighting/CustomLighting.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/013_CustomSurfaceLighting/CustomLighting.shader</a></p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

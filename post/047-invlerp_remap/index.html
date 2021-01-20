@@ -11,14 +11,15 @@ Example Shader The base shader is pretty barebones, a little more complex than a
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ Example Shader The base shader is pretty barebones, a little more complex than a
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Inverse Lerp and Remap</h1>
       
       
@@ -111,10 +110,25 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://www.ronja-tutorials.com/post/009-interpolating-colors/">previous tutorial</a> I explained how the builtin <code>lerp</code> function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#example-shader">Example Shader</a></li>
+    <li><a href="#inverse-lerp">Inverse Lerp</a></li>
+    <li><a href="#remap">Remap</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>In a <a href="https://www.ronja-tutorials.com/post/009-interpolating-colors/">previous tutorial</a> I explained how the builtin <code>lerp</code> function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.</p>
 <p><img src="/assets/images/posts/047/result.png" alt=""></p>
-<h2 id="example-shader">Example Shader</h2>
+<h2 id="example-shader">Example Shader <a href="#example-shader" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The base shader is pretty barebones, a little more complex than <a href="/basics.html">a completely unlit one</a>. I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the &ldquo;blending variable&rdquo; I used the y component of the UV coordinates so it&rsquo;s immediately visible what the function does over a gradient from 0 to 1.</p>
 <p>A shader version for a regular linear interpolation looks like this:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">047</span>_InvLerp_Remap<span style="color:#333">/</span>Lerp<span style="color:#f00;background-color:#faa">&#34;</span>{
@@ -187,7 +201,7 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 </span><span style="color:#888">*/</span>
 
 <span style="color:#579">#endif</span>
-</code></pre></div><h2 id="inverse-lerp">Inverse Lerp</h2>
+</code></pre></div><h2 id="inverse-lerp">Inverse Lerp <a href="#inverse-lerp" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Lerp does a interpolation that returns values between the <code>from</code> and <code>to</code> input values for interpolation values between 0 and 1. The inverse of that is a function which we can hand a third value and it&rsquo;ll return how close that value is to the first or second value.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> inverseLerped <span style="color:#333">=</span> invLerp(from, to, value);
 <span style="color:#080;font-weight:bold">float</span> result <span style="color:#333">=</span> lerp(from, to, inverseLerped);
@@ -203,7 +217,7 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 </code></pre></div><p>With this you can can get gradients in a 0 to 1 range from any other gradient. You could replace all of the arguments with multidimensional vectors (<code>float2</code>, <code>float3</code>, <code>float4</code>), but it&rsquo;s far less useful than with <code>lerp</code> unless you want a component-wise inverse lerp.</p>
 <p><img src="/assets/images/posts/047/InvLerp.gif" alt=""></p>
 <p>The <code>smoothstep</code> function that&rsquo;s built into hlsl does almost the same as our inverse lerp function, but it also applies cubic smoothing, so it&rsquo;s marginally more expensive to calculate and only works between 0 and 1 while our function can also extrapolate. It&rsquo;s best to try around with both to get a feel for which to use for which occasion. (I admit I use smoothstep a lot when invLerp would be better, just because I don&rsquo;t have to add the function to the project&hellip;)</p>
-<h2 id="remap">Remap</h2>
+<h2 id="remap">Remap <a href="#remap" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>I mentioned earlier that chaining inverse lerp and lerp with the same arguments results in no change. While this is still true, we can chain them with different arguments for the lower and upper bounds. The custom remap function I wrote takes 5 arguments, the source bounds as well as the target bounds and the original value. The &ldquo;remap&rdquo; action then remaps those values so the a original value of the source <code>from</code> value will become a target <code>from</code> value. Similarly the <code>to</code> values and those inbetween. This allows you to remap linear gradients however you want.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> remap(<span style="color:#080;font-weight:bold">float</span> origFrom, <span style="color:#080;font-weight:bold">float</span> origTo, <span style="color:#080;font-weight:bold">float</span> targetFrom, <span style="color:#080;font-weight:bold">float</span> targetTo, <span style="color:#080;font-weight:bold">float</span> value){
   <span style="color:#080;font-weight:bold">float</span> rel <span style="color:#333">=</span> invLerp(origFrom, origTo, value);
@@ -211,7 +225,7 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 }
 </code></pre></div><p>This also has more of a use with vectors because it can be used to set the whitelevel of a color output. After also creating the same vector version for the invLerp function you can create a multidimensional version by replacing all <code>float</code> with the fitting vector version.</p>
 <p><img src="/assets/images/posts/047/Remap.png" alt=""></p>
-<h2 id="sources">Sources</h2>
+<h2 id="sources">Sources <a href="#sources" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/047_InverseInterpolationAndRemap/Interpolation.cginc</a></li>
 </ul>
@@ -374,7 +388,11 @@ float4 remap(float4 origFrom, float4 origTo, float4 targetFrom, float4 targetTo,
     }
   }
 }
-</code></pre></div><ul class="pa0">
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

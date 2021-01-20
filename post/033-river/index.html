@@ -12,14 +12,15 @@ Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, 
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -106,8 +107,6 @@ Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, 
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Flowing River</h1>
       
       
@@ -115,11 +114,27 @@ Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, 
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris <a href="https://twitter.com/Erisdraw3D/status/1056931358185086976">https://twitter.com/Erisdraw3D/status/1056931358185086976</a>.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#transparent-surface-shader">Transparent Surface Shader</a></li>
+    <li><a href="#scrolling-uvs">Scrolling UVs</a></li>
+    <li><a href="#multiple-scrolling-textures">Multiple scrolling textures</a></li>
+    <li><a href="#foam">Foam</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris <a href="https://twitter.com/Erisdraw3D/status/1056931358185086976">https://twitter.com/Erisdraw3D/status/1056931358185086976</a>.</p>
 <p>The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">tutorial on surface shaders</a> first.</p>
 <p><img src="/assets/images/posts/033/Result.gif" alt=""></p>
-<h2 id="transparent-surface-shader">Transparent Surface Shader</h2>
+<h2 id="transparent-surface-shader">Transparent Surface Shader <a href="#transparent-surface-shader" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the <code>alpha</code> attribute to our surface shader declaration. Then we&rsquo;ll change the tags so the rendertype is <code>&quot;Transparent&quot;</code>, it uses the <code>&quot;Transparent&quot;</code> Queue index and we&rsquo;ll disable shadows for the material by setting <code>&quot;ForceNoShadowCasting&quot;</code> to <code>&quot;True&quot;</code>. Last we set the shader target to 4.0, that will allow us to use more interpolators(variables in the vertex to fragment struct) later that we&rsquo;ll need.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in subshader</span>
 Tags { <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>ForceNoShadowCasting<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
@@ -139,7 +154,7 @@ fixed4 _Color;
     o.Alpha <span style="color:#333">=</span> col.a;
 }
 </code></pre></div><p><img src="/assets/images/posts/033/PlainTransparent.png" alt=""></p>
-<h2 id="scrolling-uvs">Scrolling UVs</h2>
+<h2 id="scrolling-uvs">Scrolling UVs <a href="#scrolling-uvs" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Next we&rsquo;ll add a scrolling texture to the shader. First we&rsquo;ll add the properties we need. The texture itself, the tint of the texture, and the direction it scrolls in. Above those variables we add a header to show to the user that those variables are to regulate the first layer of specs. For the uv coordinates of the texture we&rsquo;ll add a variable that&rsquo;s called <code>uv</code>+<code>TextureName</code> to our input struct.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
     _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Base Color<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>,<span style="color:#00d;font-weight:bold">1</span>)
@@ -192,7 +207,7 @@ float2 _SpecDirection1;
 <p><img src="/assets/images/posts/033/RiverSpecs1.png" alt=""></p>
 <p>And here are the other values I used:</p>
 <p><img src="/assets/images/posts/033/SpecLayer1Settings.png" alt=""></p>
-<h2 id="multiple-scrolling-textures">Multiple scrolling textures</h2>
+<h2 id="multiple-scrolling-textures">Multiple scrolling textures <a href="#multiple-scrolling-textures" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We can simply repeat this process to add another scrolling texture to the river. This new texture will override the color of the old one where it&rsquo;s visible. So we&rsquo;ll add a new specs texture, tint and scrolling direction as well as a uv set in the input struct.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in properties</span>
 [Header(Spec Layer <span style="color:#00d;font-weight:bold">2</span>)]
@@ -218,7 +233,7 @@ col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font
 <p><img src="/assets/images/posts/033/RiverSpecs2.png" alt=""></p>
 <p>And the other settings for the second specs layer look like this:</p>
 <p><img src="/assets/images/posts/033/SpecLayer2Settings.png" alt=""></p>
-<h2 id="foam">Foam</h2>
+<h2 id="foam">Foam <a href="#foam" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>As a last detail to the shader we will add foam near objects in the water. For this we will use a very common technique where we&rsquo;ll compare the depth of the object behind the water with the depth of the water surface.</p>
 <p>Before we start, we set up the properties of the foam. We&rsquo;ll use a noise texture to make the foam vary over time, it&rsquo;ll also need a custom uv parameter in the input struct. Then we&rsquo;ll use a direction to make the noise move, just like we did with the specs earlier. And we add a color for the foam and a variable to regulate how visible in the water the shader will check for objects.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//in properties</span>
@@ -297,7 +312,7 @@ col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font
 <p><img src="/assets/images/posts/033/FoamNoise.png" alt=""></p>
 <p>And those are all settings I used for the material:</p>
 <p><img src="/assets/images/posts/033/AllSettings.png" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/033_River/FlowingRiver.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/033_River/FlowingRiver.shader</a></li>
 </ul>
@@ -401,7 +416,11 @@ col.a <span style="color:#333">=</span> lerp(col.a, <span style="color:#00d;font
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Diffuse<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>I hope this tutorial helped you to create a nice looking river. If you have any questions about existing tutorials or requests for new ones, just write me.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

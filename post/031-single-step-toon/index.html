@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Single Step Toon Light</h1>
       
       
@@ -107,11 +106,26 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I thought about how to make a toon shader and this is the result. There are obviously many different toon styles, so this is just one possiblity of many, but even if it&rsquo;s not the result you want in your game this tutorial can give you some insight in how I work and how to do stuff with shaders. The main advantage for me to use this toon shader in opposition to one that reads from ramp texures is that I can dynamically change the parameters without editing a texture first.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#antialiased-step">Antialiased Step</a></li>
+    <li><a href="#shadows">Shadows</a></li>
+    <li><a href="#colors">Colors</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>I thought about how to make a toon shader and this is the result. There are obviously many different toon styles, so this is just one possiblity of many, but even if it&rsquo;s not the result you want in your game this tutorial can give you some insight in how I work and how to do stuff with shaders. The main advantage for me to use this toon shader in opposition to one that reads from ramp texures is that I can dynamically change the parameters without editing a texture first.</p>
 <p>I explain the basics of custom lighting models more indepth in <a href="https://www.ronja-tutorials.com/post/013-custom-lighting/">this tutorial</a>, but you should be fine if you know the basics of surface shaders in unity.</p>
 <p><img src="/assets/images/posts/031/Result.gif" alt=""></p>
-<h2 id="antialiased-step">Antialiased Step</h2>
+<h2 id="antialiased-step">Antialiased Step <a href="#antialiased-step" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We start the shader by using a basic surface shader.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">CGPROGRAM
 
@@ -173,7 +187,7 @@ float4 LightingStepped(SurfaceOutput s, float3 lightDir, half3 viewDir, <span st
     <span style="color:#080;font-weight:bold">return</span> lightIntensity;
 }
 </code></pre></div><p><img src="/assets/images/posts/031/Smoothstep.png" alt=""></p>
-<h2 id="shadows">Shadows</h2>
+<h2 id="shadows">Shadows <a href="#shadows" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We use the shadowAttenuation variable to add shadows to our shader, but when we just it by itself it&rsquo;s too soft, something that clashes a bit with the style of this shader.</p>
 <p><img src="/assets/images/posts/031/Atten.png" alt=""></p>
 <p>We can give it the same treatment we gave the dot value. First find out how much the variable changes in the neighboring pixels and then do a smoothstep. Because we want to cut the shadow at the middle of the gradient and not just before it&rsquo;s completely black, we&rsquo;ll half the pixel change value and then use <code>0.5 - changevalue</code> as the minimum and <code>0.5 + changeValue</code> as the maximum.</p>
@@ -194,7 +208,7 @@ lightIntensity <span style="color:#333">=</span> lightIntensity <span style="col
 <span style="color:#579">#endif</span>
     lightIntensity <span style="color:#333">=</span> lightIntensity <span style="color:#333">*</span> shadow;
 </code></pre></div><p><img src="/assets/images/posts/031/PointShadows.png" alt=""></p>
-<h2 id="colors">Colors</h2>
+<h2 id="colors">Colors <a href="#colors" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Now that we have a clear differentiation between shadow and light, we can add colors to the shader. The Color on the light side of the object will be the diffuse color of the object. The color on the shadowed side is the diffuse color multiplied a new shadow color, this way we can tint the shadow in any color we want. The result of the combination of light and shadow side will then we multiplied by the light color. We could also only multiply the light side color with the light color, but this can lead to the dark side being brighter than the bright side for low intensity lights which would be odd. We also get the alpha from the surface output struct to use it as the alpha channel of the output color.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
     [Header(Base Parameters)]
@@ -214,7 +228,7 @@ color.rgb <span style="color:#333">=</span> lerp(shadowColor, s.Albedo, lightInt
 color.a <span style="color:#333">=</span> s.Alpha;
 <span style="color:#080;font-weight:bold">return</span> color;
 </code></pre></div><p>With this we have a shader with simple shading with a hard cut.</p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/031_StepToon/SteppedToonLighting.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/031_StepToon/SteppedToonLighting.shader</a></li>
 </ul>
@@ -294,7 +308,11 @@ color.a <span style="color:#333">=</span> s.Alpha;
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>I hope it&rsquo;s interresting for you to you to see how to do simple stuff like antialiased lighting and that it&rsquo;ll help you in writing your own cool shaders. 💕</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

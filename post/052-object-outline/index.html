@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Object Outlines</h1>
       
       
@@ -107,11 +106,26 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>I have made multiple tutorials about outlines already, doing them with a <a href="https://www.ronja-tutorials.com/post/020-hull-outline/">inverted hull</a>, as a <a href="https://www.ronja-tutorials.com/post/019-postprocessing-outlines/">postprocessing effect using the depth and normal buffers</a> or by <a href="https://www.ronja-tutorials.com/post/049-sprite-outlines/">sampling neighboring pixels of a sprite</a>, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose. Because of those properties this technique is mostly useful to show selected objects in 3d contexts.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#building-the-selection-buffer">Building the Selection Buffer</a></li>
+    <li><a href="#actually-calculating-outlines-based-on-that">Actually calculating Outlines based on that</a></li>
+    <li><a href="#choosing-outlines">Choosing Outlines</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>I have made multiple tutorials about outlines already, doing them with a <a href="https://www.ronja-tutorials.com/post/020-hull-outline/">inverted hull</a>, as a <a href="https://www.ronja-tutorials.com/post/019-postprocessing-outlines/">postprocessing effect using the depth and normal buffers</a> or by <a href="https://www.ronja-tutorials.com/post/049-sprite-outlines/">sampling neighboring pixels of a sprite</a>, but I want to add another technique to those. It uses the same base idea of sampling neighboring pixels as the sprite based one, but can be applied to 3d models. It uses a postprocessing effect, yet can be applied to distinct objects you choose. Because of those properties this technique is mostly useful to show selected objects in 3d contexts.</p>
 <p>All this works by rendering the objects we want outlined into a separate texture and creating outlines based on that.</p>
 <p><img src="/assets/images/posts/052/result.gif" alt=""></p>
-<h2 id="building-the-selection-buffer">Building the Selection Buffer</h2>
+<h2 id="building-the-selection-buffer">Building the Selection Buffer <a href="#building-the-selection-buffer" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We start by using a <a href="https://www.ronja-tutorials.com/post/016-postprocessing-basics/">simple postprocessing effect like in previous tutorials</a> with OnRenderImage. But this time I want to use the <code>CommandBuffer</code> API, solely because it has one function not present in the <code>Graphics</code> class that will make our lives easier.</p>
 <p>We start by creating a new commandbuffer, then getting a tempoary rendertexture. Because we don&rsquo;t juggle with <code>RenderTexture</code> instances in commandbuffer land, we need to get a shader property id that we can fill the new rendertexture into first. To define the size and other parameters of the render texture we can just pass in the RenderTextureDescriptor of the source texture that holds all relevant information.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//setup stuff</span>
@@ -143,7 +157,7 @@ Graphics.ExecuteCommandBuffer(commands);
 commands.Dispose();
 </code></pre></div><p>With this work done, a simple material as well as a renderer in the camera frustum applied and the game running we should now see the renderer of our choice on a black background.</p>
 <p><img src="/assets/images/posts/052/BunnyBuffer.png" alt=""></p>
-<h2 id="actually-calculating-outlines-based-on-that">Actually calculating Outlines based on that</h2>
+<h2 id="actually-calculating-outlines-based-on-that">Actually calculating Outlines based on that <a href="#actually-calculating-outlines-based-on-that" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To now use the buffer we just created, all we have to to on the C# side is to not blit the buffer to the destination, but instead blit the source and use a new material to do so, this material will use a shader which puts the buffer back into the equation. The new material in this case comes from a new public field. The core of the shader is the same as in the previous tutorial about <a href="https://www.ronja-tutorials.com/post/049-sprite-outlines/">sprite outlines</a>, but this time applied to the buffer we just prepared.</p>
 <p>A interresting side-effect of using commandbuffers like we do is that theres no need to pass the buffer into the shader, just creating a field with the same name as the property we created the id from is enough. When transferring the shader from the sprite outlines to here we can simplyfy it a bit by only correcting the sample distance for the aspect ratio, worldspace shenenigans arent really possible here. Also after getting the core plus the outline we simply remove the core by subtracting it (and taking the maximum with 0 to not get negative values in some areas). With that done we can interpolate from the source color to the outline color using the outline we just calculated like before.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target
@@ -172,7 +186,7 @@ commands.Dispose();
   <span style="color:#080;font-weight:bold">return</span> col;
 }
 </code></pre></div><p><img src="/assets/images/posts/052/result.png" alt=""></p>
-<h2 id="choosing-outlines">Choosing Outlines</h2>
+<h2 id="choosing-outlines">Choosing Outlines <a href="#choosing-outlines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The last bit I want to add to this is a system that allows putting an outline on objects by clicking on them. To do that I put a polygon collider on each of the gameobjects with meshes, added a &ldquo;Selectable&rdquo; <a href="https://docs.unity3d.com/Manual/Tags.html">tag</a> and then added a small raycast functionality to the update method of our postprocessing behaviour that, if it hits a gameobject with the tag, assigns that objects renderer to the OutlinedObject field we&rsquo;ve been using for outline rendering so far.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">void</span> Update() {
   <span style="color:#080;font-weight:bold">if</span> (Input.GetMouseButtonDown(<span style="color:#60e;font-weight:bold">0</span>)) {
@@ -187,7 +201,7 @@ commands.Dispose();
 }
 </code></pre></div><p><img src="/assets/images/posts/052/BunnyInspector.png" alt=""></p>
 <p><img src="/assets/images/posts/052/result.gif" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ObjectOutline.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/052_Object_Outline/ObjectOutline.cs</a></li>
 </ul>
@@ -325,7 +339,11 @@ commands.Dispose();
         }
     }
 }
-</code></pre></div><ul class="pa0">
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

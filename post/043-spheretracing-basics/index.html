@@ -11,14 +11,15 @@ As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do th
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do th
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Spheretracing Basics</h1>
       
       
@@ -111,13 +110,30 @@ As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do th
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&rsquo;ll just trace the silouette of a sphere, but in future tutorials I&rsquo;ll give examples how to make more complex shapes and do lighting.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#the-theory">The theory</a></li>
+    <li><a href="#preparing-the-data">Preparing the data</a></li>
+    <li><a href="#3d-signed-distance-functions">3d signed distance functions</a></li>
+    <li><a href="#fixed-step-ray-marching">Fixed step ray marching</a></li>
+    <li><a href="#spheretracing">Spheretracing</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&rsquo;ll just trace the silouette of a sphere, but in future tutorials I&rsquo;ll give examples how to make more complex shapes and do lighting.</p>
 <p>As the base of the shader we&rsquo;ll use a <a href="/basics.html">basic unlit shader</a>, so you can do this tutorial when you&rsquo;re fairly new to shaders. If you do struggle with some of the concepts of signed distance fields though, have a look into <a href="https://www.ronja-tutorials.com/post/034-2d-sdf-basics/">my tutorial about 2d signed distance fields</a>.</p>
-<h2 id="the-theory">The theory</h2>
+<h2 id="the-theory">The theory <a href="#the-theory" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The central concept of raytracing is the ray. To construct a ray we need a origin and a direction. If we only do the raytracing inside of a mesh we can use the surface point of that mesh as the origin of the ray. The direction of the view ray is the vector from the camera to that surface point.</p>
 <p>With this data we can take steps through our SDF scene. We&rsquo;ll advance the distance of our distance field in the direction of our ray. We can do that because the definition of a distance field is that the closest surface is as far away as the return value of the distance function. As soon as we are close enough to a surface that we consider it a hit we know that the ray does hit the silouette. If the ray travelled too far or a maximum number of steps was reached that can be interpeted as a fail state and we can assume the ray never hits a scene object.</p>
-<h2 id="preparing-the-data">Preparing the data</h2>
+<h2 id="preparing-the-data">Preparing the data <a href="#preparing-the-data" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>As mentioned previously what we need to define a ray for each pixel is the origin and the direction of the ray. We can do the raytracing in any &ldquo;space&rdquo; we want to. If we do it in world space we can move around the object and it moves like a window into the traced world. If we do it in object space the raytraced objects will be moved, scaled and rotated with the object that&rsquo;s moved. For this tutorial I&rsquo;ll do the spheretracing in object space because it&rsquo;s more intuitive and it&rsquo;s a bit harder to do so you might be able to figure out how to do it in worldspace yourself if you want that.</p>
 <p>As the origin of the ray we&rsquo;ll use the local coordinates which is the data that&rsquo;s given to the shader via the appdata struct. The object space view direction is a bit trickier - we get it by transforming the camera world position into object space and then subtracting it from the local position. To transform the camera position into local space we have to multiply the world to object matrix with it, but before this multiplication we have to transform it from a float3 into a float4 with a &ldquo;1&rdquo; as the w component. If we don&rsquo;t do that the w component would be filled with a 0 and the movement would be ignored, only rotation and scale would be applied.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//input data</span>
@@ -144,13 +160,13 @@ v2f vert(appdata v){
     o.viewDirection <span style="color:#333">=</span> v.vertex <span style="color:#333">-</span> objectSpaceCameraPos;
     <span style="color:#080;font-weight:bold">return</span> o;
 }
-</code></pre></div><h2 id="3d-signed-distance-functions">3d signed distance functions</h2>
+</code></pre></div><h2 id="3d-signed-distance-functions">3d signed distance functions <a href="#3d-signed-distance-functions" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Signed distance functions work similarly in 3d as they do in 2d. In this tutorial I&rsquo;ll only use a sphere, but if you&rsquo;re curious about other shapes and how to combine them you can use those two sites: <a href="https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm">https://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm</a>, <a href="http://mercury.sexy/hg_sdf/">http://mercury.sexy/hg_sdf/</a></p>
 <p>The sphere is very similar to the circle in 2d. We first subtract the center of the sphere from the position we want to sample it at, then we calculate the length of the resulting vector and subtract the radius of the sphere to increase it&rsquo;s size. Because this is a very simple example I&rsquo;m going to place the sphere at the origin of the scene which means I don&rsquo;t have to do the subtraction of the sphere center and give it a hardcoded size of <code>0.5</code>.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> scene(float3 pos){
     <span style="color:#080;font-weight:bold">return</span> length(pos) <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>;
 }
-</code></pre></div><h2 id="fixed-step-ray-marching">Fixed step ray marching</h2>
+</code></pre></div><h2 id="fixed-step-ray-marching">Fixed step ray marching <a href="#fixed-step-ray-marching" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Before we take full advantage of our signed distance field, I want to show a more simplistic way of raytracing which just going fixed steps forwards through the space until it hits something. The advantage of this is that we can use it with any function that tells us wether a given point is inside or outside of a shape.</p>
 <p>To do the raytracing we first have to set up three variables. The point where the ray starts, the direction of the ray and the progress we&rsquo;ve already made on our ray. The starting point is the local position in our case which we passed via the v2f struct. The direction was also already calculated in the vertex shader, but we have to normalize it so it&rsquo;s easier to work with before using it. We normalize this vector in the fragment and not the vertex shader because it would loose it wouldn&rsquo;t have a length of 1 anymore after being interpolated between vertices. This is especially visible when the camera is close to low poly objects. Third we define the progress variable which starts at <code>0</code>.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//ray information</span>
@@ -188,7 +204,7 @@ float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
 }
 </code></pre></div><p><img src="/assets/images/posts/043/TracedSphere.png" alt=""></p>
 <p>The main disadvantage of fixed step raymarching is that it&rsquo;s often hard to choose a step size. With a step size that&rsquo;s too short you do a lot of samples in areas where theres no shape anywhere close and loose a lot of calculation time doing that. If you choose a step size that&rsquo;s too big it&rsquo;s possible to jump through walls and shapes that should be visible are simply missing because they are between two samples.</p>
-<h2 id="spheretracing">Spheretracing</h2>
+<h2 id="spheretracing">Spheretracing <a href="#spheretracing" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>With signed distance fields we have more information than just is it inside a shape or not. We can also determine how close the closest shape is. If we go the distance to the closest shape forwards we cannot skip any shapes. So instead of using a fixed step spheretracing walks forward the current distance of the SDF.</p>
 <p>The changes we make to our existing code are just that we completely get rid of the step size and instead add the distance we have anyways to the progress. Because we only go the distance to the closest shape further it&rsquo;s impossible now to follow the ray inside of the surface. Instead we define a small thickness and accept it as a hit if the distance is smaller than that.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//maximum amount of steps</span>
@@ -224,7 +240,7 @@ float3 dir <span style="color:#333">=</span> normalize(i.viewDirection.xyz);
 clip(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
 <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
 </code></pre></div><p><img src="/assets/images/posts/043/ClippedSphere.png" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/043_SphereTracingBasics/SphereTracingBasics.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/043_SphereTracingBasics/SphereTracingBasics.shader</a></li>
 </ul>
@@ -314,7 +330,11 @@ clip(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">
         }
     }
 }
-</code></pre></div><ul class="pa0">
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

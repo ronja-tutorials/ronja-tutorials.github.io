@@ -11,14 +11,15 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">2D SDF Shadows</h1>
       
       
@@ -111,10 +110,31 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#base-setup">Base Setup</a></li>
+    <li><a href="#simple-shadows">Simple Shadows</a></li>
+    <li><a href="#soft-shadows">Soft Shadows</a></li>
+    <li><a href="#multiple-lights">Multiple lights</a></li>
+    <li><a href="#source">Source</a>
+      <ul>
+        <li><a href="#2d-sdf-library-unchanged-but-used-here">2D SDF Library (unchanged but used here)</a></li>
+        <li><a href="#2d-soft-shadows">2D Soft Shadows</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).</p>
 <p><img src="/assets/images/posts/037/Result.gif" alt=""></p>
-<h2 id="base-setup">Base Setup</h2>
+<h2 id="base-setup">Base Setup <a href="#base-setup" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>I did a simple room setup here, it uses the techniques described in earlier tutorials. Two things I used that I didn&rsquo;t explicitely mention previously are that I used a <code>abs</code> on a vector2 to mirror the position around both the x and y axis and that I negated a shape distance to flip the inside and outside.</p>
 <p>We also copy the <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc">2D_SDF.cginc</a> file from the previous tutorial to the same folder as the shader we&rsquo;re writing for this one.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">037</span>_2D_SDF_Shadows<span style="color:#f00;background-color:#faa">&#34;</span>{
@@ -180,7 +200,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
 }
 </code></pre></div><p>If we still used the visualisation technique we used in the previous tutorials, this shape would look like this:</p>
 <p><img src="/assets/images/posts/037/SDF_Shape.png" alt=""></p>
-<h2 id="simple-shadows">Simple Shadows</h2>
+<h2 id="simple-shadows">Simple Shadows <a href="#simple-shadows" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For hard shadows, we walk the space from the sample position to he light position. If we find a object on the way there we decide that the pixel should be shadowed and if we get to the light without being interrupted we say that it&rsquo;s not shadowed.</p>
 <p>We start by calculating the base parameters of a ray. We already have the origin (the position of the pixel we&rsquo;re rendering) and the goal (the position of the light) of the ray. What we need is the length and the normalised direction. We can get the direction by subtracting the start from the destination and normalising the result and the length by subtracting the positions and passing it to the <code>length</code> method.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadow(float2 position, float2 lightPosition){
@@ -244,7 +264,7 @@ return float4(col, 1);
 </code></pre>
 <p>}</p>
 <p><img src="/assets/images/posts/037/HardShadows.gif" alt=""></p>
-<h2 id="soft-shadows">Soft Shadows</h2>
+<h2 id="soft-shadows">Soft Shadows <a href="#soft-shadows" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The upgrade from those hard shadows to softer, more realistic ones is pretty straightforward and doesn&rsquo;t make the shader much more performance intensive.</p>
 <p>Out first take on this will just get the distance to the nearest scene object for every sample we go through and get the nearest one, then where we previously returned just 1, we can return the distance to the nearest shape. To prevent the shadow intensity to get too high and lead to weird colors when used, we pass it through the <code>saturate</code> method which clamps it between 0 and 1. We get the minimum between the current nearest shape and the next one after the check wether the progress reached the light already, otherwise we could take samples that overshot to behind the light and get weird artefacts.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> traceShadows(float2 position, float2 lightPosition){
@@ -325,7 +345,7 @@ return float4(col, 1);
     <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
 }
 </code></pre></div><p><img src="/assets/images/posts/037/SoftShadows.png" alt=""></p>
-<h2 id="multiple-lights">Multiple lights</h2>
+<h2 id="multiple-lights">Multiple lights <a href="#multiple-lights" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In this simple one-shader implementation the easiest way to get multiple lights is to calculate them separately and then add all of the results.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
     float2 position <span style="color:#333">=</span> i.worldPos.xz;
@@ -348,12 +368,12 @@ return float4(col, 1);
     <span style="color:#080;font-weight:bold">return</span> float4(col, <span style="color:#00d;font-weight:bold">1</span>);
 }
 </code></pre></div><p><img src="/assets/images/posts/037/Result.gif" alt=""></p>
-<h2 id="source">Source</h2>
-<h3 id="2d-sdf-library-unchanged-but-used-here">2D SDF Library (unchanged but used here)</h3>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="2d-sdf-library-unchanged-but-used-here">2D SDF Library (unchanged but used here) <a href="#2d-sdf-library-unchanged-but-used-here" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF.cginc</a></li>
 </ul>
-<h3 id="2d-soft-shadows">2D Soft Shadows</h3>
+<h3 id="2d-soft-shadows">2D Soft Shadows <a href="#2d-soft-shadows" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF_Shadows.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/037_SDF_2D_Shadows/2D_SDF_Shadows.shader</a></li>
 </ul>
@@ -464,7 +484,11 @@ return float4(col, 1);
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>This is only one of many uses of signed distance fields. So far they&rsquo;re a bit unweildy because all shapes have to be hardcoded into a shader or passed via shader properties, but I have a few ideas on how to make them more usable with future tutorials.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

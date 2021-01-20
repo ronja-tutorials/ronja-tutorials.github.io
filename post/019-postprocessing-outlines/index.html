@@ -12,14 +12,15 @@ Depth Outlines We start with the shader and C# script from the postprocessing wi
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -106,8 +107,6 @@ Depth Outlines We start with the shader and C# script from the postprocessing wi
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Outlines via Postprocessing</h1>
       
       
@@ -115,12 +114,28 @@ Depth Outlines We start with the shader and C# script from the postprocessing wi
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#depth-outlines">Depth Outlines</a></li>
+    <li><a href="#normal-outlines">Normal Outlines</a></li>
+    <li><a href="#customizable-outlines">Customizable Outlines</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>One of my favourite postprocessing effects are outlines. Doing outlines via postprocessing has many advantages. It’s better at detecting edges than the alternative (inverted hull outlines) and you don’t have to change all of your materials to give them the outline effect.</p>
 <p>To understand how to create outlines via postprocessing it’s best to have understood how to <a href="https://www.ronja-tutorials.com/post/017-postprocessing-depth/">get access to the depth and normals of the scene</a> first.</p>
 <p><img src="/assets/images/posts/019/Result.gif" alt="Result"></p>
-<h2 id="depth-outlines">Depth Outlines</h2>
+<h2 id="depth-outlines">Depth Outlines <a href="#depth-outlines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We start with the shader and C# script from the postprocessing with normals tutorial.</p>
 <p>The first changes we make is to remove properties and variables which were specific to the “color on top” shader. So the cutoff value and the color. We also remove the view to world matrix, because we our outlines don‘t have a specific rotation in the world so we can ignore it. Then we remove all of the code after the part where we calculate the depth and normals.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
@@ -207,7 +222,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
     <span style="color:#080;font-weight:bold">return</span> depthDifference;
 }
 </code></pre></div><p><img src="/assets/images/posts/019/DepthOutlines.png" alt=""></p>
-<h2 id="normal-outlines">Normal Outlines</h2>
+<h2 id="normal-outlines">Normal Outlines <a href="#normal-outlines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Using the depth already gives us pretty good outlines, but we can go further by also using the normals provided to us. We will also sample the normals in our compare function, but function can only return one value in hlsl so we can’t use the return value here. Instead of using the return value, we can add two new arguments with the inout keyword. With this keyword the value we pass into the function can be written to and the changes apply to the version of the variable pass in, not only the version in the function. Another thing we need to generate outlines from the normal is the outline of the center pixel, so we add that too to the list of our arguments.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> Compare(<span style="color:#080;font-weight:bold">inout</span> <span style="color:#080;font-weight:bold">float</span> depthOutline, <span style="color:#080;font-weight:bold">inout</span> <span style="color:#080;font-weight:bold">float</span> normalOutline, 
     <span style="color:#080;font-weight:bold">float</span> baseDepth, float3 baseNormal, float2 uv, float2 offset){
@@ -243,7 +258,7 @@ normalOutline <span style="color:#333">=</span> normalOutline <span style="color
 <p>With those changes we can see outlines, but they’re different outlines than before because they’re generated from the normals instead of the depth. We can then combine the two outlines to generatecombined outline.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">return</span> depthDifference <span style="color:#333">+</span> normalDifference;
 </code></pre></div><p><img src="/assets/images/posts/019/CombinedOutlines.png" alt=""></p>
-<h2 id="customizable-outlines">Customizable Outlines</h2>
+<h2 id="customizable-outlines">Customizable Outlines <a href="#customizable-outlines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The next step is to make the outlines more customisable. To archieve that we add two variables for each depth and normal outlines. A multiplier to make the outlines appear stronger or weaker and a bias that can make the greyish parts of the outlines we might not want vanish.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//show values to edit in inspector</span>
 Properties{
@@ -283,7 +298,7 @@ float4 color <span style="color:#333">=</span> lerp(sourceColor, _OutlineColor, 
 <p>The main disadvantages of postprocessed outlines are that you have to apply them to all object in the scene, The way the system decides what’s a outline and what isn’t might not fit the style your have in mind and you get aliasing (visible stairsteps) artefacts pretty quickly.</p>
 <p>While there aren’t any easy fixes for the first two problems, you can mitigate the last one by using antialiasing in your postprocessing like FXAA or TXAA (the unity postprocessing stack provides those to you, but if you use v2 you have to redo the effect as a effect in the stack).</p>
 <p>Another important point to keep in mind is that you have to use models that fit this way of doing outlines - if you put too much detail in your geometry the effect will paint most of your objects black, which is probably not the intended behaviour.</p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">01</span><span style="color:#00d;font-weight:bold">9</span>_OutlinesPostprocessed<span style="color:#f00;background-color:#faa">&#34;</span>
 {
     <span style="color:#888">//show values to edit in inspector</span>
@@ -430,7 +445,11 @@ float4 color <span style="color:#333">=</span> lerp(sourceColor, _OutlineColor, 
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.shader</a><!-- raw HTML omitted -->
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/019_OutlinesPostprocessed/OutlinesPostprocessed.cs</a></p>
 <p>I hope I was able to show you how to add nice outlines to your game and how it works.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

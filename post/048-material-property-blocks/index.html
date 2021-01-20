@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Instancing and Material Property Blocks</h1>
       
       
@@ -107,12 +106,29 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="current-state">Current State</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#current-state">Current State</a></li>
+    <li><a href="#changing-properties-via-script">Changing Properties via Script</a></li>
+    <li><a href="#setting-material-property-blocks">Setting Material Property Blocks</a></li>
+    <li><a href="#making-your-shader-support-instancing">Making your Shader support Instancing</a></li>
+    <li><a href="#profiling">Profiling</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="current-state">Current State <a href="#current-state" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>I&rsquo;m going to go off a <a href="/basics.html">basic unlit shader</a> in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without</p>
 <p>Important to mention here is that if you&rsquo;re using one of Unity&rsquo;s new scriptable render pipelines the performance slowdown might be way less and you can even make the performance worse by using property blocks. That&rsquo;s because of the new SRP batcher which is able to batch models with different materials, but doesn&rsquo;t support property block as far as I know (it&rsquo;s better to read yourself into the current state of tech yourself and trying out what works better).</p>
 <p><img src="/assets/images/posts/048/SimpleMaterials.png" alt=""></p>
-<h2 id="changing-properties-via-script">Changing Properties via Script</h2>
+<h2 id="changing-properties-via-script">Changing Properties via Script <a href="#changing-properties-via-script" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>If we want to decouple some properties from the materials, we sadly can&rsquo;t set them from the material inspector as that would modify all objects with that material. Instead we create a new C# script which will allow us to set our materials from there. In this instance we just add a public color field and set the <code>_Color</code> property of the shader every time any field is changed in the inspector, which is when the <code>OnValidate</code> method is called automatically.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
 
@@ -148,7 +164,7 @@
 }
 </code></pre></div><p><img src="/assets/images/posts/048/ChangeSharedMaterial.gif" alt=""></p>
 <p>Now editing the material via the script is the same as editing it via the material inspector, with the same disadvantages. You can use this knowledge to change materials whenever you want, you can clone a material by passing a new material a old one to clone like <code>Material clone = new Material(oldMaterial);</code>. You can do this in runtime, at awake and if you want a complex system without needing the performance benefits (for example when using the SRP batcher) this should be a good place to start. But to change materials on a per object basis without cloning them, we still need material property blocks.</p>
-<h2 id="setting-material-property-blocks">Setting Material Property Blocks</h2>
+<h2 id="setting-material-property-blocks">Setting Material Property Blocks <a href="#setting-material-property-blocks" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To pass MPBs to shaders, we first have to create a representation of them in C#. It&rsquo;s generally recommended to create them once and reuse it every frame. I check whether a property block already exists at the start of the function and create a new one if it doesn&rsquo;t, if you&rsquo;re only changing the propertyblock in the game and not in the editor creating it during the <code>Awake</code> function is probably more reasonable.
 With the MPB created we can use the same functions as we did on the material on the propertyblock, after setting the properties we apply it to the renderer via the <code>SetPropertyBlock</code> function.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
@@ -177,7 +193,7 @@ With the MPB created we can use the same functions as we did on the material on 
 }
 </code></pre></div><p><img src="/assets/images/posts/048/CorrectPropertyBlocks.png" alt=""></p>
 <p>With this we are setting the MPBs correctly and we can see 3 models with the same material, but different colors. Sadly our material doesn&rsquo;t support instancing yet, so we don&rsquo;t get the performance benefits of using material property blocks and still have to pay with one drawcall per unique MPB.</p>
-<h2 id="making-your-shader-support-instancing">Making your Shader support Instancing</h2>
+<h2 id="making-your-shader-support-instancing">Making your Shader support Instancing <a href="#making-your-shader-support-instancing" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>First we have to tell Unity that the shader is able to be instanced, to do this we add the line <code>#pragma multi_compile_instancing</code> next to the <code>#pragma</code> declarations for the shader functions, this makes the material inspector show the &ldquo;Enable GPU Instancing&rdquo; option which we want to enable. In the case of surface shaders this shouldn&rsquo;t be needed.</p>
 <p><img src="/assets/images/posts/048/InstancingOption.png" alt=""></p>
 <p>If you don&rsquo;t use MaterialPropertyBlocks this is all you need to do to enable instancing, and if you&rsquo;re using hundreds of thousands of instances of the same model, it can save you a good bit of performance. If we look into the frame debugger we can see that using MaterialPropertyBlocks currently breaks our instancing though because the properties aren&rsquo;t setup for instancing yet. (You can find the frame debugger under <code>Window &gt; Analysis &gt; Frame Debugger</code>)</p>
@@ -251,7 +267,7 @@ With the MPB created we can use the same functions as we did on the material on 
 }
 </code></pre></div><p>And when checking the frame debugger we can actually see that all of our objects are drawn in a single drawcall.</p>
 <p><img src="/assets/images/posts/048/CanInstanceDebugger.png" alt=""></p>
-<h2 id="profiling">Profiling</h2>
+<h2 id="profiling">Profiling <a href="#profiling" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>If you&rsquo;re asking yourself what the use of all of this was apart from some abstract concept of &ldquo;drawcalls&rdquo; I made a little test. Lots of small meshes with small different changes like color are a best case szenario for instancing, but it can show you what instancing is capable of in theory.</p>
 <p><img src="/assets/images/posts/048/BallPit.png" alt=""></p>
 <p>For profiling I used a new script which assigns a random color instead of a authored one:</p>
@@ -283,7 +299,7 @@ With the MPB created we can use the same functions as we did on the material on 
 }
 </code></pre></div><p>With 4800 Spheres with our newly written shader plus this random color script the whole screen renders with 13 batches and takes about 7-8ms on the CPU while taking 1.1ms on the GPU (That means the frame takes 7-8ms and the program is &ldquo;CPU bound&rdquo; meaning optimisations should focon on how to lessen the CPU load). Taking the CPU into consideration is fair here because the CPU has to figure out which meshes can be batches each frame and dispatch the data. When disabling instancing the batches jump up to 4803 taking around 14-15ms on the CPU and 11ms on the GPU, what I consider a clear improvement. As always if you have performance critical things in your own application theres no magic bullet, the best thing you can have is being aware of the possibilities and trying all of them and seeing the advantages and disadvantages for your use case.</p>
 <p><img src="/assets/images/posts/048/StatsComparison.png" alt=""></p>
-<h2 id="sources">Sources</h2>
+<h2 id="sources">Sources <a href="#sources" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/048_Instancing/ColorPropertySetter.cs</a></li>
 </ul>
@@ -377,7 +393,11 @@ With the MPB created we can use the same functions as we did on the material on 
 		}
 	}
 }
-</code></pre></div><ul class="pa0">
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

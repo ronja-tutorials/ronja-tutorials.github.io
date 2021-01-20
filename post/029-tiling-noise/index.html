@@ -11,14 +11,15 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Tiling Noise</h1>
       
       
@@ -111,11 +110,32 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#tileable-noise">Tileable noise</a></li>
+    <li><a href="#layered-tileable-noise">Layered tileable noise</a></li>
+    <li><a href="#noise-in-unlit-uv-space">Noise in unlit UV space</a></li>
+    <li><a href="#tiling-and-uv-space-noise-in-3d">Tiling and UV space noise in 3d</a></li>
+    <li><a href="#source">Source</a>
+      <ul>
+        <li><a href="#tiling-2d-layered-perlin">Tiling 2d layered perlin</a></li>
+        <li><a href="#tiling-3d-voronoi">Tiling 3d voronoi</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>So far we generated noise that goes on forever. But in some cases we want noise that repeats itself after a certain distance though, mainly when we&rsquo;re baking noise into a texture. In this tutorial I&rsquo;ll show you how to make noise repeat and how to use uv coordinates instead of worldspace positions for noise generation.</p>
 <p>I use the layered perlin noise and voronoi noise to show the theory behind tiling noise, but it&rsquo;s possible to use those patterns with many different types of noise and other shaders as well. That being said this tutorial is part of the <a href="/noise.html">noise series</a> so if you have troubles with anything and haven&rsquo;t read earlier noise tutorials yet, I recommend you read them first.</p>
 <p><img src="/assets/images/posts/029/Result.png" alt=""></p>
-<h2 id="tileable-noise">Tileable noise</h2>
+<h2 id="tileable-noise">Tileable noise <a href="#tileable-noise" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We&rsquo;ll use the layered 2d perlin noise as the first shader to modify to be tilable. We expand the perlin function to take another parameter called the period which is how often the noise tiles, counted in cells. Previously we calculated the cell positions directly before we passed them to the random function to calculate the direction of the cell, but to better be able to repeat the noise we&rsquo;ll calculate the maximum and minimum of the cells before passing it and then choosing the correct parameters out of them. We still get the component minimum of the cells by using floor and get the maximum via ceil. Then we use the x or y component of the minimum vector if we previously used floor and use the x or y component of the maximum vector where we previously used ceil.</p>
 <p>Then we make the cell positions wrap according to our new period variable. We do that by taking the modulo of the cell variables. The problem with the modulo implementation is that it returns the remainder. The difference between the mathematical remainder and modulo is that the modulo of will always be positive while the remainder of a negative number is negative. for example the modulo between <code>-5</code> and <code>3</code> would be <code>1</code> because if we multiply <code>3</code> by <code>-2</code> we get <code>-6</code> and the modulo is the difference, <code>1</code>. In the base of a implementation using the remainder, the result would be <code>-2</code> instead because it assumes that it&rsquo;s allowed to to just use <code>-1</code> as a multiplier and then in that case the difference to our divident is <code>-1</code>. The point of this small journey into mathematics is that we have the remainder, but we want the modulo. The fix for that is to first, get the remainder, then add the divisor again and take the modulo a second time. We know that after the first remainder the value isn&rsquo;t lower than our divisor times -1, so by adding the divisor again, we know the value is positive. And after ensuring we have a positive value we can apply the remainder a second time because we know it behaves exactly the same way as the modulo if we have positive values. We&rsquo;ll add the modulo as a extra function to our shader. The input and output is a <code>float2</code> so we can make the x and y coodinate wrap at the same time.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 modulo(float2 divident, float2 divisor){
@@ -145,7 +165,7 @@ I use the layered perlin noise and voronoi noise to show the theory behind tilin
     o.Albedo <span style="color:#333">=</span> noise;
 }
 </code></pre></div><p><img src="/assets/images/posts/029/RepeatingPerlin.png" alt=""></p>
-<h2 id="layered-tileable-noise">Layered tileable noise</h2>
+<h2 id="layered-tileable-noise">Layered tileable noise <a href="#layered-tileable-noise" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>This is all we need for simple tiling noise, but it doesn&rsquo;t work well for layered noise out of the box. If we double the frequency of the noise to 8 cells in the same area where there were 4 previously, but still repeat the noise every 4 cells, we have a unnessecary amount of repetition and it&rsquo;ll look weird. To counteract that we have to multiply the period by the frequency in our octaves. Double the amount of cells per space means we can repeat half as frequently.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">float</span> sampleLayeredNoise(float2 value){
     <span style="color:#080;font-weight:bold">float</span> noise <span style="color:#333">=</span> <span style="color:#40e;font-weight:bold">0</span>;
@@ -182,7 +202,7 @@ float2 _Period;
     noise <span style="color:#333">=</span> noise <span style="color:#333">+</span> perlinNoise(value <span style="color:#333">*</span> frequency <span style="color:#333">+</span> i <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.72354</span>, _Period <span style="color:#333">*</span> frequency) <span style="color:#333">*</span> factor;
 </code></pre></div><p><img src="/assets/images/posts/029/RepeatingLayeredPerlinSettings.png" alt=""></p>
 <p><img src="/assets/images/posts/029/RepeatingLayeredPerlin.png" alt=""></p>
-<h2 id="noise-in-unlit-uv-space">Noise in unlit UV space</h2>
+<h2 id="noise-in-unlit-uv-space">Noise in unlit UV space <a href="#noise-in-unlit-uv-space" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>So far we always used worldspace coordinates as base values for our noise, specifically to not have to deal with weird scaling or uv mapping on objects. Plus we used surface shaders for super easy access to worldspace coordinates and fancy lighting. But sometimes we want the noise to be in UV space and not use fancy lighting (for example to bake the noise into a texture or to use the cheaper 2d noise on a 3d object). This is how to convert our surface shader into a simpler shader that shows the noise in uv space and doesn&rsquo;t calculate lighting. (To have the noise in UV space and still have a surface shader for fancy lighting it&rsquo;s best to add a custom vertex function to the surface shader and pass the uv coordinates into your input struct from there.)</p>
 <p>For the change to a non-surface shader, we add a shader pass just around the <code>CGPROGRAM</code> hlsl part, we explicitely import UnityCG library file, then we also define the vertex and fragment functions, add the appdata and vertex to fragment structs and lastly we change the surface function to a fragment function and add the vertex function. I copied most of those changes from the code of the <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial about textures</a>, so if you have any trouble understanding the changes I recommend you reread <a href="https://www.ronja-tutorials.com/post/004-basic/">that</a>.</p>
 <p>While doing those changes we can also pass the uv coordinates to the fragment shader and replace the world coordinates with them to have noise in UV space.</p>
@@ -263,7 +283,7 @@ _CellAmount (<span style="color:#f00;background-color:#faa">&#34;</span>Cell Amo
 float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</span> _CellAmount;
 </code></pre></div><p>With those changes we have a shader that will show repeating noise in UV space, so we can move the object however we want and the noise will move with it. We get a pattern that will fill the 0 to 1 uv space and repeat afterwards if we use the same value for the cell amount, and the x and y component of the period (and it&rsquo;s a value without a fractional part). We can also use a value twice as high as the period as the cell amount to have the noise repeat once in the 0 to 1 range etc&hellip;</p>
 <p><img src="/assets/images/posts/029/UVNoiseTransformation.gif" alt=""></p>
-<h2 id="tiling-and-uv-space-noise-in-3d">Tiling and UV space noise in 3d</h2>
+<h2 id="tiling-and-uv-space-noise-in-3d">Tiling and UV space noise in 3d <a href="#tiling-and-uv-space-noise-in-3d" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For the example how to translate those concepts into 3d, I&rsquo;m going to use voronoi noise. We start deleting the functions and properties that we used for perlin noise and don&rsquo;t need anymore. That&rsquo;s the roughness and persistance properties and the easing, perlin and layered noise functions. Then we add the copy in the code for voronoi noise from the <a href="https://www.ronja-tutorials.com/post/028-voronoi-noise/">tutorial about voronoi noise</a>.</p>
 <p>Then we need to expand our shader to handle 3d vectors in a few places. First we add a new property called the &ldquo;height&rdquo;. We then use it as the <code>Z</code> factor of the value we pass to the voronoi function. Because we expect the uv space to go from 0 to 1, I&rsquo;ll also limit the height to be between 0 and 1. Then we change the modulo function to accept and return 3d vectors, the operators work the same way on 2d vectors as on 3d vectors, so we don&rsquo;t have to change anything except the types.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">9</span>_material_baking<span style="color:#333">/</span>repeating_3d_voronoi<span style="color:#f00;background-color:#faa">&#34;</span> {
@@ -400,8 +420,8 @@ float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</
     <span style="color:#080;font-weight:bold">return</span> noise;
 }
 </code></pre></div><p><img src="/assets/images/posts/029/UVVoronoise.gif" alt=""></p>
-<h2 id="source">Source</h2>
-<h3 id="tiling-2d-layered-perlin">Tiling 2d layered perlin</h3>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="tiling-2d-layered-perlin">Tiling 2d layered perlin <a href="#tiling-2d-layered-perlin" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/2d_layered.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/2d_layered.shader</a></li>
 </ul>
@@ -536,7 +556,7 @@ float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</
 	}
 	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
-</code></pre></div><h3 id="tiling-3d-voronoi">Tiling 3d voronoi</h3>
+</code></pre></div><h3 id="tiling-3d-voronoi">Tiling 3d voronoi <a href="#tiling-3d-voronoi" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/3d_voronoi.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/029_Tiling_Noise/3d_voronoi.shader</a></li>
 </ul>
@@ -665,7 +685,11 @@ float2 value <span style="color:#333">=</span> i.uv <span style="color:#333">*</
 	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>I hope I was able to explain how to make noise tile and that this knowledge will serve you well when you need it.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

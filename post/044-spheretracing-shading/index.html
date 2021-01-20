@@ -11,14 +11,15 @@ Architecture Changes In the previous shader we returned a solid color after find
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ Architecture Changes In the previous shader we returned a solid color after find
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Spheretracing with Shading</h1>
       
       
@@ -111,9 +110,25 @@ Architecture Changes In the previous shader we returned a solid color after find
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p>In a <a href="https://www.ronja-tutorials.com/post/043-spheretracing-basics/">previous tutorial</a> I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.</p>
-<h2 id="architecture-changes">Architecture Changes</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#architecture-changes">Architecture Changes</a></li>
+    <li><a href="#normal">Normal</a></li>
+    <li><a href="#lighting">Lighting</a></li>
+    <li><a href="#final-steps">Final Steps</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>In a <a href="https://www.ronja-tutorials.com/post/043-spheretracing-basics/">previous tutorial</a> I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.</p>
+<h2 id="architecture-changes">Architecture Changes <a href="#architecture-changes" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function. This material function will calculate the light and combine the lighting with the surface color. To make this function as modular as possible I decided to put the light calculations in another function and the calculations for the normal of the surface in yet another one. If fewer more monolithic functions are more readable to you, feel free to structure your shader like that.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 normal(float3 pos){
     <span style="color:#888">//calculate surface normal</span>
@@ -150,7 +165,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
     clip(<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">1</span>);
     <span style="color:#080;font-weight:bold">return</span> <span style="color:#40e;font-weight:bold">0</span>;
 }
-</code></pre></div><h2 id="normal">Normal</h2>
+</code></pre></div><h2 id="normal">Normal <a href="#normal" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>One of the most important variables when calculating light in a shader is the surface normal. Unlike a mesh where the normal is embeded into the data, we have to get the normal from the scene function ourselves in this case. We use the fact that we can see a signed distance field as a function to calculate the normal. The normal is the direction in which the value of the SDF grows. Even though a 3d function looks way more complex than a 1d function we can still use similar techniques to find the direction of it.</p>
 <p>This &ldquo;direction&rdquo; of a function is also called its &ldquo;derivative&rdquo; and a common and simple way to find it is to look at two close points of the function and compare the change in value. With 1d functions we pass the function 2 different X values and divide the change in resulting Y values by the change in the X axis to get the rate at which the result of the function changes.</p>
 <p><img src="/assets/images/posts/044/1d_derivative.png" alt=""></p>
@@ -182,7 +197,7 @@ float3 normal(float3 pos){
     <span style="color:#080;font-weight:bold">return</span> float4(normal(samplePoint), <span style="color:#00d;font-weight:bold">1</span>);
 }
 </code></pre></div><p><img src="/assets/images/posts/044/normals.png" alt=""></p>
-<h2 id="lighting">Lighting</h2>
+<h2 id="lighting">Lighting <a href="#lighting" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The lighting function works the same as in any other context. The main difference to <a href="https://www.ronja-tutorials.com/post/013-custom-lighting/">the lighting implementations I&rsquo;ve explained previously</a> we can&rsquo;t use surface shaders so this implementation is more limited since that would need multiple shader passes. I&rsquo;m not going to implement more than 1 light and won&rsquo;t show how to make point lights work here, so we&rsquo;re stuck with a single directional light.</p>
 <p>We begin my retrieving the surface normal with the previously written function. Then we get the direction the light is coming from. In the case of directional lights this is always saved in <code>_WorldSpaceLightPos0.xyz</code>.</p>
 <p>With this information we can do a simple lighting calculation. We get the dot product between direction and normal and then we use the saturate function to ensure the result is never negative. The result of the function is this falloff multiplied by the color of the light which is stored in <code>_LightColor0</code> to use the color of the light as a tint. It&rsquo;s important that the <code>_LightColor0</code> variable is only available when we imclude the <code>Lighting.cginc</code> include file in our shader, so we also add that.</p>
@@ -203,7 +218,7 @@ float4 lightColor(float3 position){
     <span style="color:#080;font-weight:bold">return</span> lightColor(samplePoint);
 }
 </code></pre></div><p><img src="/assets/images/posts/044/light.png" alt=""></p>
-<h2 id="final-steps">Final Steps</h2>
+<h2 id="final-steps">Final Steps <a href="#final-steps" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The last step for this shader I want to show is how to include the surface color into the shader again. For this we prepared the material function earlier which combines everything into the final result. In this implementation we just multiply the light we calculated with the color property which we added in the previous tutorial to get the final color.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float4 material(float3 position){
     <span style="color:#888">//get light color</span>
@@ -216,7 +231,7 @@ float4 lightColor(float3 position){
 }
 </code></pre></div><p><img src="/assets/images/posts/044/Result.png" alt=""></p>
 <p>You can expand this by reading a texture or generating a pattern in the material function or by using more complex or interresting lighting functions in the lightColor function and of course by using a more complex signed distance field, but I hope this tutorial gave you some insight into the basics and how to get to more complex implementations.</p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/044_SphereTracingShading/SphereTracingShading.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/044_SphereTracingShading/SphereTracingShading.shader</a></li>
 </ul>
@@ -342,7 +357,11 @@ float4 lightColor(float3 position){
         }
     }
 }
-</code></pre></div><ul class="pa0">
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

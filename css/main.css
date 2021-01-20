@@ -1,0 +1,14 @@
+.hanchor:link {
+	text-decoration: none;
+	color:silver ;
+}
+
+.hanchor:visited {
+	text-decoration: none;
+	color:silver ;
+}
+
+.hanchor:hover { 
+	visibility: visible;
+	color:gray !important;
+}

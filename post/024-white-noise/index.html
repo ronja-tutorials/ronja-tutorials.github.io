@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">White Noise</h1>
       
       
@@ -107,11 +106,27 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#scalar-noise-from-3d-input">Scalar noise from 3d Input</a></li>
+    <li><a href="#different-input-and-output">Different Input and Output</a></li>
+    <li><a href="#cells">Cells</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For many effects we want random numbers to generate patterns or other things in our shaders. Directly using those random values generates a pattern we call &ldquo;white noise&rdquo;. There are other patterns which have more structure we can generate based on that which we will explore in other tutorials, for example perlin and voronoi noise. For this tutorial we will implement the noise in a surface shader so you should know how to write a <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">basic surface shader</a>).</p>
 <p><img src="/assets/images/posts/024/Result.png" alt=""></p>
-<h2 id="scalar-noise-from-3d-input">Scalar noise from 3d Input</h2>
+<h2 id="scalar-noise-from-3d-input">Scalar noise from 3d Input <a href="#scalar-noise-from-3d-input" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In shaders we can&rsquo;t easily save variables from one frame of rendering to the next, so our random numbers have to depend on the variables we do have access to. For this example I&rsquo;m going to use the world position, but if we want animated noise, we can also factor in the time.</p>
 <p>To have access to the world position we just have to add a variabel called <code>worldPos</code> to our input struct. We&rsquo;ll also remove the uv coordinates for the texture because we won&rsquo;t use it for the example.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">struct</span> Input {
@@ -149,7 +164,7 @@
     random <span style="color:#333">=</span> frac(sin(random) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">143758.5453</span>);
     <span style="color:#080;font-weight:bold">return</span> random;
 }
-</code></pre></div><h2 id="different-input-and-output">Different Input and Output</h2>
+</code></pre></div><h2 id="different-input-and-output">Different Input and Output <a href="#different-input-and-output" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To output more dimensional vectors we can simply call the function multiple times for different directions, but we have to use different parameters so we don&rsquo;t get the same value for all axes. The easiest way to do that is to take the dot product with a different vector. To pass a different vector to the rand function we allow the caller to pass a different value to take the dot product with, but also allow the possibility to not do that and use the previous value as a default value. Because we add more random functions, we will also rename the existing one to <code>rand3dTo1d</code> to make the difference to the other ones clear.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//get a scalar random value from a 3d value</span>
 <span style="color:#080;font-weight:bold">float</span> rand3dTo1d(float3 value, float3 dotDir <span style="color:#333">=</span> float3(<span style="color:#60e;font-weight:bold">12.9898</span>, <span style="color:#60e;font-weight:bold">78.233</span>, <span style="color:#60e;font-weight:bold">37.719</span>)){
@@ -259,7 +274,7 @@ float3 rand1dTo3d(<span style="color:#080;font-weight:bold">float</span> value){
 <span style="color:#888">//our library functions</span>
 
 <span style="color:#579">#endif</span>
-</code></pre></div><h2 id="cells">Cells</h2>
+</code></pre></div><h2 id="cells">Cells <a href="#cells" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Right now we generate the random positions based on the exact position of the surface we render. Because those values are so exact and small, the result looks very noisy(duh') and changes a lot as soon as we move the object or the camera. A solution for that is to divide space into separate cells and generate the same random value for every point in a cell. The only thing we need to do to put our points into cells is to get the same value for all points in a cell. We do this by flooring the input, so for example all values from 1.0 to 2.0 will all use 1.0 as a value to generate a color.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
     float3 value <span style="color:#333">=</span> floor(i.worldPos);
@@ -277,7 +292,7 @@ float3 rand1dTo3d(<span style="color:#080;font-weight:bold">float</span> value){
     o.Albedo <span style="color:#333">=</span> rand3dTo3d(value);
 }
 </code></pre></div><p><img src="/assets/images/posts/024/Cells.png" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">024</span>_white_noise<span style="color:#333">/</span>random<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
 	}
@@ -416,7 +431,11 @@ float3 rand1dTo3d(<span style="color:#080;font-weight:bold">float</span> value){
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_White_Noise/white_noise_cells.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/024_White_Noise/white_noise_cells.shader</a></li>
 </ul>
 <p>I hope you know how to generate random numbers in hlsl now. The next few tutorials will build on this to generate different kinds of random patterns.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

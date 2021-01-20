@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Polygon Clipping</h1>
       
       
@@ -107,12 +106,31 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#draw-line">Draw Line</a></li>
+    <li><a href="#draw-a-polygon-of-multiple-lines">Draw a Polygon of multiple lines</a>
+      <ul>
+        <li><a href="#filling-the-corner-array">Filling the Corner Array</a></li>
+      </ul>
+    </li>
+    <li><a href="#clip-and-color-the-polygon">Clip and Color the Polygon</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Of course everything we render so far is made of polygons, but someone asked me how to clip a polygon shape based on a list of points in a shader so I’ll explain how to do that now. I will explain how to do that with a single shader pass in a fragment shader, a different way would be to actually generate triangles based on your polygon and use stencil buffers to clip, but I won’t explain that in this tutorial.</p>
 <p>Because this tutorial explains a simple technique that doesn’t do that much with fancy graphics I will explain it in a unlit shader, but it will work the same way in surface shaders. The base for this tutorial will be my simple shader with properties, so you should know how to do that before starting <a href="/basics.html">this tutorial</a></p>
 <p><img src="/assets/images/posts/014/Result.gif" alt="Result"></p>
-<h2 id="draw-line">Draw Line</h2>
+<h2 id="draw-line">Draw Line <a href="#draw-line" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The first thing we have to add to our shader is the world position. Like in the other shaders (planar, triplanar and chessboard) we do that by multiplying the object position with the object to world matrix and pass that value to the fragment shader.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
 <span style="color:#080;font-weight:bold">struct</span> v2f{
@@ -180,7 +198,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 
     <span style="color:#080;font-weight:bold">return</span> side;
 }
-</code></pre></div><h2 id="draw-a-polygon-of-multiple-lines">Draw a Polygon of multiple lines</h2>
+</code></pre></div><h2 id="draw-a-polygon-of-multiple-lines">Draw a Polygon of multiple lines <a href="#draw-a-polygon-of-multiple-lines" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>When we want to combine the multiple results of the lines we can do that in different ways, we can either define the result to be true if it’s to the left of all lines and false otherwise or we can say the result is true if it’s left of one or more lines and only false if it’s to the right of all lines. The triangle I defined goes clockwise, that means the left of the lines is outside, that means to differentiate between inside and outside of the polygon we have to find the union of all “left side” fragments. We do that by adding the results of the lines, the outsides will add up and have values of 1 or higher, the inside of the polygon will have a value of 0 everywhere.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader</span>
 fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
@@ -199,7 +217,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the variables for the corners</span>
 <span style="color:#080;font-weight:bold">uniform</span> float2 _corners[<span style="color:#00d;font-weight:bold">1000</span>];
 <span style="color:#080;font-weight:bold">uniform</span> uint _cornerCount;
-</code></pre></div><h3 id="filling-the-corner-array">Filling the Corner Array</h3>
+</code></pre></div><h3 id="filling-the-corner-array">Filling the Corner Array <a href="#filling-the-corner-array" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>There are no properties for arrays, so we have to fill them via C# code. I added two attributes to the new class, execute in edit mode to make the script update our polygon without us starting the game and require component, to make sure the script is on the same gameobject as the renderer which has the material with the shader we’re writing.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections</span>;
 <span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections.Generic</span>;
@@ -262,7 +280,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 }
 </code></pre></div><p><img src="/assets/images/posts/014/Hexagon.png" alt="a black hexagon on a white plane"></p>
 <p>And with that we have a polygon just based on a few points (if it doesn’t show for you, just nudge the values in the inspector a bit to call OnValidate).</p>
-<h2 id="clip-and-color-the-polygon">Clip and Color the Polygon</h2>
+<h2 id="clip-and-color-the-polygon">Clip and Color the Polygon <a href="#clip-and-color-the-polygon" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>The person who requested this tutorial asked how to clip a polygon, so that’s the last thing we’re going to add here. In hlsl there is a function to discard polygons called clip. We pass it a value and if that value is lower than 0 the fragment won’t be rendered, otherwise the function does nothing.</p>
 <p>We can pass the outsideTriangle variable into the clip function, but nothing will happen because all values of the value are 0 or higher. To actually clip everything outside of the polygon we can simply invert the value and the values inside of the polygon will stay 0 and all of the values outside will be negative and will be clipped.</p>
 <p>Because we now use the outsideTriangle variable for it’s intended use, we can now stop drawing it to the screen and just print the color again.</p>
@@ -393,7 +411,11 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 <p>You can also find the source code for this tutorial here:<!-- raw HTML omitted -->
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/014_Polygon/Polygon.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/014_Polygon/Polygon.shader</a><!-- raw HTML omitted -->
 <a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/014_Polygon/PolygonController.cs">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/014_Polygon/PolygonController.cs</a><!-- raw HTML omitted --></p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

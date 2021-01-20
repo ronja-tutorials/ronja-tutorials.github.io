@@ -10,14 +10,15 @@
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -98,8 +99,6 @@
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Voronoi Noise</h1>
       
       
@@ -107,12 +106,36 @@
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><h2 id="summary">Summary</h2>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#get-cell-values">Get Cell Values</a></li>
+    <li><a href="#getting-the-distance-to-the-border">Getting the distance to the border</a></li>
+    <li><a href="#visualising-voronoi-noise">Visualising voronoi noise</a></li>
+    <li><a href="#3d-voronoi">3d Voronoi</a></li>
+    <li><a href="#scrolling-noise">Scrolling noise</a></li>
+    <li><a href="#source">Source</a>
+      <ul>
+        <li><a href="#2d-voronoi">2d Voronoi</a></li>
+        <li><a href="#3d-voronoi-1">3d Voronoi</a></li>
+        <li><a href="#scrolling-voronoi">Scrolling Voronoi</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Another form of noise is voronoi noise. For voronoi noise we need a bunch of points, then we generate a pattern based on which point is the closest. This specific implementation of voronoi noise will work based on cells just like most of the previous noise types we explored, this makes it relatively cheap and easy to repeat. To understand this tutorial I recommend you to have at least understood <a href="/basics.html">the basics of shaders in unity</a> and how to <a href="https://www.ronja-tutorials.com/post/024-white-noise/">generate random values in shaders</a>.</p>
 <p><img src="/assets/images/posts/028/Result.gif" alt=""></p>
 <p>Also possible trypophobia warning for this tutorial, visualising distances can look a bit messy.</p>
-<h2 id="get-cell-values">Get Cell Values</h2>
+<h2 id="get-cell-values">Get Cell Values <a href="#get-cell-values" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For our implementation of voronoi noise each of our cells will have one point. We start by implementing that in 2d. We start by simply dividing our space into cells by flooring the input value and generating random positions inside of the cells based on that. Then we calculate the distance to the input value based on that and return the distance. Just like in the previous noise tutorials we&rsquo;ll base the noise on the world position so we don&rsquo;t have to worry about scaling and uv mapping. We&rsquo;ll also make the cell size adjustable by dividing the value by a cell size property before passing it to the noise function.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
@@ -211,7 +234,7 @@
     o.Albedo <span style="color:#333">=</span> color;
 }
 </code></pre></div><p><img src="/assets/images/posts/028/ColorfulCells.png" alt=""></p>
-<h2 id="getting-the-distance-to-the-border">Getting the distance to the border</h2>
+<h2 id="getting-the-distance-to-the-border">Getting the distance to the border <a href="#getting-the-distance-to-the-border" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>We already have the distance to the center of the cell, but for many effects, like drawing edges between the cells, we also want the distance to the border. A common way to calculate that is to calculate both the nearest and the second nearest point and then subtract the distance to the nearest point from the distance to the second nearest point. This technique is fast, but doesn&rsquo;t deliver very accurate results. The method we&rsquo;re using instead will calculate the distance to every edge and take the shortest distance.</p>
 <p>To calculate the distance we iterate through the neighboring cells again, this time with the information which cell is the closest. We then calculate the distance to the border by first calculating the center between the two cell positions and then the vector from the sample point to this center. Once we have that, we also calculate the vector from the closest cell to the cell we&rsquo;re calculating the distance to the border to. We then also normalize that difference vector so it has a length of one.</p>
 <p>After we calculated those vectors, we can then calculate the dot product between the cell difference and the vector to the center between the cells. The dot product tells us how far the vector to the center is in the direction and in relation to the vector between the cells. So because we normalized the difference vector it tells us the distance in units (not unity units though, because we changed the value size before passing it to the method by dividing the cell size).</p>
@@ -274,7 +297,7 @@
     o.Albedo <span style="color:#333">=</span> noise.z;
 }
 </code></pre></div><p><img src="/assets/images/posts/028/EdgeDistances.png" alt=""></p>
-<h2 id="visualising-voronoi-noise">Visualising voronoi noise</h2>
+<h2 id="visualising-voronoi-noise">Visualising voronoi noise <a href="#visualising-voronoi-noise" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Now we have the 3 variables based on the points. The distance to the point, a random value generated based on the point and the distance to the border to the nearest cell. We already showed how to generate more interresting colors based on the random value. Another thing that&rsquo;s often used is to draw the borders based on the distance to the nearest border. For that we first decide whats a border and what&rsquo;s not. We can do that via the step function, we pass it two values and it&rsquo;ll return 1 if the first argument is greater or equal than the second and 0 if the second one is greater. After we decided what&rsquo;s a border and what isn&rsquo;t, we can interpolate from the color of the cell to a borderColor based on that variable. We&rsquo;ll add the border color as a property so we can change it from the inspector.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
     float2 value <span style="color:#333">=</span> i.worldPos.xz <span style="color:#333">/</span> _CellSize;
@@ -301,7 +324,7 @@
 	o.Albedo <span style="color:#333">=</span> color;
 }
 </code></pre></div><p><img src="/assets/images/posts/028/BordersNoAliasing.png" alt=""></p>
-<h2 id="3d-voronoi">3d Voronoi</h2>
+<h2 id="3d-voronoi">3d Voronoi <a href="#3d-voronoi" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To change the voronoi noise to more dimensions we change the input vector to a 3d vector. Then we also change all directions and cells that were previously 2d to 3d. Next we add another loop to both passes so we can check a 3x3x3 area of cells. We also factor the z component in when checking if the cell we&rsquo;re modifying is the closest cell.</p>
 <p>In the surface shader we change the value to use all directional axes before we pass it into the noise function. Another whing we&rsquo;ll change is that we won&rsquo;t base the valueChange for smoothing the borders from the input value anymore, instead we use the distance from the border directly. That&rsquo;s because now the value isn&rsquo;t 2d like the surface anymore and the borders can run in many angles to the surface which makes the previous way of getting the value result in way too smooth edges sometimes.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 voronoiNoise(float3 value){
@@ -368,7 +391,7 @@
     o.Albedo <span style="color:#333">=</span> color;
 }
 </code></pre></div><p><img src="/assets/images/posts/028/3dVoronoi.png" alt=""></p>
-<h2 id="scrolling-noise">Scrolling noise</h2>
+<h2 id="scrolling-noise">Scrolling noise <a href="#scrolling-noise" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Just like the other kinds of noise we&rsquo;re not limited to spacial dimensions here. We can use the the world dimensions for 2 axes and then animate the third based on the time. By going through the noise this way we can see the different cells begin and end.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> SurfaceOutputStandard o) {
     float3 value <span style="color:#333">=</span> i.worldPos.xyz <span style="color:#333">/</span> _CellSize;
@@ -382,8 +405,8 @@
     o.Albedo <span style="color:#333">=</span> color;
 }
 </code></pre></div><p><img src="/assets/images/posts/028/Result.gif" alt=""></p>
-<h2 id="source">Source</h2>
-<h3 id="2d-voronoi">2d Voronoi</h3>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="2d-voronoi">2d Voronoi <a href="#2d-voronoi" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_2d.shader</a></p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">2</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
@@ -469,7 +492,7 @@
 	}
 	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
-</code></pre></div><h3 id="3d-voronoi-1">3d Voronoi</h3>
+</code></pre></div><h3 id="3d-voronoi-1">3d Voronoi <a href="#3d-voronoi-1" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_3d.shader</a></p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span><span style="color:#00d;font-weight:bold">3</span>d<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
@@ -561,7 +584,7 @@
 	}
 	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
-</code></pre></div><h3 id="scrolling-voronoi">Scrolling Voronoi</h3>
+</code></pre></div><h3 id="scrolling-voronoi">Scrolling Voronoi <a href="#scrolling-voronoi" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/028_Voronoi_Noise/voronoi_noise_scrolling.shader</a></p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">02</span><span style="color:#00d;font-weight:bold">8</span>_voronoi_noise<span style="color:#333">/</span>scrolling<span style="color:#f00;background-color:#faa">&#34;</span> {
 	Properties {
@@ -657,7 +680,11 @@
 	FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>I hope that I was able to explain voronoi noise clearly and that you&rsquo;ll be able to create cool stuff with it.✨</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

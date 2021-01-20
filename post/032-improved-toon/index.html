@@ -11,14 +11,15 @@ Improved shadows for multiple lights.">
     <meta name="generator" content="Hugo 0.76.5" />
     
     
-      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
-    
+      <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
 
     
     
       <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
     
 
+    
+      <link rel="stylesheet" href="/css/main.css">
     
 
     
@@ -102,8 +103,6 @@ Improved shadows for multiple lights."/>
   
   <article class="flex-l flex-wrap justify-between mw7 center ph3">
     <header class="mt5 w-100">
-      
-      
       <h1 class="f1 athelas mt3 mb1">Improved Toon Light</h1>
       
       
@@ -111,10 +110,25 @@ Improved shadows for multiple lights."/>
 
       
       
-    </header>
-    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><p><a href="https://www.ronja-tutorials.com/post/031-single-step-toon/">Last weeks tutorial</a> was about making a simple toon shader, but I felt like there&rsquo;s still a lot to improve about it so this weeks tutorial is too. We&rsquo;ll fix a thing, and add multiple steps to the lighting as well as a specular highlight. I recommend you to read <a href="https://www.ronja-tutorials.com/post/031-single-step-toon/">the previous tutorial</a> if you haven&rsquo;t because this one is heavily based on it and expands its code.</p>
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#improved-shadows-for-multiple-lights">Improved shadows for multiple lights.</a></li>
+    <li><a href="#multiple-steps">Multiple Steps</a></li>
+    <li><a href="#specular-highlights">Specular Highlights</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p><a href="https://www.ronja-tutorials.com/post/031-single-step-toon/">Last weeks tutorial</a> was about making a simple toon shader, but I felt like there&rsquo;s still a lot to improve about it so this weeks tutorial is too. We&rsquo;ll fix a thing, and add multiple steps to the lighting as well as a specular highlight. I recommend you to read <a href="https://www.ronja-tutorials.com/post/031-single-step-toon/">the previous tutorial</a> if you haven&rsquo;t because this one is heavily based on it and expands its code.</p>
 <p><img src="/assets/images/posts/032/Demo.gif" alt=""></p>
-<h2 id="improved-shadows-for-multiple-lights">Improved shadows for multiple lights.</h2>
+<h2 id="improved-shadows-for-multiple-lights">Improved shadows for multiple lights. <a href="#improved-shadows-for-multiple-lights" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>If we have multiple lights in our scene we want them to all light up the light parts, but not have it change the areas where all of them have shadows. With the custom shadow color we have right now applied in the lighting function we also add the shadow color the more lights we have. This is also critical because point lights will add lighting in a weird square shape that we definitely don&rsquo;t want.</p>
 <p><img src="/assets/images/posts/032/BadLight.gif" alt=""></p>
 <p>The easiest fix for this is to add the shadow color in a way that only adds it once everywhere on the model and then use black as the shadow color in the lighting function.</p>
@@ -138,7 +152,7 @@ color.a <span style="color:#333">=</span> s.Alpha;
 <span style="color:#080;font-weight:bold">return</span> color;
 </code></pre></div><p><img src="/assets/images/posts/032/EmissiveShadowColor.png" alt=""></p>
 <p>This technique works really well for dark shadow colors, but if we want the shadow color to be very strong we we always have the light tinted in the shadow color. There are ways to avoid that but they have their own disadvantages, so I won&rsquo;t get into them here (write me if you&rsquo;re curious).</p>
-<h2 id="multiple-steps">Multiple Steps</h2>
+<h2 id="multiple-steps">Multiple Steps <a href="#multiple-steps" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>So far we only have a single hard cut for the lighting. Another option is to have several of those. Having more steps can give the model more plasticity while still looking clean, but it&rsquo;s important that you consider what fits your style best.</p>
 <p>To make multiple steps we divide the <code>towardsLight</code> variable by the relative width of a single step. We&rsquo;ll make that a property to edit. By dividing it, the variable will become higher and span more whole numbers. If we pass 0.5 as the relative width, it&rsquo;ll go from 0 to 2 (in the area towards the light, we&rsquo;ll ignore the backside for now), for a width of 0.25 it&rsquo;s from 0 to 4 etc. We can then use this stretched variable to generate hard steps with the <code>ceil</code> function to force it to whole values. After we have whole values we divide it again, this time by another property which represents the amount of steps we want to show. The values will still be negative for the values on the shadow side and might go over 1 if we have a few narrow cuts, so we then clamp it between 0 and 1 by passing it though the <code>saturate</code> method. After those steps we can use it as the light intensity.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Properties {
@@ -184,7 +198,7 @@ lightIntensity <span style="color:#333">=</span> lightIntensity <span style="col
 lightIntensity <span style="color:#333">=</span> lightIntensity <span style="color:#333">/</span> _StepAmount;
 lightIntensity <span style="color:#333">=</span> saturate(lightIntensity);
 </code></pre></div><p><img src="/assets/images/posts/032/AntialiasedSteps.png" alt=""></p>
-<h2 id="specular-highlights">Specular Highlights</h2>
+<h2 id="specular-highlights">Specular Highlights <a href="#specular-highlights" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>For objects to look wet, shiny or metallic we can implement specular highlights. Because they depend on how the light would be reflected towards the camera they change based on the view direction.</p>
 <p>First we calculate in which direction the light would be reflected, for this hlsl has the handy <code>reflect</code> method which takes a direction and a normal. Then we compare it to the view direction with a dot product, but only after we invert it because the reflection goes out of the surface and the view direction towards the surface.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 reflectionDirection <span style="color:#333">=</span> reflect(lightDir, s.Normal);
@@ -262,7 +276,7 @@ color.a <span style="color:#333">=</span> s.Alpha;
 </code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float4 LightingStepped(ToonSurfaceOutput s, float3 lightDir, half3 viewDir, <span style="color:#080;font-weight:bold">float</span> shadowAttenuation){
 </code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#080;font-weight:bold">void</span> surf (Input i, <span style="color:#080;font-weight:bold">inout</span> ToonSurfaceOutput o) {
 </code></pre></div><p><img src="/assets/images/posts/032/CompleteToon.png" alt=""></p>
-<h2 id="source">Source</h2>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <ul>
 <li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/032_ImprovedToon/ImprovedToonLighting.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/032_ImprovedToon/ImprovedToonLighting.shader</a></li>
 </ul>
@@ -393,7 +407,11 @@ color.a <span style="color:#333">=</span> s.Alpha;
     FallBack <span style="color:#f00;background-color:#faa">&#34;</span>Standard<span style="color:#f00;background-color:#faa">&#34;</span>
 }
 </code></pre></div><p>I mainly concentrated on the lighting function in those tutorials, you can easily expand the shader by writing different values from the surface function and use textures for emissive color or normals. I also think it might be a good call to add the specular size to the surface struct and use that in the lighting function to be able to do drive the look more via textures. Whatever you end up doing I hope this tutorial made you curious about non photorealistic lighting and helped you realise the look you wanted to create.</p>
-<ul class="pa0">
+
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
   
 </ul>
 <div class="mt6 instapaper_ignoref">

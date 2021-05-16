@@ -46,8 +46,10 @@
 <meta name="twitter:description" content=""/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -103,7 +105,7 @@
   <article class="cf ph3 ph5-l pv3 pv4-l f4 tc-l center lh-copy mid-gray" style="max-width: 42em">
     <p>Hey there, I&rsquo;m Ronja and I make shader tutorials with the goal to make shaders understandable by everyone. 
 The focus of this tutorials is on unity shaders with hlsl. They are more accessible than direct implementations of the shader APIs yet flexible and powerful. Even though they&rsquo;re all in one (proprietary) engine most of the skills I teach are transferrable to other contexts. If you have any wishes for shaders you want to know how they work write me a message and I&rsquo;ll see what I can do.</p>
-<p>The tutorials do assume that you know how to program in any written programming language (which one doesnt matter), so its better to start there. If you&rsquo;re completely new to shaders I recommend your start with the series about the absolute basics, explaining how to make a very simple shader from nothing, you can find it <a href="/basics.html">here</a>.</p>
+<p>The tutorials do assume that you know how to program in any written programming language (which one doesnt matter), so its better to start there. If you&rsquo;re completely new to shaders I recommend your start with the series about the absolute basics, explaining how to make a very simple shader from nothing, you can find it <a href="https://www.ronja-tutorials.com/basics/">here</a>.</p>
 <p>You can also find me on twitter at <a href="https://www.twitter.com/totallyRonja">@totallyRonja</a>. If you like what I do and want to support me you can do that on Patreon (<a href="https://www.patreon.com/RonjaTutorials">https://www.patreon.com/RonjaTutorials</a>) or use Ko-Fi for one-time donations (<a href="https://ko-fi.com/ronjatutorials">https://ko-fi.com/ronjatutorials</a>).</p>
 
   </article>
@@ -633,7 +635,7 @@ Simple Dissolve We start by adding a new texture to our shader to drive the diss
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">2D SDF Shadows Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+            <p style="display: none;">2D SDF Shadows Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the tutorial about how to create simple shapes.
 Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.</p>
             
 <article class="bb b--black-10">
@@ -666,7 +668,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">2D SDF Space Manipulation When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.</p>
+            <p style="display: none;">2D SDF Space Manipulation When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes.</p>
             
 <article class="bb b--black-10">
   <div class="db pv1 ph3 ph0-l no-underline dark-gray">
@@ -698,7 +700,8 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
           </div>
         
           <div class="relative w-100 mb0" name="article">
-            <p style="display: none;">2D SDF Combination In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.</p>
+            <p style="display: none;">2D SDF Combination In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it.</p>
             
 <article class="bb b--black-10">
   <div class="db pv1 ph3 ph0-l no-underline dark-gray">
@@ -1653,7 +1656,7 @@ This tutorial will build on the transparent shader we made previously so it’s 
         
           <div class="relative w-100 mb0" name="article">
             <p style="display: none;">Basic Transparency Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.</p>
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.</p>
             
 <article class="bb b--black-10">
   <div class="db pv1 ph3 ph0-l no-underline dark-gray">

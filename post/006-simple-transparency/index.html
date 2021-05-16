@@ -7,7 +7,7 @@
     <title>Basic Transparency | Ronja&#39;s tutorials</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
     <meta name="description" content="Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.">
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.">
     <meta name="generator" content="Hugo 0.76.5" />
     
     
@@ -32,17 +32,17 @@ To understand how to implement transparency, I recommend you know [the basics of
     
     <meta property="og:title" content="Basic Transparency" />
 <meta property="og:description" content="Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures." />
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.ronja-tutorials.com/post/006-simple-transparency/" />
 <meta property="article:published_time" content="2018-04-06T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-04-06T00:00:00+00:00" />
 <meta itemprop="name" content="Basic Transparency">
 <meta itemprop="description" content="Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.">
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures.">
 <meta itemprop="datePublished" content="2018-04-06T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2018-04-06T00:00:00+00:00" />
-<meta itemprop="wordCount" content="741">
+<meta itemprop="wordCount" content="739">
 
 
 
@@ -50,11 +50,13 @@ To understand how to implement transparency, I recommend you know [the basics of
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Basic Transparency"/>
 <meta name="twitter:description" content="Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures."/>
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&rsquo;ll start with the result of the tutorial for implementing textures."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -129,7 +131,7 @@ To understand how to implement transparency, I recommend you know [the basics of
 				
 				<h2 id="summary">Summary <a href="#summary" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.</p>
-<p>To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&rsquo;ll start with the result of the <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial for implementing textures</a>.</p>
+<p>To understand how to implement transparency, I recommend you know <a href="https://www.ronja-tutorials.com/basics/">the basics of writing shaders</a>, in this tutorial I&rsquo;ll start with the result of the <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial for implementing textures</a>.</p>
 <p><img src="/assets/images/posts/006/SemitransparentCube.png" alt="Result"></p>
 <p>To make the transparent object render correctly, we have to tell unity that it’s transparent. For that we’ll change the render type as well as the queue. By changing the queue, we make sure the material is rendered later than the opaque materials. If that wasn’t the case, a opaque object that’s behind a transparent one would have to draw over the transparent one, completely covering it.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span>}

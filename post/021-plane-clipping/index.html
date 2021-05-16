@@ -45,7 +45,7 @@ To follow this tutorial, it’s best to know how surface shaders work - you can 
 Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.">
 <meta itemprop="datePublished" content="2018-08-06T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2018-08-06T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1759">
+<meta itemprop="wordCount" content="1804">
 
 
 
@@ -57,8 +57,10 @@ To follow this tutorial, it’s best to know how surface shaders work - you can 
 Define Plane We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -140,14 +142,13 @@ Define Plane We start by creating a new C# script which will define the plane we
 <p>To follow this tutorial, it’s best to know how <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">surface shaders work</a> - you can find a tutorial how they work <a href="https://www.ronja-tutorials.com/post/005-simple-surface/">here</a>.</p>
 <p><img src="/assets/images/posts/021/Result.gif" alt="Result"></p>
 <h2 id="define-plane">Define Plane <a href="#define-plane" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
-<p>We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to.</p>
+<p>We start by creating a new C# script which will define the plane we use later and pass it to the shader. It has a material as a public variable which we will pass the plane to. We&rsquo;ll also give the class the <code>[ExecuteAlways]</code> attribute which will ensure the script will also work in the edit mode. I&rsquo;d recommend you think about your use-case and whether this makes sense for you to add, without it the script will still update while the game is running.</p>
 <p>In the Update Method we create a new variable of the type Plane which unity already has. We pass it the the normal of the plane and a point on the plane. We will use the up vector of the transform the script is on as the normal and the position of the transform as the point on the plane.</p>
 <p>Then we create a new 4d vector and put the normal of the new plane in the first three components and the distance from the origin in the 4th component. I’ll explain later how we’ll use those values.</p>
 <p>Then we pass this new vector to the shader so we can use it there.</p>
-<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections</span>;
-<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">System.Collections.Generic</span>;
-<span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
-
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs"><span style="color:#080;font-weight:bold">using</span> <span style="color:#0e84b5;font-weight:bold">UnityEngine</span>;
+<span style="color:#00c">
+</span><span style="color:#00c">[ExecuteAlways]</span>
 <span style="color:#080;font-weight:bold">public</span> <span style="color:#080;font-weight:bold">class</span> <span style="color:#b06;font-weight:bold">ClippingPlane</span> : MonoBehaviour {
     <span style="color:#888">//material we pass the values to
 </span><span style="color:#888"></span>    <span style="color:#080;font-weight:bold">public</span> Material mat;

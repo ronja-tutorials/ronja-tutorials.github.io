@@ -155,7 +155,7 @@ Simple Dissolve We start by adding a new texture to our shader to drive the diss
       <pubDate>Sat, 01 Dec 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.ronja-tutorials.com/post/037-2d-shadows/</guid>
-      <description>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&amp;rsquo;ll use them to render 2d soft shadows. If you haven&amp;rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+      <description>Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&amp;rsquo;ll use them to render 2d soft shadows. If you haven&amp;rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the tutorial about how to create simple shapes.
 Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.</description>
     </item>
     
@@ -165,7 +165,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
       <pubDate>Sat, 24 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.ronja-tutorials.com/post/036-sdf-space-manipulation/</guid>
-      <description>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&amp;rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.</description>
+      <description>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&amp;rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes.</description>
     </item>
     
     <item>
@@ -174,7 +174,8 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
       <pubDate>Sat, 17 Nov 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.ronja-tutorials.com/post/035-2d-sdf-combination/</guid>
-      <description>In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&amp;rsquo;t go into here.</description>
+      <description>In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&amp;rsquo;t go into here.
+Setup To visualise the signed distance fields, we&amp;rsquo;re going to make one basic setup and then use the operators with it.</description>
     </item>
     
     <item>
@@ -462,7 +463,7 @@ This tutorial will build on the transparent shader we made previously so it’s 
       
       <guid>https://www.ronja-tutorials.com/post/006-simple-transparency/</guid>
       <description>Summary In addition to just painting color onto the screen, we can also preserve some of the color that was on the screen previously, making the object seem see-through. I’ll explain how we can archieve this effect in a basic shader without lighting.
-To understand how to implement transparency, I recommend you know [the basics of writing shaders]({{ site.baseurl }}/basics.html), in this tutorial I&amp;rsquo;ll start with the result of the tutorial for implementing textures.</description>
+To understand how to implement transparency, I recommend you know the basics of writing shaders, in this tutorial I&amp;rsquo;ll start with the result of the tutorial for implementing textures.</description>
     </item>
     
     <item>

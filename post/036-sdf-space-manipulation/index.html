@@ -6,7 +6,7 @@
     
     <title>2D SDF Space Manipulation | Ronja&#39;s tutorials</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.">
+    <meta name="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes.">
     <meta name="generator" content="Hugo 0.76.5" />
     
     
@@ -30,27 +30,29 @@
     
     
     <meta property="og:title" content="2D SDF Space Manipulation" />
-<meta property="og:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site." />
+<meta property="og:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.ronja-tutorials.com/post/036-sdf-space-manipulation/" />
 <meta property="article:published_time" content="2018-11-24T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-11-24T00:00:00+00:00" />
 <meta itemprop="name" content="2D SDF Space Manipulation">
-<meta itemprop="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.">
+<meta itemprop="description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes.">
 <meta itemprop="datePublished" content="2018-11-24T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2018-11-24T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3682">
+<meta itemprop="wordCount" content="3670">
 
 
 
 <meta itemprop="keywords" content="" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="2D SDF Space Manipulation"/>
-<meta name="twitter:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site."/>
+<meta name="twitter:description" content="When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -137,10 +139,10 @@
 
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
 				
-				<p>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) and [combine sdf shapes]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
+				<p>When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to <a href="https://www.ronja-tutorials.com/post/034-2d-sdf-basics/">create shapes with signed distance functions</a> and <a href="https://www.ronja-tutorials.com/post/035-2d-sdf-combination/">combine sdf shapes</a>.</p>
 <p><img src="/assets/images/posts/036/Result.gif" alt=""></p>
 <h2 id="setup">Setup <a href="#setup" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
-<p>For this tutorial I&rsquo;ll modify a union between a square and a circle, but you can use it on any shape you want. It&rsquo;s similar to the setup for the [previous tutorial]({{ site.baseurl }}{% post_url 2018-11-17-2d-sdf-combination%}).</p>
+<p>For this tutorial I&rsquo;ll modify a union between a square and a circle, but you can use it on any shape you want. It&rsquo;s similar to the setup for the <a href="https://www.ronja-tutorials.com/post/035-2d-sdf-combination/">previous tutorial</a>.</p>
 <p>Important here is that the part we will modify is before we use the position to generate shapes.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">036</span>_SDF_Space_Manpulation<span style="color:#333">/</span>Type<span style="color:#f00;background-color:#faa">&#34;</span>{
     Properties{

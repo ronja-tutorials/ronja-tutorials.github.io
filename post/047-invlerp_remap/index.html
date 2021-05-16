@@ -53,8 +53,10 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 Example Shader The base shader is pretty barebones, a little more complex than a completely unlit one."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -133,7 +135,7 @@ Example Shader The base shader is pretty barebones, a little more complex than a
 				<p>In a <a href="https://www.ronja-tutorials.com/post/009-interpolating-colors/">previous tutorial</a> I explained how the builtin <code>lerp</code> function works. Now I want to add the inverse lerp as well as the remap functions to this. They&rsquo;re not builtin functions so we&rsquo;ll have to write our own implementations. While this is a tutorial that focuses on explaining mathematical concepts, they resolve into basic addition and multiplication pretty quickly so I hope it isn&rsquo;t too hard.</p>
 <p><img src="/assets/images/posts/047/result.png" alt=""></p>
 <h2 id="example-shader">Example Shader <a href="#example-shader" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
-<p>The base shader is pretty barebones, a little more complex than <a href="/basics.html">a completely unlit one</a>. I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the &ldquo;blending variable&rdquo; I used the y component of the UV coordinates so it&rsquo;s immediately visible what the function does over a gradient from 0 to 1.</p>
+<p>The base shader is pretty barebones, a little more complex than <a href="https://www.ronja-tutorials.com/basics/">a completely unlit one</a>. I decided to write the custom functions in a separate include file which I named Interpolation.cginc, but you can just as well copy-paste the functions into your main shader file. As the &ldquo;blending variable&rdquo; I used the y component of the UV coordinates so it&rsquo;s immediately visible what the function does over a gradient from 0 to 1.</p>
 <p>A shader version for a regular linear interpolation looks like this:</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">047</span>_InvLerp_Remap<span style="color:#333">/</span>Lerp<span style="color:#f00;background-color:#faa">&#34;</span>{
   <span style="color:#888">//show values to edit in inspector</span>

@@ -45,7 +45,7 @@ The Tutorial is done via a surface shader, so if you don&rsquo;t know how they w
 Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration.">
 <meta itemprop="datePublished" content="2018-11-03T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2018-11-03T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2309">
+<meta itemprop="wordCount" content="2305">
 
 
 
@@ -57,8 +57,10 @@ The Tutorial is done via a surface shader, so if you don&rsquo;t know how they w
 Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -207,7 +209,7 @@ float2 _SpecDirection1;
 </code></pre></div><p><img src="/assets/images/posts/033/ScrollingSpecs.gif" alt=""></p>
 <p>For this to word it&rsquo;s important to set up your river mesh the correct way! The coordinates have to be continous and along the flow of the river. I use blender for modelling and my unwrapping workflow is to autounwrap the whole river once automatically, then I choose a random quad and scale the right and left edge in the x direction to 0 so they&rsquo;re completely vertical, then I scale the upper and lower edge in the y direction so they&rsquo;re completely horizonal. After that I select the corrected quad and unwrap the whole river again with the &ldquo;follow active quads&rdquo; mode. You can make the river move faster in some places by changing it so the uv coordinates of the vertices are closer together at those places. (I did that where the water goes down a bit)</p>
 <p><img src="/assets/images/posts/033/RiverUnwrap.gif" alt=""></p>
-<p>For the specs texture, I did a cutoff on a perlin noise and baked that into a texture via my [material baking tool]({{ site.baseurl }}{% post_url 2018-10-13-baking-shaders%}). Here is the texture:</p>
+<p>For the specs texture, I did a cutoff on a perlin noise and baked that into a texture via my <a href="https://www.ronja-tutorials.com/post/030-baking-shaders/">material baking tool</a>. Here is the texture:</p>
 <p><img src="/assets/images/posts/033/RiverSpecs1.png" alt=""></p>
 <p>And here are the other values I used:</p>
 <p><img src="/assets/images/posts/033/SpecLayer1Settings.png" alt=""></p>

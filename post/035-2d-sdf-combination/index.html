@@ -6,7 +6,8 @@
     
     <title>2D SDF Combination | Ronja&#39;s tutorials</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.">
+    <meta name="description" content="In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it.">
     <meta name="generator" content="Hugo 0.76.5" />
     
     
@@ -30,27 +31,32 @@
     
     
     <meta property="og:title" content="2D SDF Combination" />
-<meta property="og:description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here." />
+<meta property="og:description" content="In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.ronja-tutorials.com/post/035-2d-sdf-combination/" />
 <meta property="article:published_time" content="2018-11-17T00:00:00+00:00" />
 <meta property="article:modified_time" content="2018-11-17T00:00:00+00:00" />
 <meta itemprop="name" content="2D SDF Combination">
-<meta itemprop="description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.">
+<meta itemprop="description" content="In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it.">
 <meta itemprop="datePublished" content="2018-11-17T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2018-11-17T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3250">
+<meta itemprop="wordCount" content="3246">
 
 
 
 <meta itemprop="keywords" content="" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="2D SDF Combination"/>
-<meta name="twitter:description" content="In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here."/>
+<meta name="twitter:description" content="In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -145,7 +151,7 @@
 
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
 				
-				<p>In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find <a href="http://mercury.sexy/hg_sdf">here (http://mercury.sexy/hg_sdf)</a> and there are a few ways of combining shapes I don&rsquo;t go into here.</p>
+				<p>In the <a href="https://www.ronja-tutorials.com/post/034-2d-sdf-basics/">last tutorial</a> we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find <a href="http://mercury.sexy/hg_sdf">here (http://mercury.sexy/hg_sdf)</a> and there are a few ways of combining shapes I don&rsquo;t go into here.</p>
 <p><img src="/assets/images/posts/035/Result.gif" alt=""></p>
 <h2 id="setup">Setup <a href="#setup" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it. It will use the distance lines visualisation we made in the first tutorial for showing the distance fields. We will set all parameters except for the visualisation parameters in code for simplicity, but you can replace any value you see with a property to make it adjustable.</p>

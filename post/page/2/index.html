@@ -46,8 +46,10 @@
 <meta name="twitter:description" content=""/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -223,7 +225,7 @@ Simple Dissolve We start by adding a new texture to our shader to drive the diss
       </a>
     </h1>
     <div class="nested-links f5 lh-copy nested-copy-line-height">
-      Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the [tutorial about how to create simple shapes]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}).
+      Now that we know the basics on how to combine signed distance functions, we can use them to do cool stuff with them. In this tutorial we&rsquo;ll use them to render 2d soft shadows. If you haven&rsquo;t read my previous tutorials about signed distance fields yet, I highly recommend you do that first, starting at the tutorial about how to create simple shapes.
 Base Setup I did a simple room setup here, it uses the techniques described in earlier tutorials.
     </div>
   </div>
@@ -244,7 +246,7 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
       </a>
     </h1>
     <div class="nested-links f5 lh-copy nested-copy-line-height">
-      When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to [create shapes with signed distance functions]({{ site.
+      When using polygon assets we can only draw one object at a time (ignoring stuff like batching and instancing), but when working with signed distance fields we aren&rsquo;t bound by the same limitations, if two positions have the same coordinate, the signed distance functions will return the same value and you can get multiple shapes with one calculation. To learn how to transform the space we use to generate signed distance fields I recommend you understand how to create shapes with signed distance functions and combine sdf shapes.
     </div>
   </div>
 
@@ -264,7 +266,8 @@ Base Setup I did a simple room setup here, it uses the techniques described in e
       </a>
     </h1>
     <div class="nested-links f5 lh-copy nested-copy-line-height">
-      In the [last tutorial]({{ site.baseurl }}{% post_url 2018-11-10-2d-sdf-basics%}) we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+      In the last tutorial we learned how to create and move simple shapes with signed distance functions. In this one we will learn how to combine several shapes to make more complex distance fields. I learned most of the techniques described here from a glsl signed distance function library you can find here (http://mercury.sexy/hg_sdf) and there are a few ways of combining shapes I don&rsquo;t go into here.
+Setup To visualise the signed distance fields, we&rsquo;re going to make one basic setup and then use the operators with it.
     </div>
   </div>
 

@@ -49,8 +49,10 @@
 <meta name="twitter:description" content="Current State I&rsquo;m going to go off a basic unlit shader in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -129,7 +131,7 @@
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
 				
 				<h2 id="current-state">Current State <a href="#current-state" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
-<p>I&rsquo;m going to go off a <a href="/basics.html">basic unlit shader</a> in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without</p>
+<p>I&rsquo;m going to go off a <a href="https://www.ronja-tutorials.com/post/004-basic/">basic unlit shader</a> in this tutorial. In all tutorials since that one we always set the properties at a &ldquo;per material&rdquo; basis. This allows us to do everything we ever need to do in theory, but depending on the circumstances it might also force us to use tons of different materials. This not only makes a scene harder to author, but can also significantly slow down your game as by default objects with different materials cannot be instanced together and switching drawcalls is one of the main performance sinks of rendering. Material property blocks (MPBs) allow us a way around that which we can use to change properties on a per object basis without</p>
 <p>Important to mention here is that if you&rsquo;re using one of Unity&rsquo;s new scriptable render pipelines the performance slowdown might be way less and you can even make the performance worse by using property blocks. That&rsquo;s because of the new SRP batcher which is able to batch models with different materials, but doesn&rsquo;t support property block as far as I know (it&rsquo;s better to read yourself into the current state of tech yourself and trying out what works better).</p>
 <p><img src="/assets/images/posts/048/SimpleMaterials.png" alt=""></p>
 <h2 id="changing-properties-via-script">Changing Properties via Script <a href="#changing-properties-via-script" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>

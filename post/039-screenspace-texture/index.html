@@ -53,8 +53,10 @@ On it&rsquo;s own the effect just looks kind of weird, which can also be used as
 On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future."/>
 
 	
-		
-		
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -138,7 +140,7 @@ On it&rsquo;s own the effect just looks kind of weird, which can also be used as
 <p>On it&rsquo;s own the effect just looks kind of weird, which can also be used as a aesthetic choice, but it can be used for many cool effects I&rsquo;ll go into in the future.</p>
 <p><img src="/assets/images/posts/039/Result.gif" alt=""></p>
 <h2 id="screenspace-coordinates-in-unlit-shaders">Screenspace Coordinates in Unlit Shaders <a href="#screenspace-coordinates-in-unlit-shaders" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
-<p>If you&rsquo;re new to shader programming I recommend you to read <a href="/basics.html">my tutorial on the basics of writing shaders</a> first. If you&rsquo;ve written a few shaders you should be fine. As the base shader I&rsquo;ll iterate upon I&rsquo;ll use the result of the <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial about using textures in a shader</a>.</p>
+<p>If you&rsquo;re new to shader programming I recommend you to read <a href="https://www.ronja-tutorials.com/basics/">my tutorials on the basics of writing shaders</a> first. If you&rsquo;ve written a few shaders you should be fine. As the base shader I&rsquo;ll iterate upon I&rsquo;ll use the result of the <a href="https://www.ronja-tutorials.com/post/004-basic/">tutorial about using textures in a shader</a>.</p>
 <p>The first changes we make is to expand the vertex to fragment struct. So far it held the position and the uv coordinates. The screen position is used similarly to the uv coordinates, but for the screen position we need a vector with 4 components instead of 2.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the data that&#39;s used to generate fragments and can be read by the fragment shader</span>
 <span style="color:#080;font-weight:bold">struct</span> v2f{

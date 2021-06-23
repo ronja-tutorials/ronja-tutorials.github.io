@@ -12,3 +12,10 @@
 	visibility: visible;
 	color:gray !important;
 }
+
+.nested-img img {
+	width: auto;
+	min-width: 100px;
+	max-width: 100%;
+	max-height: 400px;
+}

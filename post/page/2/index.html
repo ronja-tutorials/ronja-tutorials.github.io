@@ -38,7 +38,7 @@
 <meta property="og:description" content="" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://www.ronja-tutorials.com/post/" />
-<meta property="og:updated_time" content="2020-11-25T00:00:00+00:00" />
+<meta property="og:updated_time" content="2021-06-20T00:00:00+00:00" />
 <meta itemprop="name" content="Posts">
 <meta itemprop="description" content="">
 <meta name="twitter:card" content="summary"/>
@@ -108,6 +108,27 @@
       
     </section>
     <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 21, 2019
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://www.ronja-tutorials.com/post/043-spheretracing-basics/" class="link black dim">
+        Spheretracing Basics
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Raytracing is a huge topic and one that seems scary and unapproachable for many. One specific kind of raytracing we can do with signed distance fields which I have explored in the 2d space in previous tutorials is called spheretracing. In this first tutorial we&rsquo;ll just trace the silouette of a sphere, but in future tutorials I&rsquo;ll give examples how to make more complex shapes and do lighting.
+As the base of the shader we&rsquo;ll use a basic unlit shader, so you can do this tutorial when you&rsquo;re fairly new to shaders.
+    </div>
+  </div>
+
+        </div>
       
         <div class="relative w-100 w-30-l mb4 bg-white">
           
@@ -289,28 +310,6 @@ Setup To visualise the signed distance fields, we&rsquo;re going to make one bas
     <div class="nested-links f5 lh-copy nested-copy-line-height">
       So far we mostly used polygonal meshes to represent shapes. While meshes are the easiest to render and the most versatile, there are other ways to represent shapes in 2d and 3d. One way which is used frequently is signed distance fields(or SDF). Signed distance fields allow for cheaper raytracing, smoothly letting different shapes flow into each other and saving lower resolution textures for higher quality images.
 We&rsquo;re going to start by generating signed distance fields with functions in 2 dimensions, but later continue by generating and using them in 3d.
-    </div>
-  </div>
-
-        </div>
-      
-        <div class="relative w-100 w-30-l mb4 bg-white">
-          
-            <div class="mb3 pa4 mid-gray overflow-hidden">
-    
-      <div class="f6">
-        November 3, 2018
-      </div>
-    
-    <h1 class="f3 near-black">
-      <a href="https://www.ronja-tutorials.com/post/033-river/" class="link black dim">
-        Flowing River
-      </a>
-    </h1>
-    <div class="nested-links f5 lh-copy nested-copy-line-height">
-      This tutorial is a case study on how to make a river via a shader. My inspiration for the look was this post by Eris https://twitter.com/Erisdraw3D/status/1056931358185086976.
-The Tutorial is done via a surface shader, so if you don&rsquo;t know how they work it&rsquo;s best to read the tutorial on surface shaders first.
-Transparent Surface Shader We&rsquo;ll start with a transparent surface shader, for that we&rsquo;ll have to add the alpha attribute to our surface shader declaration.
     </div>
   </div>
 

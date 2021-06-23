@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Polar Coordinates | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&hellip; This is called &ldquo;cartesian coordinates&rdquo;.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+		<META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
+		<link rel="canonical" href="https://www.ronja-tutorials.com/post/053-polar-coordinates/">
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+      <link rel="stylesheet" href="/css/main.css">
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Polar Coordinates" />
+<meta property="og:description" content="So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&hellip; This is called &ldquo;cartesian coordinates&rdquo;." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/053-polar-coordinates/" />
+<meta property="article:published_time" content="2021-06-20T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-06-20T00:00:00+00:00" />
+<meta itemprop="name" content="Polar Coordinates">
+<meta itemprop="description" content="So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&hellip; This is called &ldquo;cartesian coordinates&rdquo;.">
+<meta itemprop="datePublished" content="2021-06-20T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-06-20T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2271">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Polar Coordinates"/>
+<meta name="twitter:description" content="So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&hellip; This is called &ldquo;cartesian coordinates&rdquo;."/>
+
+	
+
+	
+
+		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
+		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      <h1 class="f1 athelas mt3 mb1">Polar Coordinates</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-06-20T00:00:00Z">June 20, 2021</time>
+
+      
+      
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#converting-cartesian-to-polar-coordinates">Converting cartesian to polar coordinates</a></li>
+    <li><a href="#using-polar-coordinates-to-manipulate-cartesian-coordinates">Using polar coordinates to manipulate cartesian coordinates</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&hellip; This is called &ldquo;cartesian coordinates&rdquo;.</p>
+<p>Now I want to introduce you to polar coordinates, how to convert to and from them and show you how to use them. While you manipulate polar coordinates, remember that not all rules from geometry in cartesian coordinates apply, but I encourage you to play with all ideas you have and see what happens.</p>
+<p><img src="/assets/images/posts/053/result.gif" alt=""></p>
+<h2 id="converting-cartesian-to-polar-coordinates">Converting cartesian to polar coordinates <a href="#converting-cartesian-to-polar-coordinates" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<p>While in cartesian 2d space the 2 variables we use are the &ldquo;right-ness&rdquo; as well as the &ldquo;up-ness&rdquo;(or &ldquo;down-ness&rdquo; depending on context), in polar coordinates the 2 variables are the angle around the center and the distance from that center.</p>
+<p><img src="/assets/images/posts/053/Coordinates_Vis.png" alt=""></p>
+<p>So we use the the <code>atan2</code> to calculate the angle and calculate the <code>length</code> of the position for the distance and store it in a float2 (I used that because its convenient, you can also build your own struct for that if you prefer that). I put it in a function in a include file for reuse, but you can of course put the function in your shader file, or even do the calculations inline. As a small addition, I divided the angle by 2pi to make it go from -0.5 to 0.5, instead of -pi to pi, which is usually a more annoying number to work with.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef POLAR_COORDINATES</span>
+<span style="color:#579">#define POLAR_COORDINATES</span>
+
+float2 toPolar(float2 cartesian){
+	<span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> length(cartesian);
+	<span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> atan2(cartesian.y, cartesian.x);
+	<span style="color:#080;font-weight:bold">return</span> float2(angle <span style="color:#333">/</span> UNITY_TWO_PI, distance);
+}
+<span style="color:#579">#endif</span>
+</code></pre></div><p>Now we can continue by using that function in our shader. This is built on the <a href="https://www.ronja-tutorials.com/post/004-basic/">basic shader tutorial</a> shader, so nothing fancy is happening here.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+	<span style="color:#888">//get polar coordinates</span>
+	float2 uv <span style="color:#333">=</span> toPolar(i.uv);
+	<span style="color:#080;font-weight:bold">return</span> float4(frac(uv), <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>); <span style="color:#888">//test output</span>
+}
+</code></pre></div><p><img src="/assets/images/posts/053/Quarter_Coords.png" alt=""></p>
+<p>Here we can already see the distance going from 0 to 1 and beyond (since the diagnoal of a unit square is <code>sqrt(2)</code>). But we can also only see 1/4th of the circle. Thats because, as described earlier, we&rsquo;re taking the angle around the &ldquo;center&rdquo;, and thats in the bottom right corner here. Luckily moving the center around in cartesian space is pretty easy, so lets just subtract <code>0.5</code> from each axis of the uvs before converting them. And because hlsl converts scalars automatically to vectors with each value set to the scalar, we can just write <code>uv - 0.5</code>. With this written, the space will be <code>-0.5</code> to <code>0.5</code>, so lets already multiply that by <code>2</code> to we get to <code>-1</code> to <code>1</code> and get to see the whole <code>0-1</code> space.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+	<span style="color:#888">//make input uvs centered and scaled to -1 to 1</span>
+	i.uv <span style="color:#333">-=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+	i.uv <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">2</span>;
+	<span style="color:#888">//get polar coordinates</span>
+	float2 uv <span style="color:#333">=</span> toPolar(i.uv);
+	<span style="color:#080;font-weight:bold">return</span> float4(frac(uv), <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>); <span style="color:#888">//test output</span>
+}
+</code></pre></div><p><img src="/assets/images/posts/053/Full_Coords.png" alt=""></p>
+<p>And now that we have those generated, we can just apply them to texture by using them as uv coordinates.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//sample the texture and apply tint</span>
+fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+<span style="color:#888">//return the final color to be drawn on screen</span>
+<span style="color:#080;font-weight:bold">return</span> col;
+</code></pre></div><p><img src="/assets/images/posts/053/Full_Coords_Textured.png" alt=""></p>
+<p>The whole rotation is usually a bit much for a image and it gets stretched, but we can apply simple math onto those coordiantes like we&rsquo;re used to. So lets just make it tile a few times for a better result. If we wanted to we could also apply a <code>TRANSFORM_TEX</code> macro here to apply the offset of the editor here.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+	<span style="color:#888">//make input uvs centered and scaled to -1 to 1</span>
+	i.uv <span style="color:#333">-=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+	i.uv <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">2</span>;
+	<span style="color:#888">//get polar coordinates</span>
+	float2 uv <span style="color:#333">=</span> toPolar(i.uv);
+	<span style="color:#888">//tile Image</span>
+	uv.x <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">3</span>;
+	<span style="color:#888">// sample the texture and apply tint</span>
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+	<span style="color:#888">//return the final color to be drawn on screen</span>
+	<span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/053/Tiled_Polar_Image.png" alt=""></p>
+<p>But as you can see theres sometimes a weird seam opposite of &ldquo;<code>0 degree</code>&rdquo;. Thats because there the coordinates jump from <code>-1.5</code> to <code>1.5</code>, they still sample the same point in a repeating texture, but <code>tex2D</code> uses <a href="https://www.ronja-tutorials.com/post/046-fwidth/">partial derivatives</a> internally which then in those pixels conclude that we&rsquo;re watching the texture from very far away, and choose a lower mipmap level.</p>
+<p>The &ldquo;correct&rdquo; solution to this is to calculate the mipmap level yourself and then pass it to <code>tex2Dlod</code>, but because thats too much for this tutorial, I&rsquo;m just going to link this other excellent article to you on that: <a href="https://bgolus.medium.com/distinctive-derivative-differences-cce38d36797b">https://bgolus.medium.com/distinctive-derivative-differences-cce38d36797b</a>.</p>
+<p>Another solution is to move that seam to somewhere where its way less obvious. To do that here, we can only take the fractional part of the x coordinate of the output, since its from <code>-0.5</code> to <code>0.5</code> by default, it will become <code>0</code> to <code>1</code>, and the edge is at the start of the first image, at <code>0°</code>.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+	<span style="color:#888">//make input uvs centered and scaled to -1 to 1</span>
+	i.uv <span style="color:#333">-=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+	i.uv <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">2</span>;
+	<span style="color:#888">//get polar coordinates</span>
+	float2 uv <span style="color:#333">=</span> toPolar(i.uv);
+	<span style="color:#888">//move discontinuity in coordinates to 0</span>
+	uv.x <span style="color:#333">=</span> frac(uv.x);
+	<span style="color:#888">//tile Image</span>
+	uv.x <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">3</span>;
+	<span style="color:#888">// sample the texture and apply tint</span>
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+	<span style="color:#888">//return the final color to be drawn on screen</span>
+	<span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/053/Moved_Discontinuity.png" alt=""></p>
+<h2 id="using-polar-coordinates-to-manipulate-cartesian-coordinates">Using polar coordinates to manipulate cartesian coordinates <a href="#using-polar-coordinates-to-manipulate-cartesian-coordinates" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<p>More often than as coordinates themselves, polar coordinates are used as a intermediate space to manipulate cartesian coordinates. That means we also need a function to turn polar coordinates into cartesian ones. To reverse the previous atan2, we use <code>cos(angle)</code> to get the cartesian <code>x</code> component and <code>sin(angle)</code> to get the <code>y</code> component. Since the outputs of the trigonometric functions return positions on a unit cicle with distance 1 from the center, recreating the distance from that center is a multiplication of that vector with the distance we stored in the second component of our polar <code>float2</code>. Do remember that we divided by 2 pi last time, so if you followed that, we also need to multiply by that now. And one other small thing, hlsl has a <code>sincos</code> function that does both calculations by using <code>out</code> parameters and I&rsquo;m using that here, just so youre not confused.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float2 toCartesian(float2 polar){
+    float2 cartesian;
+    sincos(polar.x <span style="color:#333">*</span> UNITY_TWO_PI, cartesian.y, cartesian.x);
+    <span style="color:#080;font-weight:bold">return</span> cartesian <span style="color:#333">*</span> polar.y;
+}
+</code></pre></div><p>With this in our toolbelt, our fragment function should look like this:</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+	float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//get centered uvs</span>
+	uv <span style="color:#333">=</span> toPolar(uv); <span style="color:#888">//make uvs polar</span>
+
+	<span style="color:#888">//manipulate uvs in polar space here</span>
+	
+	uv <span style="color:#333">=</span> toCartesian(uv); <span style="color:#888">//convert uvs back to cartesian</span>
+	uv <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//make uvs start in corner again</span>
+	<span style="color:#888">// sample the texture and apply tint</span>
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+	<span style="color:#888">//return the final color to be drawn on screen</span>
+	<span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p>As you see we don&rsquo;t scale the UVs anymore, since we dont care if the edges are at distance <code>0.5</code> or distance <code>1</code>, also the 0.5 we subtract at the start is added again since we still need the center to be in the corner for textures to be read correctly. With this, the result of your shader should look as if you&rsquo;re never touching polar coordinates here since the conversion to and back should be relatively lossless.</p>
+<p>If we now with this setup add to the polar <code>x</code> component, we rotate the image, and by multiplying the <code>y</code> component we can scale it (tho we could&rsquo;ve done that without polar coordinates).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//manipulate uvs in polar space here</span>
+uv.x <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+uv.y <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">+</span> sin(_Time.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">3</span>) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.2</span>;
+</code></pre></div><p><img src="/assets/images/posts/053/Rotating.gif" alt=""></p>
+<p>Though this is just uniform changes, you can get even more interresting results if you change the picture non-uniformly if you want to. For example just making the rotation dependent on the distance from the center (conveniently stored in the <code>y</code> component) creates a swirl pattern.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//manipulate uvs in polar space here</span>
+uv.x <span style="color:#333">+=</span> sin(_Time.y) <span style="color:#333">*</span> uv.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">1</span>;
+</code></pre></div><p><img src="/assets/images/posts/053/Swirl.gif" alt=""></p>
+<p>Theres many more things you can do with this using simple math (also look into using exponents(<code>pow()</code>) when playing with this), but this is where I leave you to your own devices and wish you lots of fun messing around.</p>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/Polar.cginc">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/Polar.cginc</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#579">#ifndef POLAR_COORDINATES</span>
+<span style="color:#579">#define POLAR_COORDINATES</span>
+
+float2 toPolar(float2 cartesian){
+    <span style="color:#080;font-weight:bold">float</span> distance <span style="color:#333">=</span> length(cartesian);
+    <span style="color:#080;font-weight:bold">float</span> angle <span style="color:#333">=</span> atan2(cartesian.y, cartesian.x);
+    <span style="color:#080;font-weight:bold">return</span> float2(angle <span style="color:#333">/</span> UNITY_TWO_PI, distance);
+}
+
+float2 toCartesian(float2 polar){
+    float2 cartesian;
+    sincos(polar.x <span style="color:#333">*</span> UNITY_TWO_PI, cartesian.y, cartesian.x);
+    <span style="color:#080;font-weight:bold">return</span> cartesian <span style="color:#333">*</span> polar.y;
+}
+
+<span style="color:#579">#endif</span>
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarUVs.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarUVs.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">053</span>_Polar_Coordinates<span style="color:#333">/</span>Polar_UVs<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Polar.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+			<span style="color:#888">//the mesh data thats read by the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f {
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#888">//apply the texture transforms to the UV coordinates and pass them to the v2f struct</span>
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader function</span>
+			fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+        <span style="color:#888">//make input uvs centered and scaled to -1 to 1</span>
+        i.uv <span style="color:#333">-=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+				i.uv <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">2</span>;
+        <span style="color:#888">//get polar coordinates</span>
+        float2 uv <span style="color:#333">=</span> toPolar(i.uv);
+				<span style="color:#888">//move discontinuity in coordinates to 0</span>
+        uv.x <span style="color:#333">=</span> frac(uv.x);
+        <span style="color:#888">//tile Image</span>
+        uv.x <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">3</span>;
+        <span style="color:#888">// sample the texture and apply tint</span>
+        fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+      	<span style="color:#888">//return the final color to be drawn on screen</span>
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+			
+			ENDCG
+		}
+	}
+	Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarManipulation1.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarManipulation1.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">053</span>_Polar_Coordinates<span style="color:#333">/</span>Polar_Manipilation_1<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Polar.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+			<span style="color:#888">//the mesh data thats read by the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f {
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#888">//apply the texture transforms to the UV coordinates and pass them to the v2f struct</span>
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader function</span>
+			fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target {
+        float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//get centered uvs</span>
+        uv <span style="color:#333">=</span> toPolar(uv); <span style="color:#888">//make uvs polar</span>
+
+				<span style="color:#888">//manipulate uvs in polar space here</span>
+      	uv.x <span style="color:#333">+=</span> _Time.y <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.1</span>;
+      	uv.y <span style="color:#333">*=</span> <span style="color:#00d;font-weight:bold">1</span> <span style="color:#333">+</span> sin(_Time.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">3</span>) <span style="color:#333">*</span> <span style="color:#60e;font-weight:bold">0.2</span>;
+      	
+      	uv <span style="color:#333">=</span> toCartesian(uv); <span style="color:#888">//convert uvs back to cartesian</span>
+        uv <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//make uvs start in corner again</span>
+        <span style="color:#888">// sample the texture and apply tint</span>
+        fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+      	<span style="color:#888">//return the final color to be drawn on screen</span>
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+			
+			ENDCG
+		}
+	}
+	Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div><ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarManipulation2.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/053_Polar_Coordinates/PolarManipulation2.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">053</span>_Polar_Coordinates<span style="color:#333">/</span>Polar_Manipilation_2<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		_Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely non-transparent and is rendered at the same time as the other opaque geometry</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Opaque<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Geometry<span style="color:#f00;background-color:#faa">&#34;</span> }
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>Polar.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+			<span style="color:#888">//the mesh data thats read by the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f {
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float2 uv <span style="color:#333">:</span> TEXCOORD0;
+			};
+
+			<span style="color:#888">//the vertex shader function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+				o.position <span style="color:#333">=</span> UnityObjectToClipPos(v.vertex);
+				<span style="color:#888">//apply the texture transforms to the UV coordinates and pass them to the v2f struct</span>
+				o.uv <span style="color:#333">=</span> TRANSFORM_TEX(v.uv, _MainTex);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			<span style="color:#888">//the fragment shader function</span>
+			fixed4 frag (v2f i) <span style="color:#333">:</span> SV_Target
+      {
+        float2 uv <span style="color:#333">=</span> i.uv <span style="color:#333">-</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//get centered uvs</span>
+        uv <span style="color:#333">=</span> toPolar(uv); <span style="color:#888">//make uvs polar</span>
+
+				<span style="color:#888">//manipulate uvs in polar space here</span>
+      	uv.x <span style="color:#333">+=</span> sin(_Time.y) <span style="color:#333">*</span> uv.y <span style="color:#333">*</span> <span style="color:#00d;font-weight:bold">1</span>;
+      	
+      	uv <span style="color:#333">=</span> toCartesian(uv); <span style="color:#888">//convert uvs back to cartesian</span>
+        uv <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>; <span style="color:#888">//make uvs start in corner again</span>
+        <span style="color:#888">// sample the texture and apply tint</span>
+        fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv) <span style="color:#333">*</span> _Color;
+      	<span style="color:#888">//return the final color to be drawn on screen</span>
+        <span style="color:#080;font-weight:bold">return</span> col;
+      }
+			
+			ENDCG
+		}
+	}
+	Fallback <span style="color:#f00;background-color:#faa">&#34;</span>VertexLit<span style="color:#f00;background-color:#faa">&#34;</span>
+}
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

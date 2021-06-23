@@ -6,7 +6,16 @@
     <description>Recent content in Posts on Ronja&#39;s tutorials</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 25 Nov 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 20 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Polar Coordinates</title>
+      <link>https://www.ronja-tutorials.com/post/053-polar-coordinates/</link>
+      <pubDate>Sun, 20 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.ronja-tutorials.com/post/053-polar-coordinates/</guid>
+      <description>So far whenever we used coordinates we had a clear grid of 2 or 3 axes in which we could manipulate things and push them around. There were multiple spaces of those like object, world, screen, uv space and maybe more but the base rules were always the same most of the time. That pushing things to the right, pushes them to the right, up is up etc&amp;hellip; This is called &amp;ldquo;cartesian coordinates&amp;rdquo;.</description>
+    </item>
+    
     <item>
       <title>Object Outlines</title>
       <link>https://www.ronja-tutorials.com/post/052-object-outline/</link>

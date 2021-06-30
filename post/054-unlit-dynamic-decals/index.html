@@ -6,7 +6,7 @@
     
     <title>Unlit Dynamic Decals/Projection | Ronja&#39;s tutorials</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+    <meta name="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.
 
  (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
 Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them.">
@@ -33,7 +33,7 @@ Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit
     
     
     <meta property="og:title" content="Unlit Dynamic Decals/Projection" />
-<meta property="og:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+<meta property="og:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.
 
  (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
 Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them." />
@@ -42,20 +42,20 @@ Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit
 <meta property="article:published_time" content="2021-06-30T00:00:00+00:00" />
 <meta property="article:modified_time" content="2021-06-30T00:00:00+00:00" />
 <meta itemprop="name" content="Unlit Dynamic Decals/Projection">
-<meta itemprop="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+<meta itemprop="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.
 
  (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
 Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them.">
 <meta itemprop="datePublished" content="2021-06-30T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2021-06-30T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2227">
+<meta itemprop="wordCount" content="2246">
 
 
 
 <meta itemprop="keywords" content="" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Unlit Dynamic Decals/Projection"/>
-<meta name="twitter:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+<meta name="twitter:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.
 
  (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
 Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them."/>
@@ -132,9 +132,9 @@ Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit
     <li><a href="#doing-the-do">Doing the Do</a>
       <ul>
         <li><a href="#get-depth">Get Depth</a></li>
-        <li><a href="#naive-world-reconstruction">naive world reconstruction</a></li>
-        <li><a href="#clipping-stuff-thats-behind">clipping stuff thats behind</a></li>
-        <li><a href="#fixing-worldspace-reconstruction">fixing worldspace reconstruction</a></li>
+        <li><a href="#naive-world-reconstruction">Naive World Reconstruction</a></li>
+        <li><a href="#clipping-stuff-thats-behind">Clipping Stuff thats Behind</a></li>
+        <li><a href="#fixing-worldspace-reconstruction">Fixing Worldspace Reconstruction</a></li>
       </ul>
     </li>
     <li><a href="#ideas-for-improvements">Ideas for Improvements</a></li>
@@ -145,7 +145,7 @@ Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit
 
     <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
 				
-				<p>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.</p>
+				<p>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.</p>
 <p><video controls preload="auto" width="300" autoplay loop class="html-video">
   <source src="/assets/images/posts/054/Result.mp4" type="video/webm" }}><p></p>
 </video>
@@ -186,7 +186,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//get depth from depth texture</span>
 <span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos);
 depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color:#333">*</span> _ProjectionParams.z;
-</code></pre></div><h3 id="naive-world-reconstruction">naive world reconstruction <a href="#naive-world-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+</code></pre></div><h3 id="naive-world-reconstruction">Naive World Reconstruction <a href="#naive-world-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>With the depth taken care of we next reconstruct the world position by multiplying the normalized ray by the depth. Once we did that, getting the object space position is a matter of a simple matrix multiplication.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 getProjectedObjectPos(float2 screenPos, float3 worldRay){
 	<span style="color:#888">//get depth from depth texture</span>
@@ -198,14 +198,14 @@ depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color
 	<span style="color:#080;font-weight:bold">return</span> objectPos;
 }
 </code></pre></div><p><img src="/assets/images/posts/054/FullIntersection.png" alt=""></p>
-<h3 id="clipping-stuff-thats-behind">clipping stuff thats behind <a href="#clipping-stuff-thats-behind" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
-<p>That does already look like positions based on the depth buffer and object position, but it doesnt just shit the position where the cube is, but also behind where the cube is. Since we know the default unity cube we&rsquo;re using here is 1x1 units big, we know the coordinates inside the cube go from -0.5 to 0.5, so lets discard all pixels outside of that. The <code>clip</code> function discards all pixels in which it gets fed a value smaller than 0, if we give it values with multiple components, it discards pixels where any of them is below 0. So to solve our current problem we can subtract the absolute(to catch negative values) of the object space position from <code>0.5</code> (which will be interpreted as a vector where each component is <code>0.5</code>) and feed the result to the <code>clip</code> function.</p>
+<h3 id="clipping-stuff-thats-behind">Clipping Stuff thats Behind <a href="#clipping-stuff-thats-behind" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<p>That does already look like positions based on the depth buffer and object position, but it doesnt just show the position where the cube is, but also behind where the cube is. Since we know the default unity cube we&rsquo;re using here is 1x1 units big, we know the coordinates inside the cube go from -0.5 to 0.5, so lets discard all pixels outside of that. If we used a different model, different constraints might make more sense. The <code>clip</code> function discards all pixels in which it gets fed a value smaller than 0, if we give it vectors with multiple components, it discards pixels where any of the components is below 0. So to solve our current problem we can subtract the absolute(to catch negative values) of the object space position from <code>0.5</code> (which will be interpreted as a vector where each component is <code>0.5</code>) and feed the result to the <code>clip</code> function.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">clip(<span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">-</span> abs(objectPos));
 </code></pre></div><p><img src="/assets/images/posts/054/WrongWsPos.png" alt=""></p>
-<h3 id="fixing-worldspace-reconstruction">fixing worldspace reconstruction <a href="#fixing-worldspace-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<h3 id="fixing-worldspace-reconstruction">Fixing Worldspace Reconstruction <a href="#fixing-worldspace-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
 <p>Now we get a square on the ground thats closer to what we imagined, but the square doesnt quite seem to behave, towards the corner of the screen it seems to slip upwards. This is because we made a small mistake in the worldspace reconstruction, we assumed that the depth texture has the distance from the camera, but it doesnt, the depth is kinda parallel to the camera in a way (this is because how modern realtime graphics work with their matrix multiplications, but thats a talk for another day).</p>
 <p><img src="/assets/images/posts/054/DistanceExplanation.png" alt=""></p>
-<p>So, what can we do about that? We could choose a different approach that sidesteps the problem, but what I chose to do instead is to take the dot product between the (normalized)ray and the camera forward direction. In the middle of the screen thats going to be 1 and it decreases as the ray points less and less towards the direction of the camera. And as you can see in <a href="https://twitter.com/freyaholmer/status/1200807790580768768">this</a> wonderful visualisation by Freya Holmér the amount it becomes less is exactly how long one vector is projected onto the other, or for our case, the inverse of the length we want. So if we divide the ray by this dot product we&rsquo;ll end up with a vector thats 1 in the length of where the camera is looking. Longer than 1 because it&rsquo;ll also point in other directions, but thats what we need.</p>
+<p>So, what can we do about that? We could choose a different approach that sidesteps the problem, but what I chose to do instead is to take the dot product between the (normalized)ray and the camera forward direction. In the middle of the screen thats going to be 1 and it decreases as the ray points less and less towards the direction of the camera. And as you can see in <a href="https://twitter.com/freyaholmer/status/1200807790580768768">this</a> wonderful visualisation by Freya Holmér the amount it becomes less is exactly how long one vector is projected onto the other, or for our case, the inverse of the length we want. So if we divide the ray by this dot product we&rsquo;ll end up with a vector thats 1 in the direction of where the camera is looking. Overall it will be longer than 1 because it&rsquo;ll also point in other directions, but thats what we need.</p>
 <p>We can get the camera forwards vector by multiplying <code>(0, 0, 1, 0)</code> by the view matrix since the view matrix is built from the transform of the camera. But since all thats going on in that matrix multiplication is a bunch of multiplying by 1 or 0, we can simplify this by just taking the 3rd row out of the matrix and use <code>-UNITY_MATRIX_V[2].xyz</code> (I dont know why I had to add the minus here, but it makes it work).</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 getProjectedObjectPos(float2 screenPos, float3 worldRay){
 	<span style="color:#888">//get depth from depth texture</span>
@@ -224,7 +224,7 @@ depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color
 }
 </code></pre></div><p><img src="/assets/images/posts/054/TrueOsCoordinates.png" alt=""></p>
 <p>And with this all the hard work is done!</p>
-<p>What I did next was subtract 0.5 from the position before returning it so we&rsquo;re in 0 to 1 space if we use the default unity cube. Since thats a nice space to be in when we work with textures. If you want to do cool stuff with signed distance fields instead you might not want this and preserve the coordinate center at the cube center.</p>
+<p>What I did next was subtract 0.5 from the position before returning it so we&rsquo;re in 0 to 1 space if we use the default unity cube and thats a nice space to be in when we work with textures. If you want to do cool stuff with signed distance fields instead you might not want this and preserve the coordinate system center at the cube center.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//get -0.5|0.5 space to 0|1 for nice texture stuff if thats what we want</span>
 objectPos <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
 </code></pre></div><p>And in the <code>frag</code> function we can directly feed the x and z components (assuming y is up) of the output to the <code>tex2D</code> function as uv coordiantes.</p>
@@ -241,7 +241,7 @@ fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
 	<span style="color:#080;font-weight:bold">return</span> col;
 }
 </code></pre></div><p><img src="/assets/images/posts/054/SimpleResult.png" alt=""></p>
-<p>And the very last tweak that doesnt change the visuals, but makes the shader more robust is decreasing the material priority by a bit, so it doesnt take priority over transparent shaders that dont cling to the depth anyways. And disabling batching as that would mean the center of the batched object is at the world center, and we kinda need our center to be where the original object is. Both of those settings are in the Subshader Tags.</p>
+<p>And the very last tweak that doesnt change the visuals, but makes the shader more robust is decreasing the material priority by a bit, so it doesnt take priority over transparent shaders that dont cling to the depth buffer anyways. And disabling batching as that would mean the center of the batched object is at the world center, and we kinda need our center to be where the original object is. Both of those settings are in the Subshader Tags.</p>
 <div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">Tags{ <span style="background-color:#fff0f0">&#34;RenderType&#34;</span>=<span style="background-color:#fff0f0">&#34;Transparent&#34;</span> <span style="background-color:#fff0f0">&#34;Queue&#34;</span>=<span style="background-color:#fff0f0">&#34;Transparent-400&#34;</span> <span style="background-color:#fff0f0">&#34;DisableBatching&#34;</span>=<span style="background-color:#fff0f0">&#34;True&#34;</span>}
 </code></pre></div><h2 id="ideas-for-improvements">Ideas for Improvements <a href="#ideas-for-improvements" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
 <p>Right now if we put the camera inside the stencil object, the stencil disappears. We can avoid that by culling front faces instead of backfaces and disabling the zbuffer test, but this does come at the cost of more overdraw since you&rsquo;ll draw fragments behind walls that will all be discarded, a LOD system that switches out shaders to the always draw variant when the camera is very close is good here.</p>

@@ -13,7 +13,7 @@
       <pubDate>Wed, 30 Jun 2021 00:00:00 +0000</pubDate>
       
       <guid>https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/</guid>
-      <description>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+      <description>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direction.
 
  (note: I used the free &amp;ldquo;Nature Starter Kit 2&amp;rdquo; from the Unity Asset store throughout this tutorial)
 Unity has the concept of a &amp;ldquo;projector&amp;rdquo; for that, but I have to admit I dont quite trust them.</description>

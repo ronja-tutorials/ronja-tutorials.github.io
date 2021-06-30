@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Unlit Dynamic Decals/Projection | Ronja&#39;s tutorials</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them.">
+    <meta name="generator" content="Hugo 0.76.5" />
+    
+    
+		<META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
+		<link rel="canonical" href="https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/">
+
+    
+    
+      <link href="/dist/css/app.d876a0cc99d23e9edadbac7fc6abde13.css" rel="stylesheet">
+    
+
+    
+      <link rel="stylesheet" href="/css/main.css">
+    
+
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Unlit Dynamic Decals/Projection" />
+<meta property="og:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/" />
+<meta property="article:published_time" content="2021-06-30T00:00:00+00:00" />
+<meta property="article:modified_time" content="2021-06-30T00:00:00+00:00" />
+<meta itemprop="name" content="Unlit Dynamic Decals/Projection">
+<meta itemprop="description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them.">
+<meta itemprop="datePublished" content="2021-06-30T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2021-06-30T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2227">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Unlit Dynamic Decals/Projection"/>
+<meta name="twitter:description" content="Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them."/>
+
+	
+		
+		
+		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Ronja&#39;s tutorials
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw7 center ph3">
+    <header class="mt5 w-100">
+      <h1 class="f1 athelas mt3 mb1">Unlit Dynamic Decals/Projection</h1>
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-06-30T00:00:00Z">June 30, 2021</time>
+
+      
+      
+		</header>
+		
+		<div style="margin-bottom: 70px;">
+			<h3>Table Of Contents</h3>
+			<nav id="TableOfContents">
+  <ul>
+    <li><a href="#preparing-the-data-we-need">Preparing the Data we need</a></li>
+    <li><a href="#doing-the-do">Doing the Do</a>
+      <ul>
+        <li><a href="#get-depth">Get Depth</a></li>
+        <li><a href="#naive-world-reconstruction">naive world reconstruction</a></li>
+        <li><a href="#clipping-stuff-thats-behind">clipping stuff thats behind</a></li>
+        <li><a href="#fixing-worldspace-reconstruction">fixing worldspace reconstruction</a></li>
+      </ul>
+    </li>
+    <li><a href="#ideas-for-improvements">Ideas for Improvements</a></li>
+    <li><a href="#source">Source</a></li>
+  </ul>
+</nav>
+		</div>
+
+    <div class="w-100 nested-copy-line-height lh-copy sans-serif f4 nested-links nested-img mid-gray pr4-l"><div>
+				
+				<p>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.</p>
+<p><video controls preload="auto" width="300" autoplay loop class="html-video">
+  <source src="/assets/images/posts/054/Result.mp4" type="video/webm" }}><p></p>
+</video>
+
+(note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)</p>
+<p>Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them. They work by finding all objects in the projector frustum and redrawing them, that means you quickly get a ton of drawcalls and overdraw (and I dont know how expensive the finding objects is in complex scenes). So what I tend to use instead is the depth buffer, reconstructing the worldspace and then object space position based on it and then using that as coordinates for whatever we want. I hope the concept will become clearer by the end of the tutorial. The first time I ran into this was the unity commandbuffer example where they use this tech to render into GBuffers before the deferred lighting pass, though out example will be simpler <a href="https://docs.unity3d.com/Manual/GraphicsCommandBuffers.html">https://docs.unity3d.com/Manual/GraphicsCommandBuffers.html</a>.</p>
+<h2 id="preparing-the-data-we-need">Preparing the Data we need <a href="#preparing-the-data-we-need" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<p>Since this will be a simple unlit shader apart from the projection, we can start with just <a href="https://www.ronja-tutorials.com/post/006-simple-transparency/">a transparent shader</a>. Though we dont need the UVs from the mesh itself, and we do need both the screen position to read from the depth buffer as well as a ray from the camera to the object to reconstruct the position(there are other ways, but this seemed easiest rn). I go deeper about screenspace coordinates and their implications in <a href="https://www.ronja-tutorials.com/post/039-screenspace-texture/">my tutorial about them</a>, for the ray I subtract the worldspace position by the camera worldspace position. As I explain in the tutorial, to unstretch the screenspace texture we need to divide by the w component of the vector.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+<span style="color:#080;font-weight:bold">struct</span> v2f{
+	float4 position <span style="color:#333">:</span> SV_POSITION;
+	float4 screenPos <span style="color:#333">:</span> TEXCOORD0;
+	float3 ray <span style="color:#333">:</span> TEXCOORD1;
+};
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the vertex shader function</span>
+v2f vert(appdata v){
+	v2f o;
+	<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+	float3 worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+	o.position <span style="color:#333">=</span> UnityWorldToClipPos(worldPos);
+	<span style="color:#888">//calculate the ray between the camera to the vertex</span>
+	o.ray <span style="color:#333">=</span> worldPos <span style="color:#333">-</span> _WorldSpaceCameraPos;
+	<span style="color:#888">//calculate the screen position</span>
+	o.screenPos <span style="color:#333">=</span> ComputeScreenPos (o.position);
+	<span style="color:#080;font-weight:bold">return</span> o;
+}
+</code></pre></div><div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+	<span style="color:#888">//unstretch screenspace uv and get uvs from function</span>
+	float2 screenUv <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+	getProjectedObjectPos(screenUv, i.ray);
+	<span style="color:#888">//...</span>
+</code></pre></div><p>And with this we can get started using that data.</p>
+<h2 id="doing-the-do">Doing the Do <a href="#doing-the-do" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<h3 id="get-depth">Get Depth <a href="#get-depth" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<p>I opted to put the code for the projection into its own function since it felt cleaner and is easier to copy between files/into a library include file. It takes the screen position as well as the ray we just created.</p>
+<p>We start by sampling the depth texture, this is not the same as the depth buffer, its a separate texture thats generated if we signal to the camera that we want it to do that, many postprocessing effects already do that, but you might also have to do it yourself depending on your scene. I&rsquo;m going to assume you have a depth texture, if not take a quick look into <a href="https://www.ronja-tutorials.com/post/017-postprocessing-depth/#read-depth">my tutorial about postprocessing using that texture</a>. Once thats enabled just adding <code>sampler2D_float _CameraDepthTexture;</code> as a uniform variable to our pass is enough for it to have access to that texture. Then in the function we use the <code>SAMPLE_DEPTH_TEXTURE</code> macro to read from the texture and <code>Linear01Depth (depth) * _ProjectionParams.z</code> to first get rid of the bias it uses for better encoding and then make it so its space reaches from 0 to the far clip plane, instead of 0 to 1.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//get depth from depth texture</span>
+<span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos);
+depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color:#333">*</span> _ProjectionParams.z;
+</code></pre></div><h3 id="naive-world-reconstruction">naive world reconstruction <a href="#naive-world-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<p>With the depth taken care of we next reconstruct the world position by multiplying the normalized ray by the depth. Once we did that, getting the object space position is a matter of a simple matrix multiplication.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 getProjectedObjectPos(float2 screenPos, float3 worldRay){
+	<span style="color:#888">//get depth from depth texture</span>
+	<span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos);
+	depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color:#333">*</span> _ProjectionParams.z;
+	<span style="color:#888">//reconstruct world and object space positions</span>
+	float3 worldPos <span style="color:#333">=</span> _WorldSpaceCameraPos <span style="color:#333">+</span> normalize(worldRay) <span style="color:#333">*</span> depth;
+	float3 objectPos <span style="color:#333">=</span>  mul (unity_WorldToObject, float4(worldPos,<span style="color:#00d;font-weight:bold">1</span>)).xyz;
+	<span style="color:#080;font-weight:bold">return</span> objectPos;
+}
+</code></pre></div><p><img src="/assets/images/posts/054/FullIntersection.png" alt=""></p>
+<h3 id="clipping-stuff-thats-behind">clipping stuff thats behind <a href="#clipping-stuff-thats-behind" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<p>That does already look like positions based on the depth buffer and object position, but it doesnt just shit the position where the cube is, but also behind where the cube is. Since we know the default unity cube we&rsquo;re using here is 1x1 units big, we know the coordinates inside the cube go from -0.5 to 0.5, so lets discard all pixels outside of that. The <code>clip</code> function discards all pixels in which it gets fed a value smaller than 0, if we give it values with multiple components, it discards pixels where any of them is below 0. So to solve our current problem we can subtract the absolute(to catch negative values) of the object space position from <code>0.5</code> (which will be interpreted as a vector where each component is <code>0.5</code>) and feed the result to the <code>clip</code> function.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">clip(<span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">-</span> abs(objectPos));
+</code></pre></div><p><img src="/assets/images/posts/054/WrongWsPos.png" alt=""></p>
+<h3 id="fixing-worldspace-reconstruction">fixing worldspace reconstruction <a href="#fixing-worldspace-reconstruction" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h3>
+<p>Now we get a square on the ground thats closer to what we imagined, but the square doesnt quite seem to behave, towards the corner of the screen it seems to slip upwards. This is because we made a small mistake in the worldspace reconstruction, we assumed that the depth texture has the distance from the camera, but it doesnt, the depth is kinda parallel to the camera in a way (this is because how modern realtime graphics work with their matrix multiplications, but thats a talk for another day).</p>
+<p><img src="/assets/images/posts/054/DistanceExplanation.png" alt=""></p>
+<p>So, what can we do about that? We could choose a different approach that sidesteps the problem, but what I chose to do instead is to take the dot product between the (normalized)ray and the camera forward direction. In the middle of the screen thats going to be 1 and it decreases as the ray points less and less towards the direction of the camera. And as you can see in <a href="https://twitter.com/freyaholmer/status/1200807790580768768">this</a> wonderful visualisation by Freya Holmér the amount it becomes less is exactly how long one vector is projected onto the other, or for our case, the inverse of the length we want. So if we divide the ray by this dot product we&rsquo;ll end up with a vector thats 1 in the length of where the camera is looking. Longer than 1 because it&rsquo;ll also point in other directions, but thats what we need.</p>
+<p>We can get the camera forwards vector by multiplying <code>(0, 0, 1, 0)</code> by the view matrix since the view matrix is built from the transform of the camera. But since all thats going on in that matrix multiplication is a bunch of multiplying by 1 or 0, we can simplify this by just taking the 3rd row out of the matrix and use <code>-UNITY_MATRIX_V[2].xyz</code> (I dont know why I had to add the minus here, but it makes it work).</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">float3 getProjectedObjectPos(float2 screenPos, float3 worldRay){
+	<span style="color:#888">//get depth from depth texture</span>
+	<span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos);
+	depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color:#333">*</span> _ProjectionParams.z;
+	<span style="color:#888">//get a ray thats 1 long on the axis from the camera away (because thats how depth is defined)</span>
+	worldRay <span style="color:#333">=</span> normalize(worldRay);
+	<span style="color:#888">//the 3rd row of the view matrix has the camera forward vector encoded, so a dot product with that will give the inverse distance in that direction</span>
+	worldRay <span style="color:#333">/=</span> dot(worldRay, <span style="color:#333">-</span>UNITY_MATRIX_V[<span style="color:#00d;font-weight:bold">2</span>].xyz);
+	<span style="color:#888">//with that reconstruct world and object space positions</span>
+	float3 worldPos <span style="color:#333">=</span> _WorldSpaceCameraPos <span style="color:#333">+</span> worldRay <span style="color:#333">*</span> depth;
+	float3 objectPos <span style="color:#333">=</span>  mul (unity_WorldToObject, float4(worldPos,<span style="color:#00d;font-weight:bold">1</span>)).xyz;
+	<span style="color:#888">//discard pixels where any component is beyond +-0.5</span>
+	clip(<span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">-</span> abs(objectPos));
+	<span style="color:#080;font-weight:bold">return</span> objectPos;
+}
+</code></pre></div><p><img src="/assets/images/posts/054/TrueOsCoordinates.png" alt=""></p>
+<p>And with this all the hard work is done!</p>
+<p>What I did next was subtract 0.5 from the position before returning it so we&rsquo;re in 0 to 1 space if we use the default unity cube. Since thats a nice space to be in when we work with textures. If you want to do cool stuff with signed distance fields instead you might not want this and preserve the coordinate center at the cube center.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//get -0.5|0.5 space to 0|1 for nice texture stuff if thats what we want</span>
+objectPos <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+</code></pre></div><p>And in the <code>frag</code> function we can directly feed the x and z components (assuming y is up) of the output to the <code>tex2D</code> function as uv coordiantes.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl"><span style="color:#888">//the fragment shader function</span>
+fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+	<span style="color:#888">//unstretch screenspace uv and get uvs from function</span>
+	float2 screenUv <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+	float2 uv <span style="color:#333">=</span> getProjectedObjectPos(screenUv, i.ray).xz;
+	<span style="color:#888">//read the texture color at the uv coordinate</span>
+	fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv);
+	<span style="color:#888">//multiply the texture color and tint color</span>
+	col <span style="color:#333">*=</span> _Color;
+	<span style="color:#888">//return the final color to be drawn on screen</span>
+	<span style="color:#080;font-weight:bold">return</span> col;
+}
+</code></pre></div><p><img src="/assets/images/posts/054/SimpleResult.png" alt=""></p>
+<p>And the very last tweak that doesnt change the visuals, but makes the shader more robust is decreasing the material priority by a bit, so it doesnt take priority over transparent shaders that dont cling to the depth anyways. And disabling batching as that would mean the center of the batched object is at the world center, and we kinda need our center to be where the original object is. Both of those settings are in the Subshader Tags.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-cs" data-lang="cs">Tags{ <span style="background-color:#fff0f0">&#34;RenderType&#34;</span>=<span style="background-color:#fff0f0">&#34;Transparent&#34;</span> <span style="background-color:#fff0f0">&#34;Queue&#34;</span>=<span style="background-color:#fff0f0">&#34;Transparent-400&#34;</span> <span style="background-color:#fff0f0">&#34;DisableBatching&#34;</span>=<span style="background-color:#fff0f0">&#34;True&#34;</span>}
+</code></pre></div><h2 id="ideas-for-improvements">Ideas for Improvements <a href="#ideas-for-improvements" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<p>Right now if we put the camera inside the stencil object, the stencil disappears. We can avoid that by culling front faces instead of backfaces and disabling the zbuffer test, but this does come at the cost of more overdraw since you&rsquo;ll draw fragments behind walls that will all be discarded, a LOD system that switches out shaders to the always draw variant when the camera is very close is good here.</p>
+<p>Another weakness is that right now the stencils affect <em>everything</em> that renders to the depth buffer, that includes dynamic characters, moving projectiles, opaque particles&hellip; My choice to fight that would be to use <a href="https://www.ronja-tutorials.com/post/022-stencil-buffers/">stencil buffers</a> to choose one stencil value to either mask out the decals, or to only allow them at that value.</p>
+<p>Also the tech might be a bit agressive about drawing onto stuff that is orthogonal to itself, drawing streaks as the texture is stretched, to fight that you can either <a href="https://www.ronja-tutorials.com/post/018-postprocessing-normal/">tell the camera to also render a normals texture</a> and compare your &ldquo;up&rdquo; to the normals and fade away if theyre too different, or try to reconstruct the normals cheaply from the depth buffer using partial derivatives.</p>
+<p>And then, those are only unlit decals, you can make decals with lighting using the same tech, but sadly not using surface shaders which means its some major effort, especially in the builtin render pipeline since it has multiple passes for multiple lights.</p>
+<h2 id="source">Source <a href="#source" class="hanchor" ariaLabel="Anchor">🔗&#xFE0E;</a> </h2>
+<ul>
+<li><a href="https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/054_Unlit_Decals/UnlitDynamicDecal.shader">https://github.com/ronja-tutorials/ShaderTutorials/blob/master/Assets/054_Unlit_Decals/UnlitDynamicDecal.shader</a></li>
+</ul>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:2;-o-tab-size:2;tab-size:2"><code class="language-glsl" data-lang="glsl">Shader <span style="color:#f00;background-color:#faa">&#34;</span>Tutorial<span style="color:#333">/</span><span style="color:#40e;font-weight:bold">054</span>_UnlitDynamicDecal<span style="color:#f00;background-color:#faa">&#34;</span>{
+	<span style="color:#888">//show values to edit in inspector</span>
+	Properties{
+		[HDR] _Color (<span style="color:#f00;background-color:#faa">&#34;</span>Tint<span style="color:#f00;background-color:#faa">&#34;</span>, Color) <span style="color:#333">=</span> (<span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#40e;font-weight:bold">0</span>, <span style="color:#00d;font-weight:bold">1</span>)
+		_MainTex (<span style="color:#f00;background-color:#faa">&#34;</span>Texture<span style="color:#f00;background-color:#faa">&#34;</span>, <span style="color:#00d;font-weight:bold">2</span>D) <span style="color:#333">=</span> <span style="color:#f00;background-color:#faa">&#34;</span>white<span style="color:#f00;background-color:#faa">&#34;</span> {}
+	}
+
+	SubShader{
+		<span style="color:#888">//the material is completely transparent and is rendered before other transparent geometry by default (at 2500)</span>
+		Tags{ <span style="color:#f00;background-color:#faa">&#34;</span>RenderType<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>Queue<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>Transparent<span style="color:#333">-</span><span style="color:#00d;font-weight:bold">400</span><span style="color:#f00;background-color:#faa">&#34;</span> <span style="color:#f00;background-color:#faa">&#34;</span>DisableBatching<span style="color:#f00;background-color:#faa">&#34;</span><span style="color:#333">=</span><span style="color:#f00;background-color:#faa">&#34;</span>True<span style="color:#f00;background-color:#faa">&#34;</span>}
+
+		<span style="color:#888">//Blend via alpha</span>
+		Blend SrcAlpha OneMinusSrcAlpha
+		<span style="color:#888">//dont write to zbuffer because we have semitransparency</span>
+		ZWrite off
+
+		Pass{
+			CGPROGRAM
+
+			<span style="color:#888">//include useful shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>include <span style="color:#f00;background-color:#faa">&#34;</span>UnityCG.cginc<span style="color:#f00;background-color:#faa">&#34;</span>
+
+			<span style="color:#888">//define vertex and fragment shader functions</span>
+			<span style="color:#f00;background-color:#faa">#</span>pragma vertex vert
+			<span style="color:#f00;background-color:#faa">#</span>pragma fragment frag
+
+			<span style="color:#888">//texture and transforms of the texture</span>
+			<span style="color:#080;font-weight:bold">sampler2D</span> _MainTex;
+			float4 _MainTex_ST;
+
+			<span style="color:#888">//tint of the texture</span>
+			fixed4 _Color;
+
+			<span style="color:#888">//global texture that holds depth information</span>
+			sampler2D_float _CameraDepthTexture;
+
+			<span style="color:#888">//the mesh data thats read by the vertex shader</span>
+			<span style="color:#080;font-weight:bold">struct</span> appdata{
+				float4 vertex <span style="color:#333">:</span> POSITION;
+			};
+
+			<span style="color:#888">//the data thats passed from the vertex to the fragment shader and interpolated by the rasterizer</span>
+			<span style="color:#080;font-weight:bold">struct</span> v2f{
+				float4 position <span style="color:#333">:</span> SV_POSITION;
+				float4 screenPos <span style="color:#333">:</span> TEXCOORD0;
+				float3 ray <span style="color:#333">:</span> TEXCOORD1;
+			};
+
+			<span style="color:#888">//the vertex shader function</span>
+			v2f vert(appdata v){
+				v2f o;
+				<span style="color:#888">//convert the vertex positions from object space to clip space so they can be rendered correctly</span>
+				float3 worldPos <span style="color:#333">=</span> mul(unity_ObjectToWorld, v.vertex);
+				o.position <span style="color:#333">=</span> UnityWorldToClipPos(worldPos);
+				<span style="color:#888">//calculate the ray between the camera to the vertex</span>
+				o.ray <span style="color:#333">=</span> worldPos <span style="color:#333">-</span> _WorldSpaceCameraPos;
+				<span style="color:#888">//calculate the screen position</span>
+				o.screenPos <span style="color:#333">=</span> ComputeScreenPos (o.position);
+				<span style="color:#080;font-weight:bold">return</span> o;
+			}
+
+			float3 getProjectedObjectPos(float2 screenPos, float3 worldRay){
+				<span style="color:#888">//get depth from depth texture</span>
+				<span style="color:#080;font-weight:bold">float</span> depth <span style="color:#333">=</span> SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screenPos);
+				depth <span style="color:#333">=</span> Linear01Depth (depth) <span style="color:#333">*</span> _ProjectionParams.z;
+				<span style="color:#888">//get a ray thats 1 long on the axis from the camera away (because thats how depth is defined)</span>
+				worldRay <span style="color:#333">=</span> normalize(worldRay);
+				<span style="color:#888">//the 3rd row of the view matrix has the camera forward vector encoded, so a dot product with that will give the inverse distance in that direction</span>
+				worldRay <span style="color:#333">/=</span> dot(worldRay, <span style="color:#333">-</span>UNITY_MATRIX_V[<span style="color:#00d;font-weight:bold">2</span>].xyz);
+				<span style="color:#888">//with that reconstruct world and object space positions</span>
+				float3 worldPos <span style="color:#333">=</span> _WorldSpaceCameraPos <span style="color:#333">+</span> worldRay <span style="color:#333">*</span> depth;
+				float3 objectPos <span style="color:#333">=</span>  mul (unity_WorldToObject, float4(worldPos,<span style="color:#00d;font-weight:bold">1</span>)).xyz;
+				<span style="color:#888">//discard pixels where any component is beyond +-0.5</span>
+				clip(<span style="color:#60e;font-weight:bold">0.5</span> <span style="color:#333">-</span> abs(objectPos));
+				<span style="color:#888">//get -0.5|0.5 space to 0|1 for nice texture stuff if thats what we want</span>
+				objectPos <span style="color:#333">+=</span> <span style="color:#60e;font-weight:bold">0.5</span>;
+				<span style="color:#080;font-weight:bold">return</span> objectPos;
+			}
+
+			<span style="color:#888">//the fragment shader function</span>
+			fixed4 frag(v2f i) <span style="color:#333">:</span> SV_TARGET{
+				<span style="color:#888">//unstretch screenspace uv and get uvs from function</span>
+				float2 screenUv <span style="color:#333">=</span> i.screenPos.xy <span style="color:#333">/</span> i.screenPos.w;
+				float2 uv <span style="color:#333">=</span> getProjectedObjectPos(screenUv, i.ray).xz;
+			  <span style="color:#888">//read the texture color at the uv coordinate</span>
+				fixed4 col <span style="color:#333">=</span> tex2D(_MainTex, uv);
+				<span style="color:#888">//multiply the texture color and tint color</span>
+				col <span style="color:#333">*=</span> _Color;
+				<span style="color:#888">//return the final color to be drawn on screen</span>
+				<span style="color:#080;font-weight:bold">return</span> col;
+			}
+
+			ENDCG
+		}
+	}
+}
+</code></pre></div>
+			</div>I hope you enjoyed my tutorial ✨. If you want to support me further feel free to follow me on <a href="https://twitter.com/totallyRonja">twitter</a>, 
+			throw me a one-time donation via <a href="https://ko-fi.com/ronjatutorials">ko-fi</a> 
+			or support me on <a href="https://www.patreon.com/RonjaTutorials">patreon</a> 
+			(I try to put updates also there, but I fail most of the time, bear with me 💖).<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://www.ronja-tutorials.com" >
+    &copy;  Ronja's tutorials 2021 
+  </a>
+    <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+  </div>
+</footer>
+
+    
+
+  <script src="/dist/js/app.3fc0f988d21662902933.js"></script>
+
+
+  </body>
+</html>

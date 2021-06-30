@@ -6,7 +6,19 @@
     <description>Recent content in Posts on Ronja&#39;s tutorials</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 20 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 30 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.ronja-tutorials.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Unlit Dynamic Decals/Projection</title>
+      <link>https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/</link>
+      <pubDate>Wed, 30 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/</guid>
+      <description>Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &amp;ldquo;Nature Starter Kit 2&amp;rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &amp;ldquo;projector&amp;rdquo; for that, but I have to admit I dont quite trust them.</description>
+    </item>
+    
     <item>
       <title>Polar Coordinates</title>
       <link>https://www.ronja-tutorials.com/post/053-polar-coordinates/</link>

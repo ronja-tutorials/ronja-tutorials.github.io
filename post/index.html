@@ -38,7 +38,7 @@
 <meta property="og:description" content="" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://www.ronja-tutorials.com/post/" />
-<meta property="og:updated_time" content="2021-06-20T00:00:00+00:00" />
+<meta property="og:updated_time" content="2021-06-30T00:00:00+00:00" />
 <meta itemprop="name" content="Posts">
 <meta itemprop="description" content="">
 <meta name="twitter:card" content="summary"/>
@@ -46,10 +46,8 @@
 <meta name="twitter:description" content=""/>
 
 	
-
-	
-
-		<!-- unidentifying analytics, will not be shared with 3rd parties, I(Ronja) am just curious -->
+		
+		
 		<script async defer data-website-id="fb34d410-ef67-4a3a-8fdc-01a05f5e22b2" src="https://stats.ruby0x1.ca/umami.js" ></script>
   </head>
 
@@ -108,6 +106,29 @@
       
     </section>
     <aside class="flex-ns flex-wrap justify-around mt5">
+      
+        <div class="relative w-100 w-30-l mb4 bg-white">
+          
+            <div class="mb3 pa4 mid-gray overflow-hidden">
+    
+      <div class="f6">
+        June 30, 2021
+      </div>
+    
+    <h1 class="f3 near-black">
+      <a href="https://www.ronja-tutorials.com/post/054-unlit-dynamic-decals/" class="link black dim">
+        Unlit Dynamic Decals/Projection
+      </a>
+    </h1>
+    <div class="nested-links f5 lh-copy nested-copy-line-height">
+      Often when doing VFX you want stuff to stick to the floor. Even when that floor is uneven. Or decals to make existing geometry more interresting, or you want blob shadows on uneven floor, or some other use-cases in the same direciton.
+
+ (note: I used the free &ldquo;Nature Starter Kit 2&rdquo; from the Unity Asset store throughout this tutorial)
+Unity has the concept of a &ldquo;projector&rdquo; for that, but I have to admit I dont quite trust them.
+    </div>
+  </div>
+
+        </div>
       
         <div class="relative w-100 w-30-l mb4 bg-white">
           
@@ -287,27 +308,6 @@ Example Shader The base shader is pretty barebones, a little more complex than a
     </h1>
     <div class="nested-links f5 lh-copy nested-copy-line-height">
       In the last 2 tutorials of the volumetric rendering series I showed how to trace 3d signed distance fields and how to shade the result. In my opinion the biggest drawback of the state of the shader so far is the way that independent objects interact with each other and with regular meshes. They either don&rsquo;t write to the depth buffer at all, or with the shape of the mesh that&rsquo;s used for them and the depth check is similarly lacking.
-    </div>
-  </div>
-
-        </div>
-      
-        <div class="relative w-100 w-30-l mb4 bg-white">
-          
-            <div class="mb3 pa4 mid-gray overflow-hidden">
-    
-      <div class="f6">
-        August 15, 2019
-      </div>
-    
-    <h1 class="f3 near-black">
-      <a href="https://www.ronja-tutorials.com/post/044-spheretracing-shading/" class="link black dim">
-        Spheretracing with Shading
-      </a>
-    </h1>
-    <div class="nested-links f5 lh-copy nested-copy-line-height">
-      In a previous tutorial I showed how to trace signed distance functions to reveal their silouette. In this one I will show you how to expand that shader to add simple lighting and make the objects look more tangible.
-Architecture Changes In the previous shader we returned a solid color after finding a surface the ray collides with. To add lighting or other effects we have to expand this part. To keep the shader as readable as possible we&rsquo;ll do a function call in this place and return the result of the function.
     </div>
   </div>
 
